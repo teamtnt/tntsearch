@@ -20,18 +20,16 @@
         "php" : "~5.5|~7.0"
     },
     "require-dev": {
-        "phpunit/phpunit" : "4.*",
-        "scrutinizer/ocular": "~1.1",
-        "squizlabs/php_codesniffer": "~2.3"
+        "phpunit/phpunit" : "5.*"
     },
     "autoload": {
         "psr-4": {
-            "teamtnt\\tntsearch\\": "src"
+            "TeamTNT\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "teamtnt\\tntsearch\\Test\\": "tests"
+            "TeamTNT\\TNTSearch\\Test\\": "tests"
         }
     },
     "scripts": {
