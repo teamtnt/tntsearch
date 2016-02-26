@@ -20,6 +20,12 @@ class TNTIndexer
                     term_id INTEGER PRIMARY KEY,
                     num_hits INTEGER,
                     num_docs INTEGER)");
+
+        $this->index->exec("CREATE TABLE IF NOT EXISTS doclist (
+                    term_id INTEGER,
+                    doc_id INTEGER,
+                    hit_count INTEGER)");
+
         return $this;
     }
 
@@ -69,6 +75,7 @@ class TNTIndexer
             }
         }
         $this->index->commit();
+        echo "Total rows $counter\n";
     }
 
     public function processRow($row)
@@ -76,8 +83,8 @@ class TNTIndexer
         $stems = $row->map(function($column, $name) {
             return $this->stemText($column);
         });
-            $this->saveToIndex($stems);
 
+        $this->saveToIndex($stems, $row->get('id'));
     }
 
     public function stemText($text)
@@ -93,23 +100,29 @@ class TNTIndexer
         return $stems;
     }
 
-    public function saveToIndex($stems)
+    public function saveToIndex($stems, $docId)
+    {
+        $terms = $this->saveWordlist($stems);
+        $this->saveDoclist($terms, $docId);
+    }
+
+    public function saveWordlist($stems)
     {
         $terms = [];
         $stems->map(function($column, $key) use (&$terms) {
-           foreach($column as $term) {
-               $crc32 = crc32($term);
+            foreach($column as $term) {
+                $crc32 = crc32($term);
 
-               if(array_key_exists($crc32, $terms)) {
-                   $terms[$crc32]['hits']++;
-                   $terms[$crc32]['docs'] = 1;
-               } else {
-                   $terms[$crc32] = [
-                       'hits' => 1,
-                       'docs' => 1
-                   ];
-               }
-           }
+                if(array_key_exists($crc32, $terms)) {
+                    $terms[$crc32]['hits']++;
+                    $terms[$crc32]['docs'] = 1;
+                } else {
+                    $terms[$crc32] = [
+                        'hits' => 1,
+                        'docs' => 1
+                    ];
+                }
+            }
         });
 
         $insert = "INSERT INTO wordlist (term_id, num_hits, num_docs) VALUES (:id, :hits, :docs)";
@@ -136,5 +149,25 @@ class TNTIndexer
                 }
             }
         }
+        return $terms;
     }
+
+    public function saveDoclist($terms, $docId)
+    {
+        $insert = "INSERT INTO doclist (term_id, doc_id, hit_count) VALUES (:id, :doc, :hits)";
+        $stmt = $this->index->prepare($insert);
+
+        foreach($terms as $key => $term) {
+            $stmt->bindValue(':id', $key, SQLITE3_INTEGER);
+            $stmt->bindValue(':doc', $docId, SQLITE3_INTEGER);
+            $stmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
+            try {
+                $stmt->execute();
+            } catch (\Exception $e) {
+                //we have a duplicate
+                echo $e->getMessage();
+            }
+        }
+    }
+
 }

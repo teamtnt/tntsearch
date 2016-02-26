@@ -64,6 +64,11 @@ class Collection implements Countable, IteratorAggregate
         return array_reduce($this->items, $callback, $initial);
     }
 
+    public function get($key)
+    {
+        return $this->items[$key];
+    }
+
     public function count()
     {
         return count($this->items);
