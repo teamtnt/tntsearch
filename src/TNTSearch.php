@@ -6,9 +6,9 @@ use TeamTNT\Indexer\TNTIndexer;
 
 class TNTSearch
 {
-    public function createIndex($indexName)
+    public function createIndex($indexName, $path)
     {
         $indexer = new TNTIndexer;
-        return $indexer->createIndex($indexName);
+        return $indexer->createIndex($indexName, $path);
     }
 }

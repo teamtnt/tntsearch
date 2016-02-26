@@ -8,14 +8,18 @@ use PDO;
 
 class TNTIndexer
 {
-    public $storagePath = "";
-
     protected $index = null;
     protected $dbh   = null;
 
-    public function createIndex($indexName)
+    public function createIndex($indexName, $path)
     {
-        $this->index = new PDO('sqlite:' . $this->storagePath . $indexName);
+        $this->index = new PDO('sqlite:' . $path . $indexName);
+        $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $this->index->exec("CREATE TABLE IF NOT EXISTS doclist (
+                    term_id INTEGER PRIMARY KEY,
+                    num_hits INTEGER,
+                    num_docs INTEGER)");
         return $this;
     }
 
@@ -57,7 +61,7 @@ class TNTIndexer
         $stems = $row->map(function($column, $name) {
             return $this->stemText($column);
         });
-        print_r($stems);
+        $this->saveToIndex($stems);
     }
 
     public function stemText($text)
@@ -70,5 +74,38 @@ class TNTIndexer
             $stems[] = $stemmer->Stem(strtolower($word));
         }
         return $stems;
+    }
+
+    public function saveToIndex($stems)
+    {
+        $terms = [];
+        $stems->map(function($column, $key) use (&$terms) {
+           foreach($column as $term) {
+               $crc32 = crc32($term);
+               if(array_key_exists($crc32, $terms)) {
+                   $terms[$crc32]['hits']++;
+                   $terms[$crc32]['docs'] = 1;
+               } else {
+                   $terms[$crc32] = [
+                       'hits' => 1,
+                       'docs' => 1
+                   ];
+               }
+           }
+        });
+
+        $insert = "INSERT INTO doclist (term_id, num_hits, num_docs) VALUES (:id, :hits, :docs)";
+        $stmt = $this->index->prepare($insert);
+
+        foreach($terms as $key => $term) {
+            $stmt->bindValue(':id', $key, SQLITE3_INTEGER);
+            $stmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
+            $stmt->bindValue(':docs', $term['docs'], SQLITE3_INTEGER);
+            try {
+                $stmt->execute();
+            } catch (\Exception $e) {
+                //echo $e->getMessage() . "\n";
+            }
+        }
     }
 }
