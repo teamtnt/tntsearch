@@ -69,6 +69,11 @@ class Collection implements Countable, IteratorAggregate
         return $this->items[$key];
     }
 
+    public function implode($glue)
+    {
+        return implode($glue, $this->items);
+    }
+
     public function count()
     {
         return count($this->items);
