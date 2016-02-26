@@ -51,9 +51,24 @@ class TNTIndexer
     {
         $result = $this->dbh->query($this->query);
 
+        $counter = 0;
+        $this->index->beginTransaction();
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $counter++;
+
+
             $this->processRow(new Collection($row));
+
+            if($counter % 1000 == 0) {
+                echo "Processed $counter rows\n";
+            }
+            if($counter % 10000 == 0) {
+                $this->index->commit();
+                $this->index->beginTransaction();
+                echo "Commited\n";
+            }
         }
+        $this->index->commit();
     }
 
     public function processRow($row)
@@ -61,7 +76,8 @@ class TNTIndexer
         $stems = $row->map(function($column, $name) {
             return $this->stemText($column);
         });
-        $this->saveToIndex($stems);
+            $this->saveToIndex($stems);
+
     }
 
     public function stemText($text)
@@ -83,6 +99,7 @@ class TNTIndexer
         $stems->map(function($column, $key) use (&$terms) {
            foreach($column as $term) {
                $crc32 = crc32($term);
+
                if(array_key_exists($crc32, $terms)) {
                    $terms[$crc32]['hits']++;
                    $terms[$crc32]['docs'] = 1;
@@ -98,7 +115,6 @@ class TNTIndexer
         $insert = "INSERT INTO wordlist (term_id, num_hits, num_docs) VALUES (:id, :hits, :docs)";
         $stmt = $this->index->prepare($insert);
 
-        $this->index->beginTransaction();
         foreach($terms as $key => $term) {
             $stmt->bindValue(':id', $key, SQLITE3_INTEGER);
             $stmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
@@ -120,6 +136,5 @@ class TNTIndexer
                 }
             }
         }
-        $this->index->commit();
     }
 }
