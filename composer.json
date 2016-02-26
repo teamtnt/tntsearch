@@ -25,7 +25,10 @@
     "autoload": {
         "psr-4": {
             "TeamTNT\\": "src"
-        }
+        },
+        "files": [
+            "helper/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

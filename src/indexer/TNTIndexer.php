@@ -46,7 +46,15 @@ class TNTIndexer
         $result = $this->dbh->query($this->query);
 
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $this->processRow($row);
+        }
+    }
 
+    public function processRow($row)
+    {
+        foreach($row as $name => $value) {
+            dd($name);
         }
     }
 }
+//$words = split("[ ,;\n\r\t]+", trim($words));
