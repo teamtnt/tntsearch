@@ -2,6 +2,8 @@
 
 namespace TeamTNT\Indexer;
 
+use TeamTNT\Stemmer\PorterStemmer;
+use TeamTNT\Support\Collection;
 use PDO;
 
 class TNTIndexer
@@ -46,15 +48,27 @@ class TNTIndexer
         $result = $this->dbh->query($this->query);
 
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $this->processRow($row);
+            $this->processRow(new Collection($row));
         }
     }
 
     public function processRow($row)
     {
-        foreach($row as $name => $value) {
-            dd($name);
+        $stems = $row->map(function($column, $name) {
+            return $this->stemText($column);
+        });
+        print_r($stems);
+    }
+
+    public function stemText($text)
+    {
+        $stemmer = new PorterStemmer();
+        $words = preg_split("/[ ,;\n\r\t]+/", trim($text));
+
+        $stems = [];
+        foreach($words as $word) {
+            $stems[] = $stemmer->Stem(strtolower($word));
         }
+        return $stems;
     }
 }
-//$words = split("[ ,;\n\r\t]+", trim($words));
