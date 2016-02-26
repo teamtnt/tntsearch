@@ -16,7 +16,7 @@ class TNTIndexer
         $this->index = new PDO('sqlite:' . $path . $indexName);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $this->index->exec("CREATE TABLE IF NOT EXISTS doclist (
+        $this->index->exec("CREATE TABLE IF NOT EXISTS wordlist (
                     term_id INTEGER PRIMARY KEY,
                     num_hits INTEGER,
                     num_docs INTEGER)");
@@ -71,6 +71,7 @@ class TNTIndexer
 
         $stems = [];
         foreach($words as $word) {
+            if(strlen($word) < 3) continue;
             $stems[] = $stemmer->Stem(strtolower($word));
         }
         return $stems;
@@ -94,9 +95,10 @@ class TNTIndexer
            }
         });
 
-        $insert = "INSERT INTO doclist (term_id, num_hits, num_docs) VALUES (:id, :hits, :docs)";
+        $insert = "INSERT INTO wordlist (term_id, num_hits, num_docs) VALUES (:id, :hits, :docs)";
         $stmt = $this->index->prepare($insert);
 
+        $this->index->beginTransaction();
         foreach($terms as $key => $term) {
             $stmt->bindValue(':id', $key, SQLITE3_INTEGER);
             $stmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
@@ -104,8 +106,20 @@ class TNTIndexer
             try {
                 $stmt->execute();
             } catch (\Exception $e) {
-                //echo $e->getMessage() . "\n";
+                //we have a duplicate
+                if($e->getCode() == 23000) {
+                    $res = $this->index->query("SELECT * FROM wordlist WHERE term_id = $key");
+                    $res = $res->fetch(PDO::FETCH_ASSOC);
+                    $term['hits'] += $res['num_hits'];
+                    $term['docs'] += $res['num_docs'];
+                    $insert_stmt = $this->index->prepare("UPDATE wordlist SET num_docs = :docs, num_hits = :hits WHERE term_id = :term");
+                    $insert_stmt->bindValue(':docs', $term['docs'], SQLITE3_INTEGER);
+                    $insert_stmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
+                    $insert_stmt->bindValue(':term', $key, SQLITE3_INTEGER);
+                    $insert_stmt->execute();
+                }
             }
         }
+        $this->index->commit();
     }
 }
