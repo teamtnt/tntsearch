@@ -26,6 +26,8 @@ class TNTIndexer
                     doc_id INTEGER,
                     hit_count INTEGER)");
 
+        $this->index->exec("CREATE INDEX 'main'.'index' ON 'doclist' ('term_id' COLLATE BINARY);");
+
         return $this;
     }
 

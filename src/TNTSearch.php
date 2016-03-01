@@ -4,6 +4,7 @@ namespace TeamTNT;
 
 use TeamTNT\Support\Collection;
 use TeamTNT\Indexer\TNTIndexer;
+use TeamTNT\Stemmer\PorterStemmer;
 use PDO;
 
 class TNTSearch
@@ -23,8 +24,12 @@ class TNTSearch
     public function search($phrase)
     {
         $this->info("Searching for $phrase");
+        $stemmer = new PorterStemmer();
+        $phrase = $stemmer->Stem($phrase);
 
-        $searchDoclist = "SELECT * FROM doclist WHERE term_id = :id LIMIT 1000";
+        $time1 = microtime(true);
+
+        $searchDoclist = "SELECT * FROM doclist WHERE term_id = :id LIMIT 100";
         $stmtDoc = $this->index->prepare($searchDoclist);
         $stmtDoc->bindValue(':id', crc32(strtolower($phrase)), SQLITE3_INTEGER);
         $stmtDoc->execute();
