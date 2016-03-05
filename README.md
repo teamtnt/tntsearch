@@ -56,9 +56,12 @@ Searching for a phrase or keyword is trivial
     $tnt->loadConfig($config);
     $tnt->selectIndex("bbc.index");
 
-    $res = $tnt->search("This is a test search", 10);
+    $res = $tnt->search("This is a test search", 12);
 
-    print_r($res); //returns the rows containing the phrase
+    print_r($res); //returns 12 document ids that best match your query
+
+    //to display the results you need an aditional query
+    //SELECT * FROM articles WHERE id IN $res;
 ```
 
 ## Contributing
