@@ -1,5 +1,7 @@
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Total Downloads][ico-downloads]][link-downloads]
+[![Software License][ico-license]](LICENSE.md)
+
 #TNTSearch
 
 A fully featured full text search engine written in PHP
@@ -78,6 +80,10 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
+[ico-version]: https://img.shields.io/packagist/v/teamtnt/tntsearch.svg?style=flat-square
+[ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
+[ico-downloads]: https://img.shields.io/packagist/dt/teamtnt/tntsearch.svg?style=flat-square
 
 [link-packagist]: https://packagist.org/packages/teamtnt/tntsearch
 [link-downloads]: https://packagist.org/packages/teamtnt/tntsearch
