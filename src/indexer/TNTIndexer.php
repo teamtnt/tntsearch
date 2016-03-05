@@ -37,6 +37,10 @@ class TNTIndexer
                     doc_id INTEGER,
                     hit_count INTEGER)");
 
+        $this->index->exec("CREATE TABLE IF NOT EXISTS info (
+                    key TEXT,
+                    value INTEGER)");
+
         $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'index' ON 'doclist' ('term_id' COLLATE BINARY);");
         $this->setSource();
         return $this;
@@ -77,6 +81,9 @@ class TNTIndexer
             }
         }
         $this->index->commit();
+
+        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', $counter)");
+
         echo "Total rows $counter\n";
     }
 

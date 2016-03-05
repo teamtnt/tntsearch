@@ -24,9 +24,9 @@ class TNTSearch
         return $indexer->createIndex($indexName);
     }
 
-    public function selectIndex($indexName, $path = "")
+    public function selectIndex($indexName)
     {
-        $this->index = new PDO('sqlite:' . $path . $indexName);
+        $this->index = new PDO('sqlite:' . $this->config['storage'] . $indexName);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
@@ -104,10 +104,10 @@ class TNTSearch
 
     public function totalDocumentsInCollection()
     {
-        $query = "SELECT count(DISTINCT doc_id) as count FROM doclist";
+        $query = "SELECT * FROM info WHERE key = 'total_documents'";
         $docs = $this->index->query($query);
 
-        return $docs->fetch(PDO::FETCH_ASSOC)['count'];
+        return $docs->fetch(PDO::FETCH_ASSOC)['value'];
     }
 
     public function info($str)
