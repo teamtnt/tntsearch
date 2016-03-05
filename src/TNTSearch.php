@@ -9,10 +9,19 @@ use PDO;
 
 class TNTSearch
 {
-    public function createIndex($indexName, $path)
+    public $config;
+
+    public function loadConfig($config)
+    {
+        $this->config = $config;
+        $this->config['storage'] = rtrim($this->config['storage'], '/') . '/';
+    }
+
+    public function createIndex($indexName)
     {
         $indexer = new TNTIndexer;
-        return $indexer->createIndex($indexName, $path);
+        $indexer->loadConfig($this->config);
+        return $indexer->createIndex($indexName);
     }
 
     public function selectIndex($indexName, $path = "")

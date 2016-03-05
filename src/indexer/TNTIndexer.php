@@ -11,9 +11,20 @@ class TNTIndexer
     protected $index = null;
     protected $dbh   = null;
 
-    public function createIndex($indexName, $path)
+    public function loadConfig($config)
     {
-        $this->index = new PDO('sqlite:' . $path . $indexName);
+        $this->config = $config;
+        $this->config['storage'] = rtrim($this->config['storage'], '/') . '/';
+    }
+
+    public function getStoragePath()
+    {
+        return $this->config['storage'];
+    }
+
+    public function createIndex($indexName)
+    {
+        $this->index = new PDO('sqlite:' . $this->config['storage'] . $indexName);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         $this->index->exec("CREATE TABLE IF NOT EXISTS wordlist (
@@ -26,20 +37,15 @@ class TNTIndexer
                     doc_id INTEGER,
                     hit_count INTEGER)");
 
-        $this->index->exec("CREATE INDEX 'main'.'index' ON 'doclist' ('term_id' COLLATE BINARY);");
-
+        $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'index' ON 'doclist' ('term_id' COLLATE BINARY);");
+        $this->setSource();
         return $this;
     }
 
-    public function source($config = [])
+    public function setSource()
     {
-        $this->type = $config['type'];
-        $this->db   = $config['db'];
-        $this->host = $config['host'];
-        $this->user = $config['user'];
-        $this->pass = $config['pass'];
-
-        $this->dbh = new PDO($this->type.':host='.$this->host.';dbname='.$this->db, $this->user, $this->pass);
+        $this->dbh = new PDO($this->config['type'].':host='.$this->config['host'].';dbname='.$this->config['db'],
+            $this->config['user'], $this->config['pass']);
         $this->dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
         $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
@@ -47,12 +53,6 @@ class TNTIndexer
     public function query($query)
     {
         $this->query = $query;
-    }
-
-
-    public function loadConfiguration($config = [])
-    {
-        $this->storagePath = $config['storage_path'];
     }
 
     public function run()
