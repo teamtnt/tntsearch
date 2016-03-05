@@ -1,49 +1,69 @@
-# tntsearch
+#TNTSearch
 
-[![Latest Version on Packagist][ico-version]][link-packagist]
-[![Software License][ico-license]](LICENSE.md)
-[![Build Status][ico-travis]][link-travis]
-[![Coverage Status][ico-scrutinizer]][link-scrutinizer]
-[![Quality Score][ico-code-quality]][link-code-quality]
-[![Total Downloads][ico-downloads]][link-downloads]
+A fully featured full text search engine written in PHP
 
-**Note:** Replace ```Nenad Tičarić``` ```nticaric``` ```http://www.tntstudio.us``` ```nticaric@gmail.com``` ```teamtnt``` ```tntsearch``` ```A fully featured full text search engine written in PHP``` with their correct values in [README.md](README.md), [CHANGELOG.md](CHANGELOG.md), [CONTRIBUTING.md](CONTRIBUTING.md), [LICENSE.md](LICENSE.md) and [composer.json](composer.json) files, then delete this line.
+##Instalation
 
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what
-PSRs you support to avoid any confusion with users and contributors.
+The easiest way to install TNTSearch is via [composer](http://getcomposer.org/). Create the following `composer.json` file and run the `php composer.phar install` command to install it.
 
-## Install
-
-Via Composer
-
-``` bash
-$ composer require teamtnt/tntsearch
+```json
+{
+    "require": {
+        "teamtnt/tntsearch": "dev-master"
+    }
+}
 ```
 
-## Usage
+##Examples
 
-``` php
-$skeleton = new League\Skeleton();
-echo $skeleton->echoPhrase('Hello, League!');
+### Creating an index
+
+In order to be able to make full text search queries you have to create an index.
+
+Usage:
+```php
+
+    use TeamTNT\TNTSearch;
+
+    $tnt = new TNTSearch;
+
+    $tnt->loadConfig([
+        'type'    => 'mysql',
+        'db'      => 'bbc',
+        'host'    => 'localhost',
+        'user'    => 'user',
+        'pass'    => 'oass',
+        'storage' => '/var/www/tntsearch/examples/'
+    ]);
+
+    $indexer = $tnt->createIndex('bbc.index');
+    $indexer->query('SELECT id, article FROM articles;');
+    $indexer->run();
+
 ```
+Note: Your select statment MUST contain an ID field.
 
-## Change log
+### Searching
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+Searching for a phrase or keyword is trivial
 
-## Testing
 
-``` bash
-$ composer test
+```php
+    use TeamTNT\TNTSearch;
+
+    $tnt = new TNTSearch;
+
+    $tnt->loadConfig($config);
+    $tnt->selectIndex("bbc.index");
+
+    $res = $tnt->search("This is a test search", 10);
+
+    print_r($res); //returns the rows containing the phrase
 ```
 
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details.
-
-## Security
-
-If you discover any security related issues, please email nticaric@gmail.com instead of using the issue tracker.
 
 ## Credits
 
@@ -53,18 +73,3 @@ If you discover any security related issues, please email nticaric@gmail.com ins
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-[ico-version]: https://img.shields.io/packagist/v/teamtnt/tntsearch.svg?style=flat-square
-[ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
-[ico-travis]: https://img.shields.io/travis/teamtnt/tntsearch/master.svg?style=flat-square
-[ico-scrutinizer]: https://img.shields.io/scrutinizer/coverage/g/teamtnt/tntsearch.svg?style=flat-square
-[ico-code-quality]: https://img.shields.io/scrutinizer/g/teamtnt/tntsearch.svg?style=flat-square
-[ico-downloads]: https://img.shields.io/packagist/dt/teamtnt/tntsearch.svg?style=flat-square
-
-[link-packagist]: https://packagist.org/packages/teamtnt/tntsearch
-[link-travis]: https://travis-ci.org/teamtnt/tntsearch
-[link-scrutinizer]: https://scrutinizer-ci.com/g/teamtnt/tntsearch/code-structure
-[link-code-quality]: https://scrutinizer-ci.com/g/teamtnt/tntsearch
-[link-downloads]: https://packagist.org/packages/teamtnt/tntsearch
-[link-author]: https://github.com/nticaric
-[link-contributors]: ../../contributors

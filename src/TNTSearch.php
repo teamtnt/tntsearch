@@ -77,7 +77,7 @@ class TNTSearch
         });
 
         return [
-            'rows' => $docs->implode(', ')
+            'ids' => $docs->implode(', ')
         ];
     }
 
