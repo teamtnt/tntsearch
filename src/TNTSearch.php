@@ -21,38 +21,84 @@ class TNTSearch
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
-    public function search($phrase)
+    public function search($phrase, $numOfResults = 100)
     {
         $this->info("Searching for $phrase");
+
+        $keywords = preg_split("/[ ,;\n\r\t]+/", trim($phrase));
+        $keywords = new Collection($keywords);
+
         $stemmer = new PorterStemmer();
-        $phrase = $stemmer->Stem($phrase);
 
-        $time1 = microtime(true);
-
-        $searchDoclist = "SELECT * FROM doclist WHERE term_id = :id LIMIT 100";
-        $stmtDoc = $this->index->prepare($searchDoclist);
-        $stmtDoc->bindValue(':id', crc32(strtolower($phrase)), SQLITE3_INTEGER);
-        $stmtDoc->execute();
-
-        $searchWordlist = "SELECT * FROM wordlist WHERE term_id = :id LIMIT 1";
-        $stmtWord = $this->index->prepare($searchWordlist);
-        $stmtWord->bindValue(':id', crc32(strtolower($phrase)), SQLITE3_INTEGER);
-        $stmtWord->execute();
-
-        $docsCollection = new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
-        $docs = $docsCollection->map(function($doc) {
-           return $doc['doc_id'];
+        $keywords = $keywords->map(function($keyword) use ($stemmer) {
+            return $stemmer->Stem($keyword);
         });
 
-        $occurance = $stmtWord->fetchAll(PDO::FETCH_ASSOC)[0];
+        $tfWeight = 1; $dlWeight = 0.5;
+        $docScores = [];
+
+        $count = $this->totalDocumentsInCollection();
+        foreach($keywords as $term) {
+            $df = $this->totalMatchingDocuments( $term );
+            foreach($this->getAllDocumentsForKeyword($term) as $document) {
+                $docID = $document['doc_id'];
+                $tf    = $document['hit_count'];
+                $docLength = 0;
+                $idf = log($count/$df);
+                $num = ($tfWeight + 1) * $tf;
+                $denom = $tfWeight
+                    * ((1 - $dlWeight) + $dlWeight)
+                    + $tf;
+                $score = $idf * ($num/$denom);
+                $docScores[$docID] = isset($docScores[$docID]) ?
+                    $docScores[$docID] + $score : $score;
+            }
+        }
+
+        arsort($docScores);
+
+        $docs = new Collection($docScores);
+
+        $counter = 0;
+        $docs = $docs->map(function($doc, $key) {
+            return $key;
+        })->filter(function($item) use (&$counter, $numOfResults) {
+            $counter++;
+            if($counter < $numOfResults) return $item;
+        });
 
         return [
-            'info' => [
-                'hits' => $occurance['num_hits'],
-                'docs' => $occurance['num_docs'],
-            ],
             'rows' => $docs->implode(', ')
         ];
+    }
+
+    public function getAllDocumentsForKeyword($keyword)
+    {
+        $query = "SELECT * FROM doclist WHERE term_id = :id";
+        $stmtDoc = $this->index->prepare($query);
+        $stmtDoc->bindValue(':id', crc32(strtolower($keyword)), SQLITE3_INTEGER);
+        $stmtDoc->execute();
+        return $stmtDoc->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function totalMatchingDocuments($keyword)
+    {
+        $searchWordlist = "SELECT * FROM wordlist WHERE term_id = :id";
+        $stmtWord = $this->index->prepare($searchWordlist);
+        $stmtWord->bindValue(':id', crc32(strtolower($keyword)), SQLITE3_INTEGER);
+        $stmtWord->execute();
+        $occurance = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
+        if(isset($occurance[0]))
+            return $occurance[0]['num_docs'];
+        return 0;
+    }
+
+    public function totalDocumentsInCollection()
+    {
+        $query = "SELECT count(DISTINCT doc_id) as count FROM doclist";
+        $docs = $this->index->query($query);
+
+        return $docs->fetch(PDO::FETCH_ASSOC)['count'];
     }
 
     public function info($str)
