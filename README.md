@@ -1,3 +1,5 @@
+[![Latest Version on Packagist][ico-version]][link-packagist]
+[![Total Downloads][ico-downloads]][link-downloads]
 #TNTSearch
 
 A fully featured full text search engine written in PHP
@@ -76,3 +78,8 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
+[link-packagist]: https://packagist.org/packages/teamtnt/tntsearch
+[link-downloads]: https://packagist.org/packages/teamtnt/tntsearch
+[link-author]: https://github.com/nticaric
+[link-contributors]: ../../contributors
