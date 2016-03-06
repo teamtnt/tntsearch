@@ -6,7 +6,7 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 {
     protected $indexName = "testIndex";
     protected $config = [
-        'type'    => 'mysql',
+        'type'    => 'sqlite',
         'db'      => 'test',
         'host'    => 'localhost',
         'user'    => 'testUser',
