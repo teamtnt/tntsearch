@@ -32,8 +32,6 @@ class TNTSearch
 
     public function search($phrase, $numOfResults = 100)
     {
-        $this->info("Searching for $phrase");
-
         $keywords = preg_split("/[ ,;\n\r\t]+/", trim($phrase));
         $keywords = new Collection($keywords);
 
