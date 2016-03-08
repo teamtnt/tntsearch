@@ -73,9 +73,12 @@ class TNTSearch
             return $key;
         })->filter(function($item) use (&$counter, $numOfResults) {
             $counter++;
-            if($counter < $numOfResults) return $item;
+            if($counter <= $numOfResults) return $item;
         });
 
+        if($this->isFileSystemIndex()) {
+            return $this->filesystemMapIdsToPaths($docs)->toArray();
+        }
         return [
             'ids' => $docs->implode(', ')
         ];
@@ -108,6 +111,25 @@ class TNTSearch
         $docs = $this->index->query($query);
 
         return $docs->fetch(PDO::FETCH_ASSOC)['value'];
+    }
+
+    public function isFileSystemIndex()
+    {
+        $query = "SELECT * FROM info WHERE key = 'driver'";
+        $docs = $this->index->query($query);
+
+        return $docs->fetch(PDO::FETCH_ASSOC)['value'] == 'filesystem';
+    }
+
+    public function filesystemMapIdsToPaths($docs)
+    {
+        $query = "SELECT * FROM filemap WHERE id in (".$docs->implode(', ').");";
+        $res = $this->index->query($query)->fetchAll(PDO::FETCH_ASSOC);
+
+        return $docs->map(function($key) use ($res) {
+            $index = array_search($key, array_column($res, 'id'));
+            return $res[$index];
+        });
     }
 
     public function info($str)
