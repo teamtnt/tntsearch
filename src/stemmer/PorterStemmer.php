@@ -42,7 +42,7 @@ class PorterStemmer
      * @param  string $word Word to stem
      * @return string       Stemmed word
      */
-    public static function Stem($word)
+    public static function stem($word)
     {
         if (strlen($word) <= 2) {
             return $word;

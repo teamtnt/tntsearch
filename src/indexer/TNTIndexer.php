@@ -3,13 +3,21 @@
 namespace TeamTNT\Indexer;
 
 use TeamTNT\Stemmer\PorterStemmer;
+use TeamTNT\Stemmer\CroatianStemmer;
 use TeamTNT\Support\Collection;
 use PDO;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 
 class TNTIndexer
 {
     protected $index = null;
     protected $dbh   = null;
+
+    public function __construct()
+    {
+        $this->stemmer = new PorterStemmer;
+    }
 
     public function loadConfig($config)
     {
@@ -22,8 +30,22 @@ class TNTIndexer
         return $this->config['storage'];
     }
 
+    public function getStemmer()
+    {
+        return $this->stemmer;
+    }
+
+    public function setCroatianStemmer()
+    {
+        $this->stemmer = new CroatianStemmer;
+    }
+
     public function createIndex($indexName)
     {
+        if(file_exists($this->config['storage'] . $indexName)) {
+            unlink($this->config['storage'] . $indexName);
+        }
+
         $this->index = new PDO('sqlite:' . $this->config['storage'] . $indexName);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
@@ -48,6 +70,8 @@ class TNTIndexer
 
     public function setSource()
     {
+        if($this->config['driver'] == "filesystem") return;
+
         $this->dbh = new PDO($this->config['type'].':host='.$this->config['host'].';dbname='.$this->config['db'],
             $this->config['user'], $this->config['pass']);
         $this->dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
@@ -61,6 +85,10 @@ class TNTIndexer
 
     public function run()
     {
+        if($this->config['driver'] == "filesystem") {
+            return $this->readDocumentsFromFileSystem();
+        }
+
         $result = $this->dbh->query($this->query);
 
         $counter = 0;
@@ -69,7 +97,7 @@ class TNTIndexer
             $counter++;
 
 
-            $this->processRow(new Collection($row));
+            $this->processDocument(new Collection($row));
 
             if($counter % 1000 == 0) {
                 echo "Processed $counter rows\n";
@@ -87,7 +115,41 @@ class TNTIndexer
         echo "Total rows $counter\n";
     }
 
-    public function processRow($row)
+    public function readDocumentsFromFileSystem()
+    {
+        $this->index->exec("CREATE TABLE IF NOT EXISTS filemap (
+                    id INTEGER PRIMARY KEY,
+                    path TEXT)");
+        $path = realpath($this->config['location']);
+
+        $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
+        $this->index->beginTransaction();
+        $counter = 0;
+
+        foreach($objects as $name => $object) {
+            $name = str_replace($path . '/', '', $name);
+            if(stringEndsWith($name, $this->config['extension']) && !in_array($name, $this->config['exclude'])) {
+                $counter++;
+                $file = [
+                    'id'      => $counter,
+                    'name'    => $name,
+                    'content' => file_get_contents($object)
+                ];
+                $this->processDocument(new Collection($file));
+                $this->index->exec("INSERT INTO filemap ( 'id', 'path') values ( $counter, '$object')");
+                echo "Processed $counter " . $object . "\n";
+            }
+        }
+
+        $this->index->commit();
+        
+        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', $counter)");
+        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'driver', 'filesystem')");
+
+        echo "Total rows $counter\n";
+    }
+
+    public function processDocument($row)
     {
         $stems = $row->map(function($column, $name) {
             return $this->stemText($column);
@@ -98,13 +160,13 @@ class TNTIndexer
 
     public function stemText($text)
     {
-        $stemmer = new PorterStemmer();
+        $stemmer = $this->getStemmer();
         $words = preg_split("/[ ,;\n\r\t]+/", trim($text));
 
         $stems = [];
         foreach($words as $word) {
             if(strlen($word) < 3) continue;
-            $stems[] = $stemmer->Stem(strtolower($word));
+            $stems[] = $stemmer->stem(strtolower($word));
         }
         return $stems;
     }
