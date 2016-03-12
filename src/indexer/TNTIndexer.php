@@ -23,6 +23,7 @@ class TNTIndexer
     {
         $this->config = $config;
         $this->config['storage'] = rtrim($this->config['storage'], '/') . '/';
+        if(!isset($this->config['driver'])) $this->config['driver'] = "";
     }
 
     public function getStoragePath()
@@ -37,6 +38,7 @@ class TNTIndexer
 
     public function setCroatianStemmer()
     {
+        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', 'croatian')");
         $this->stemmer = new CroatianStemmer;
     }
 
@@ -50,9 +52,11 @@ class TNTIndexer
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         $this->index->exec("CREATE TABLE IF NOT EXISTS wordlist (
-                    term_id INTEGER PRIMARY KEY,
+                    id INTEGER PRIMARY KEY,
+                    term TEXT,
                     num_hits INTEGER,
                     num_docs INTEGER)");
+        $this->index->exec("CREATE UNIQUE INDEX 'main'.'index' ON wordlist ('term');");
 
         $this->index->exec("CREATE TABLE IF NOT EXISTS doclist (
                     term_id INTEGER,
@@ -111,6 +115,7 @@ class TNTIndexer
         $this->index->commit();
 
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', $counter)");
+        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', {$this->stemmer})");
 
         echo "Total rows $counter\n";
     }
@@ -161,11 +166,11 @@ class TNTIndexer
     public function stemText($text)
     {
         $stemmer = $this->getStemmer();
-        $words = preg_split("/[ ,;\n\r\t]+/", trim($text));
+        $words = preg_split("/\P{L}+/u", trim($text));
 
         $stems = [];
         foreach($words as $word) {
-            if(strlen($word) < 3) continue;
+            if(strlen($word) < 2) continue;
             $stems[] = $stemmer->stem(strtolower($word));
         }
         return $stems;
@@ -182,40 +187,45 @@ class TNTIndexer
         $terms = [];
         $stems->map(function($column, $key) use (&$terms) {
             foreach($column as $term) {
-                $crc32 = crc32($term);
 
-                if(array_key_exists($crc32, $terms)) {
-                    $terms[$crc32]['hits']++;
-                    $terms[$crc32]['docs'] = 1;
+                if(array_key_exists($term, $terms)) {
+                    $terms[$term]['hits']++;
+                    $terms[$term]['docs'] = 1;
                 } else {
-                    $terms[$crc32] = [
+                    $terms[$term] = [
                         'hits' => 1,
-                        'docs' => 1
+                        'docs' => 1,
+                        'id'   => 0
                     ];
                 }
             }
         });
 
-        $insert = "INSERT INTO wordlist (term_id, num_hits, num_docs) VALUES (:id, :hits, :docs)";
+        $insert = "INSERT INTO wordlist (term, num_hits, num_docs) VALUES (:term, :hits, :docs)";
         $stmt = $this->index->prepare($insert);
 
         foreach($terms as $key => $term) {
-            $stmt->bindValue(':id', $key, SQLITE3_INTEGER);
+            $stmt->bindValue(':term', $key, SQLITE3_TEXT);
             $stmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
             $stmt->bindValue(':docs', $term['docs'], SQLITE3_INTEGER);
             try {
                 $stmt->execute();
+                $terms[$key]['id'] = $this->index->lastInsertId();
             } catch (\Exception $e) {
                 //we have a duplicate
                 if($e->getCode() == 23000) {
-                    $res = $this->index->query("SELECT * FROM wordlist WHERE term_id = $key");
-                    $res = $res->fetch(PDO::FETCH_ASSOC);
+                    $stmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :term");
+                    $stmt->bindValue(':term', $key, SQLITE3_TEXT);
+                    $stmt->execute();
+                    $res = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    $terms[$key]['id'] = $res['id'];
                     $term['hits'] += $res['num_hits'];
                     $term['docs'] += $res['num_docs'];
-                    $insert_stmt = $this->index->prepare("UPDATE wordlist SET num_docs = :docs, num_hits = :hits WHERE term_id = :term");
+                    $insert_stmt = $this->index->prepare("UPDATE wordlist SET num_docs = :docs, num_hits = :hits WHERE term = :term");
                     $insert_stmt->bindValue(':docs', $term['docs'], SQLITE3_INTEGER);
                     $insert_stmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
-                    $insert_stmt->bindValue(':term', $key, SQLITE3_INTEGER);
+                    $insert_stmt->bindValue(':term', $key, SQLITE3_TEXT);
                     $insert_stmt->execute();
                 }
             }
@@ -229,7 +239,7 @@ class TNTIndexer
         $stmt = $this->index->prepare($insert);
 
         foreach($terms as $key => $term) {
-            $stmt->bindValue(':id', $key, SQLITE3_INTEGER);
+            $stmt->bindValue(':id', $term['id'], SQLITE3_INTEGER);
             $stmt->bindValue(':doc', $docId, SQLITE3_INTEGER);
             $stmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
             try {

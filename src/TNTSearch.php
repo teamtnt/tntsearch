@@ -38,7 +38,7 @@ class TNTSearch
         $stemmer = new PorterStemmer();
 
         $keywords = $keywords->map(function($keyword) use ($stemmer) {
-            return $stemmer->Stem($keyword);
+            return $stemmer->stem($keyword);
         });
 
         $tfWeight = 1; $dlWeight = 0.5;
