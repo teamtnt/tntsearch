@@ -115,7 +115,6 @@ class TNTIndexer
         $this->index->commit();
 
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', $counter)");
-        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', {$this->stemmer})");
 
         echo "Total rows $counter\n";
     }
@@ -218,7 +217,7 @@ class TNTIndexer
                     $stmt->bindValue(':term', $key, SQLITE3_TEXT);
                     $stmt->execute();
                     $res = $stmt->fetch(PDO::FETCH_ASSOC);
-                    
+
                     $terms[$key]['id'] = $res['id'];
                     $term['hits'] += $res['num_hits'];
                     $term['docs'] += $res['num_docs'];
