@@ -165,8 +165,8 @@ class TNTIndexer
     public function stemText($text)
     {
         $stemmer = $this->getStemmer();
-        $words = preg_split("/\P{L}+/u", trim($text));
-
+        $text = preg_replace("/[^\w\ _]+/", ' ', $text);
+        $words = preg_split('/\PL+/u', $text, -1, PREG_SPLIT_NO_EMPTY);
         $stems = [];
         foreach($words as $word) {
             if(strlen($word) < 2) continue;
