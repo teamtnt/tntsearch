@@ -213,32 +213,33 @@ class TNTIndexer
             }
         });
 
-        $insert = "INSERT INTO wordlist (term, num_hits, num_docs) VALUES (:term, :hits, :docs)";
-        $stmt = $this->index->prepare($insert);
-
+        $insertStmt = $this->index->prepare("INSERT INTO wordlist (term, num_hits, num_docs) VALUES (:keyword, :hits, :docs)");
+        $selectStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :term");
+        $updateStmt = $this->index->prepare("UPDATE wordlist SET num_docs = :docs, num_hits = :hits WHERE term = :keyword");
+        
         foreach($terms as $key => $term) {
-            $stmt->bindValue(':term', $key, SQLITE3_TEXT);
-            $stmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
-            $stmt->bindValue(':docs', $term['docs'], SQLITE3_INTEGER);
             try {
-                $stmt->execute();
+                $insertStmt->bindParam(":keyword", $key, SQLITE3_TEXT);
+                $insertStmt->bindParam(":hits", $term['hits'], SQLITE3_INTEGER);
+                $insertStmt->bindParam(":docs", $term['docs'], SQLITE3_INTEGER);
+                $insertStmt->execute();
+
                 $terms[$key]['id'] = $this->index->lastInsertId();
             } catch (\Exception $e) {
                 //we have a duplicate
                 if($e->getCode() == 23000) {
-                    $stmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :term");
-                    $stmt->bindValue(':term', $key, SQLITE3_TEXT);
-                    $stmt->execute();
-                    $res = $stmt->fetch(PDO::FETCH_ASSOC);
-
+                    $selectStmt->bindValue(':term', $key, SQLITE3_TEXT);
+                    $selectStmt->execute();
+                    $res = $selectStmt->fetch(PDO::FETCH_ASSOC);
                     $terms[$key]['id'] = $res['id'];
                     $term['hits'] += $res['num_hits'];
                     $term['docs'] += $res['num_docs'];
-                    $insert_stmt = $this->index->prepare("UPDATE wordlist SET num_docs = :docs, num_hits = :hits WHERE term = :term");
-                    $insert_stmt->bindValue(':docs', $term['docs'], SQLITE3_INTEGER);
-                    $insert_stmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
-                    $insert_stmt->bindValue(':term', $key, SQLITE3_TEXT);
-                    $insert_stmt->execute();
+                    $updateStmt->bindValue(':docs', $term['docs'], SQLITE3_INTEGER);
+                    $updateStmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
+                    $updateStmt->bindValue(':keyword', $key, SQLITE3_TEXT);
+                    $updateStmt->execute();
+                } else {
+                    echo $e->getMessage() . "\n";
                 }
             }
         }
@@ -265,6 +266,7 @@ class TNTIndexer
 
     public function saveHitList($stems, $docId, $termsList)
     {
+        //return;
         $fieldCounter = 0;
         $fields = [];
 
