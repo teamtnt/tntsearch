@@ -12,4 +12,14 @@
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
+
+    <filter>
+      <whitelist addUncoveredFilesFromWhitelist="true">
+        <directory suffix=".php">./src/</directory>
+      </whitelist>
+    </filter>
+
+    <logging>
+        <log type="coverage-html" target="./tests/coverage" charset="UTF-8"/>
+    </logging>
 </phpunit>

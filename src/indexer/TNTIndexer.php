@@ -56,11 +56,23 @@ class TNTIndexer
                     term TEXT,
                     num_hits INTEGER,
                     num_docs INTEGER)");
+
         $this->index->exec("CREATE UNIQUE INDEX 'main'.'index' ON wordlist ('term');");
 
         $this->index->exec("CREATE TABLE IF NOT EXISTS doclist (
                     term_id INTEGER,
                     doc_id INTEGER,
+                    hit_count INTEGER)");
+
+        $this->index->exec("CREATE TABLE IF NOT EXISTS fields (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT)");
+
+        $this->index->exec("CREATE TABLE IF NOT EXISTS hitlist (
+                    term_id INTEGER,
+                    doc_id INTEGER,
+                    field_id INTEGER,
+                    position INTEGER,
                     hit_count INTEGER)");
 
         $this->index->exec("CREATE TABLE IF NOT EXISTS info (
@@ -169,7 +181,6 @@ class TNTIndexer
         $words = preg_split('/\PL+/u', $text, -1, PREG_SPLIT_NO_EMPTY);
         $stems = [];
         foreach($words as $word) {
-            if(strlen($word) < 2) continue;
             $stems[] = $stemmer->stem(strtolower($word));
         }
         return $stems;
@@ -179,6 +190,7 @@ class TNTIndexer
     {
         $terms = $this->saveWordlist($stems);
         $this->saveDoclist($terms, $docId);
+        $this->saveHitList($stems, $docId, $terms);
     }
 
     public function saveWordlist($stems)
@@ -186,6 +198,7 @@ class TNTIndexer
         $terms = [];
         $stems->map(function($column, $key) use (&$terms) {
             foreach($column as $term) {
+                if(strlen($term) < 3) continue;
 
                 if(array_key_exists($term, $terms)) {
                     $terms[$term]['hits']++;
@@ -250,4 +263,31 @@ class TNTIndexer
         }
     }
 
+    public function saveHitList($stems, $docId, $termsList)
+    {
+        $fieldCounter = 0;
+        $fields = [];
+
+        $insert = "INSERT INTO hitlist (term_id, doc_id, field_id, position, hit_count) 
+                   VALUES (:term_id, :doc_id, :field_id, :position, :hit_count)";
+        $stmt = $this->index->prepare($insert);
+
+        foreach ($stems as $field => $terms) {
+            $fields[$fieldCounter] = $field;
+            $positionCounter = 0;
+            $termCounts = array_count_values($terms);
+            foreach ($terms as $term) {
+                if(isset($termsList[$term])) {
+                    $stmt->bindValue(':term_id', $termsList[$term]['id'], SQLITE3_INTEGER);
+                    $stmt->bindValue(':doc_id', $docId, SQLITE3_INTEGER);
+                    $stmt->bindValue(':field_id', $fieldCounter, SQLITE3_INTEGER);
+                    $stmt->bindValue(':position', $positionCounter, SQLITE3_INTEGER);
+                    $stmt->bindValue(':hit_count', $termCounts[$term], SQLITE3_INTEGER);
+                    $stmt->execute();
+                }
+                $positionCounter++;
+            }
+            $fieldCounter++;
+        }
+    }
 }
