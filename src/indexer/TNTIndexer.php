@@ -214,8 +214,8 @@ class TNTIndexer
         });
 
         $insertStmt = $this->index->prepare("INSERT INTO wordlist (term, num_hits, num_docs) VALUES (:keyword, :hits, :docs)");
-        $selectStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :term");
-        $updateStmt = $this->index->prepare("UPDATE wordlist SET num_docs = :docs, num_hits = :hits WHERE term = :keyword");
+        $selectStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :term LIMIT 1");
+        $updateStmt = $this->index->prepare("UPDATE wordlist SET num_docs = num_docs + :docs, num_hits = num_hits + :hits WHERE term = :keyword");
         
         foreach($terms as $key => $term) {
             try {
@@ -225,19 +225,18 @@ class TNTIndexer
                 $insertStmt->execute();
 
                 $terms[$key]['id'] = $this->index->lastInsertId();
+
             } catch (\Exception $e) {
-                //we have a duplicate
                 if($e->getCode() == 23000) {
-                    $selectStmt->bindValue(':term', $key, SQLITE3_TEXT);
-                    $selectStmt->execute();
-                    $res = $selectStmt->fetch(PDO::FETCH_ASSOC);
-                    $terms[$key]['id'] = $res['id'];
-                    $term['hits'] += $res['num_hits'];
-                    $term['docs'] += $res['num_docs'];
                     $updateStmt->bindValue(':docs', $term['docs'], SQLITE3_INTEGER);
                     $updateStmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
                     $updateStmt->bindValue(':keyword', $key, SQLITE3_TEXT);
                     $updateStmt->execute();
+
+                    $selectStmt->bindValue(':term', $key);
+                    $selectStmt->execute();
+                    $res = $selectStmt->fetch(PDO::FETCH_ASSOC);
+                    $terms[$key]['id'] = $res['id'];
                 } else {
                     echo $e->getMessage() . "\n";
                 }
@@ -266,7 +265,7 @@ class TNTIndexer
 
     public function saveHitList($stems, $docId, $termsList)
     {
-        //return;
+        return;
         $fieldCounter = 0;
         $fields = [];
 
