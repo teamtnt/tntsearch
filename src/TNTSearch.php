@@ -5,6 +5,7 @@ namespace TeamTNT;
 use TeamTNT\Support\Collection;
 use TeamTNT\Indexer\TNTIndexer;
 use TeamTNT\Stemmer\PorterStemmer;
+use TeamTNT\Stemmer\CroatianStemmer;
 use PDO;
 
 class TNTSearch
@@ -32,10 +33,12 @@ class TNTSearch
 
     public function search($phrase, $numOfResults = 100)
     {
-        $keywords = preg_split("/[ ,;\n\r\t]+/", trim($phrase));
+        $phrase = preg_replace("/[^\w\ _]+/", ' ', $phrase);
+        $keywords = preg_split('/\PL+/u', $phrase, -1, PREG_SPLIT_NO_EMPTY);
+
         $keywords = new Collection($keywords);
 
-        $stemmer = new PorterStemmer();
+        $stemmer = new CroatianStemmer();
 
         $keywords = $keywords->map(function($keyword) use ($stemmer) {
             return $stemmer->stem($keyword);
@@ -84,23 +87,37 @@ class TNTSearch
 
     public function getAllDocumentsForKeyword($keyword)
     {
+        $word = $this->getWordlistByKeyword($keyword);
+        if(!isset($word[0])) {
+            return [];
+        }
         $query = "SELECT * FROM doclist WHERE term_id = :id";
         $stmtDoc = $this->index->prepare($query);
-        $stmtDoc->bindValue(':id', crc32(strtolower($keyword)), SQLITE3_INTEGER);
+
+        $stmtDoc->bindValue(':id', $word[0]['id'], SQLITE3_INTEGER);
         $stmtDoc->execute();
         return $stmtDoc->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function totalMatchingDocuments($keyword)
     {
-        $searchWordlist = "SELECT * FROM wordlist WHERE term_id = :id";
-        $stmtWord = $this->index->prepare($searchWordlist);
-        $stmtWord->bindValue(':id', crc32(strtolower($keyword)), SQLITE3_INTEGER);
-        $stmtWord->execute();
-        $occurance = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
+        $occurance = $this->getWordlistByKeyword($keyword);
         if(isset($occurance[0]))
             return $occurance[0]['num_docs'];
         return 0;
+    }
+
+    public function getWordlistByKeyword($keyword) 
+    {
+        if(isset($this->wordlist[$keyword])) {
+            return $this->wordlist[$keyword];
+        }
+        $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword LIMIT 1";
+        $stmtWord = $this->index->prepare($searchWordlist);
+        $stmtWord->bindValue(':keyword', strtolower($keyword), SQLITE3_TEXT);
+        $stmtWord->execute();
+        $this->wordlist[$keyword] = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
+        return $this->wordlist[$keyword];
     }
 
     public function totalDocumentsInCollection()
