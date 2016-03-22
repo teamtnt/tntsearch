@@ -116,9 +116,9 @@ class TNTSearch
         $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword LIMIT 1";
         $stmtWord = $this->index->prepare($searchWordlist);
         if($this->asYouType == true) {
-            $stmtWord->bindValue(':keyword', strtolower($keyword), SQLITE3_TEXT);
-        } else {
             $stmtWord->bindValue(':keyword', strtolower($keyword)."%", SQLITE3_TEXT);
+        } else {
+            $stmtWord->bindValue(':keyword', strtolower($keyword), SQLITE3_TEXT);
         }
         $stmtWord->execute();
         $this->wordlist[$keyword] = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
