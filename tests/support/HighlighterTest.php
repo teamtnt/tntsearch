@@ -8,9 +8,9 @@ class HighlighterTest extends PHPUnit_Framework_TestCase
     {
         $hl = new Hihglighter;
         $text = "This is some text";
-        $output = $hl->highlight($text, "is text", 'em');
+        $output = $hl->highlight($text, "is text", 'em', ['wholeWord' => false]);
         $this->assertEquals("Th<em>is</em> <em>is</em> some <em>text</em>", $output);
-        
+
         $output = $hl->highlight($text, "is text", 'em', ['wholeWord' => true]);
         $this->assertEquals("This <em>is</em> some <em>text</em>", $output);
 

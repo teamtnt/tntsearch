@@ -6,7 +6,7 @@ class Hihglighter
 {   
     protected $options = [
         'simple'        => false,
-        'wholeWord'     => false, 
+        'wholeWord'     => true, 
         'caseSensitive' => false, 
         'stripLinks'    => false
     ];
