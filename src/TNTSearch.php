@@ -3,6 +3,7 @@
 namespace TeamTNT;
 
 use TeamTNT\Support\Collection;
+use TeamTNT\Support\Hihglighter;
 use TeamTNT\Indexer\TNTIndexer;
 use TeamTNT\Stemmer\PorterStemmer;
 use TeamTNT\Stemmer\CroatianStemmer;
@@ -150,5 +151,17 @@ class TNTSearch
     public function info($str)
     {
         echo $str . "\n";
+    }
+
+    public function highlight($text, $needle, $tag = 'em', $options = [])
+    {
+        $hl = new Hihglighter;
+        return $hl->highlight($text, $needle, $tag, $options);
+    }
+
+    public function snippet($words, $fulltext, $rellength=300, $prevcount=50, $indicator='...')
+    {
+        $hl = new Hihglighter;
+        return $hl->extractRelevant($words, $fulltext, $rellength, $prevcount, $indicator);
     }
 }
