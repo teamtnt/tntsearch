@@ -38,11 +38,10 @@ class TNTSearch
         $keywords = preg_split('/\PL+/u', $phrase, -1, PREG_SPLIT_NO_EMPTY);
 
         $keywords = new Collection($keywords);
+        $this->setStemmer();
 
-        $stemmer = new CroatianStemmer();
-
-        $keywords = $keywords->map(function($keyword) use ($stemmer) {
-            return $stemmer->stem($keyword);
+        $keywords = $keywords->map(function($keyword) {
+            return $this->stemmer->stem($keyword);
         });
 
         $tfWeight = 1; $dlWeight = 0.5;
@@ -127,6 +126,17 @@ class TNTSearch
         $docs = $this->index->query($query);
 
         return $docs->fetch(PDO::FETCH_ASSOC)['value'];
+    }
+
+    public function setStemmer()
+    {
+        $query = "SELECT * FROM info WHERE key = 'stemmer'";
+        $docs = $this->index->query($query);
+        if($docs->fetch(PDO::FETCH_ASSOC)['value'] == 'croatian') {
+            $this->stemmer = new CroatianStemmer;
+        } else {
+            $this->stemmer = new PorterStemmer;
+        }
     }
 
     public function isFileSystemIndex()
