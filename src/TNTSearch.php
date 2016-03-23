@@ -113,7 +113,7 @@ class TNTSearch
         if(isset($this->wordlist[$keyword])) {
             return $this->wordlist[$keyword];
         }
-        $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword LIMIT 1";
+        $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY length(term) ASC LIMIT 1";
         $stmtWord = $this->index->prepare($searchWordlist);
         if($this->asYouType == true) {
             $stmtWord->bindValue(':keyword', strtolower($keyword)."%", SQLITE3_TEXT);
