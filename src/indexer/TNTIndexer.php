@@ -87,12 +87,24 @@ class TNTIndexer
 
     public function setSource()
     {
-        if($this->config['driver'] == "filesystem") return;
+        extract($this->config, EXTR_SKIP);
 
-        $this->dbh = new PDO($this->config['type'].':host='.$this->config['host'].';dbname='.$this->config['db'],
-            $this->config['user'], $this->config['pass']);
+        if($driver == "filesystem") return;
+
+        $hostDsn = $this->getHostDsn($this->config);
+
+        $this->dbh = new PDO($hostDsn, $username, $password);
         $this->dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
         $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    }
+
+    protected function getHostDsn(array $config)
+    {
+        extract($config, EXTR_SKIP);
+
+        return isset($port)
+                        ? "mysql:host={$host};port={$port};dbname={$database}"
+                        : "mysql:host={$host};dbname={$database}";
     }
 
     public function query($query)

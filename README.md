@@ -32,15 +32,15 @@ Usage:
     $tnt = new TNTSearch;
 
     $tnt->loadConfig([
-        'type'    => 'mysql',
-        'db'      => 'bbc',
-        'host'    => 'localhost',
-        'user'    => 'user',
-        'pass'    => 'oass',
-        'storage' => '/var/www/tntsearch/examples/'
+        'driver'    => 'mysql',
+        'host'      => 'localhost',
+        'database'  => 'dbname',
+        'username'  => 'user',
+        'password'  => 'pass',
+        'storage'   => '/var/www/tntsearch/examples/'
     ]);
 
-    $indexer = $tnt->createIndex('bbc.index');
+    $indexer = $tnt->createIndex('name.index');
     $indexer->query('SELECT id, article FROM articles;');
     $indexer->run();
 
