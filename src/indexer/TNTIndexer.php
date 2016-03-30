@@ -94,6 +94,7 @@ class TNTIndexer
         $hostDsn = $this->getHostDsn($this->config);
 
         $this->dbh = new PDO($hostDsn, $username, $password);
+        $this->dbh->prepare("set names utf8 collate utf8_unicode_ci")->execute();
         $this->dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
         $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
@@ -190,7 +191,6 @@ class TNTIndexer
     public function stemText($text)
     {
         $stemmer = $this->getStemmer();
-        $text = preg_replace("/[^\w\ _]+/", ' ', $text);
         $words = preg_split('/\PL+/u', $text, -1, PREG_SPLIT_NO_EMPTY);
         $stems = [];
         foreach($words as $word) {
