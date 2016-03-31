@@ -6,23 +6,23 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 {
     protected $indexName = "testIndex";
     protected $config = [
-        'type'    => 'sqlite',
-        'db'      => 'test',
-        'host'    => 'localhost',
-        'user'    => 'testUser',
-        'pass'    => 'testPass',
-        'storage' => __DIR__
+        'driver'   => 'sqlite',
+        'database' => ':memory:',
+        'host'     => 'localhost',
+        'username' => 'testUser',
+        'password' => 'testPass',
+        'storage'  => __DIR__
     ];
 
     public function testLoadConfig()
     {
         $tnt = new TNTSearch();
         $tnt->loadConfig($this->config);
-        $this->assertArrayHasKey('type', $tnt->config);
-        $this->assertArrayHasKey('db', $tnt->config);
+        $this->assertArrayHasKey('driver', $tnt->config);
+        $this->assertArrayHasKey('database', $tnt->config);
         $this->assertArrayHasKey('host', $tnt->config);
-        $this->assertArrayHasKey('user', $tnt->config);
-        $this->assertArrayHasKey('pass', $tnt->config);
+        $this->assertArrayHasKey('username', $tnt->config);
+        $this->assertArrayHasKey('password', $tnt->config);
         $this->assertArrayHasKey('storage', $tnt->config);
     }
 
