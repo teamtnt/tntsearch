@@ -5,6 +5,7 @@ namespace TeamTNT\Indexer;
 use Exception;
 use PDO;
 use TeamTNT\Stemmer\CroatianStemmer;
+use TeamTNT\Stemmer\GermanStemmer;
 use TeamTNT\Stemmer\PorterStemmer;
 use TeamTNT\Support\Collection;
 
@@ -43,6 +44,13 @@ class TNTIndexer
     {
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', 'croatian')");
         $this->stemmer = new CroatianStemmer;
+    }
+
+    public function setLanguage($language = 'porter') 
+    {
+        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', '$language')");
+        $class = 'TeamTNT\\Stemmer\\'.ucfirst($language).'Stemmer';
+        $this->stemmer = new $class;
     }
 
     public function createIndex($indexName)
