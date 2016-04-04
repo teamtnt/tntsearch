@@ -49,7 +49,7 @@ class TNTIndexer
     public function setLanguage($language = 'porter') 
     {
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', '$language')");
-        $class = 'TeamTNT\\Stemmer\\'.ucfirst($language).'Stemmer';
+        $class = 'TeamTNT\\TNTSearch\\Stemmer\\'.ucfirst(strtolower($language)).'Stemmer';
         $this->stemmer = new $class;
     }
 
