@@ -1,13 +1,13 @@
 <?php
 
-namespace TeamTNT\Indexer;
+namespace TeamTNT\TNTSearch\Indexer;
 
 use Exception;
 use PDO;
-use TeamTNT\Stemmer\CroatianStemmer;
-use TeamTNT\Stemmer\GermanStemmer;
-use TeamTNT\Stemmer\PorterStemmer;
-use TeamTNT\Support\Collection;
+use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
+use TeamTNT\TNTSearch\Stemmer\GermanStemmer;
+use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
+use TeamTNT\TNTSearch\Support\Collection;
 
 class TNTIndexer
 {

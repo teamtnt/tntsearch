@@ -1,6 +1,6 @@
 <?php
 
-namespace TeamTNT\Stemmer;
+namespace TeamTNT\TNTSearch\Stemmer;
 /**
  * Copyright (c) 2005 Richard Heyes (http://www.phpguru.org/)
  *

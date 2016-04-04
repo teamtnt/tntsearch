@@ -1,6 +1,6 @@
 <?php
 
-use TeamTNT\Stemmer\CroatianStemmer;
+use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
 
 class CroatianStemmerTest extends PHPUnit_Framework_TestCase
 {

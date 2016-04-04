@@ -1,6 +1,6 @@
 <?php
 
-use TeamTNT\TNTSearch;
+use TeamTNT\TNTSearch\TNTSearch;
 
 class TNTSearchTest extends PHPUnit_Framework_TestCase
 {
@@ -32,7 +32,7 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         $tnt->loadConfig($this->config);
         $indexer = $tnt->createIndex($this->indexName);
 
-        $this->assertInstanceOf('TeamTNT\Indexer\TNTIndexer', $indexer);
+        $this->assertInstanceOf('TeamTNT\TNTSearch\Indexer\TNTIndexer', $indexer);
         $this->assertFileExists($indexer->getStoragePath() . $this->indexName);
     }
 

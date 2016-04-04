@@ -1,12 +1,12 @@
 <?php
 
-namespace TeamTNT;
+namespace TeamTNT\TNTSearch;
 
-use TeamTNT\Support\Collection;
-use TeamTNT\Support\Hihglighter;
-use TeamTNT\Indexer\TNTIndexer;
-use TeamTNT\Stemmer\PorterStemmer;
-use TeamTNT\Stemmer\CroatianStemmer;
+use TeamTNT\TNTSearch\Support\Collection;
+use TeamTNT\TNTSearch\Support\Hihglighter;
+use TeamTNT\TNTSearch\Indexer\TNTIndexer;
+use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
+use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
 use PDO;
 
 class TNTSearch

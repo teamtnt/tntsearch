@@ -1,6 +1,6 @@
 <?php
 
-use TeamTNT\Support\Hihglighter;
+use TeamTNT\TNTSearch\Support\Hihglighter;
 
 class HighlighterTest extends PHPUnit_Framework_TestCase
 {

@@ -24,7 +24,7 @@
     },
     "autoload": {
         "psr-4": {
-            "TeamTNT\\": "src"
+            "TeamTNT\\TNTSearch\\": "src"
         },
         "files": [
             "helper/helpers.php"
