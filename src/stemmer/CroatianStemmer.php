@@ -7,9 +7,9 @@ The original author is Ivan Pandžić. */
 
 namespace TeamTNT\Stemmer;
 
-class CroatianStemmer
+class CroatianStemmer implements Stemmer
 {
-    protected $stop = ['biti','jesam','budem','sam','jesi','budeš','si','jesmo','budemo',
+    protected static $stop = ['biti','jesam','budem','sam','jesi','budeš','si','jesmo','budemo',
        'smo','jeste','budete','ste','jesu','budu','su','bih','bijah','bjeh',
        'bijaše','bi','bje','bješe','bijasmo','bismo','bjesmo','bijaste','biste',
        'bjeste','bijahu','biste','bjeste','bijahu','bi','biše','bjehu','bješe',
@@ -18,48 +18,48 @@ class CroatianStemmer
        'moraš','mora','moramo','morate','moraju','trebam','trebaš','treba',
        'trebamo','trebate','trebaju','mogu','možeš','može','možemo','možete'];
 
-    public function stem($token)
+    public static function stem($token)
     {  
         $token = strtolower($token);
 
-        if(in_array($token, $this->stop)) {
+        if(in_array($token, self::$stop)) {
             return $token;
         }    
-        return $this->korjenuj($this->transformiraj($token));
+        return self::korjenuj(self::transformiraj($token));
     }
 
-    public function istakniSlogotvornoR($niz)
+    public static function istakniSlogotvornoR($niz)
     {
         return preg_replace('/(^|[^aeiou])r($|[^aeiou])/', '\1R\2', $niz);
     }
 
-    public function imaSamoglasnik($niz)
+    public static function imaSamoglasnik($niz)
     {        
-        preg_match('/[aeiouR]/', $this->istakniSlogotvornoR($niz), $matches);
+        preg_match('/[aeiouR]/', self::istakniSlogotvornoR($niz), $matches);
 
         if(count($matches) > 0) return true;
         return false;
     }
 
-    public function transformiraj($pojavnica) 
+    public static function transformiraj($pojavnica)
     {
-        foreach ($this->transformations as $trazi => $zamijeni) {
-            if($this->endsWith($pojavnica, $trazi)) {
+        foreach (self::$transformations as $trazi => $zamijeni) {
+            if(self::endsWith($pojavnica, $trazi)) {
                 return substr($pojavnica, 0, -1*strlen($trazi)) . $zamijeni;
             }
         }
         return $pojavnica;
     }
 
-    public function korjenuj($pojavnica) 
+    public static function korjenuj($pojavnica)
     {
-        foreach ($this->rules as $rule) {
+        foreach (self::$rules as $rule) {
             $rules = explode(" ", $rule);
             $osnova   = $rules[0];
             $nastavak = $rules[1];
             preg_match("/^(".$osnova.")(".$nastavak.")$/", $pojavnica, $dioba);
             if(!empty($dioba)) {
-                if($this->imaSamoglasnik($dioba[1]) && strlen($dioba[1]) > 1) {
+                if(self::imaSamoglasnik($dioba[1]) && strlen($dioba[1]) > 1) {
                     return $dioba[1];
                 }
             }
@@ -67,12 +67,12 @@ class CroatianStemmer
         return $pojavnica;
     }
 
-    public function endsWith($haystack, $needle) {
+    public static function endsWith($haystack, $needle) {
         // search forward starting from end minus needle length characters
         return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== false);
     }
 
-    protected $transformations = [
+    protected static $transformations = [
         'lozi'     => 'loga',
         'lozima'   => 'loga',
         'pjesi'    => 'pjeh',
@@ -206,7 +206,7 @@ class CroatianStemmer
         'ašan'     => 'ašni'
     ];
 
-    protected $rules = [
+    protected static $rules = [
         ".+(s|š)k ijima|ijega|ijemu|ijem|ijim|ijih|ijoj|ijeg|iji|ije|ija|oga|ome|omu|ima|og|om|im|ih|oj|i|e|o|a|u",
         ".+(s|š)tv ima|om|o|a|u",
         // N

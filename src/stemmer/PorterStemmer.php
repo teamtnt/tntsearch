@@ -20,7 +20,7 @@ namespace TeamTNT\Stemmer;
  * How easy is that?
  */
 
-class PorterStemmer
+class PorterStemmer implements Stemmer
 {
     /**
      * Regex for matching a consonant
