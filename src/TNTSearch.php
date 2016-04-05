@@ -137,8 +137,9 @@ class TNTSearch
     {
         $query = "SELECT * FROM info WHERE key = 'stemmer'";
         $docs = $this->index->query($query);
-        if($docs->fetch(PDO::FETCH_ASSOC)['value'] == 'croatian') {
-            $this->stemmer = new CroatianStemmer;
+        if($language = $docs->fetch(PDO::FETCH_ASSOC)['value']) {
+            $class = 'TeamTNT\\TNTSearch\\Stemmer\\'.ucfirst(strtolower($language)).'Stemmer';
+            $this->stemmer = new $class;
         } else {
             $this->stemmer = new PorterStemmer;
         }

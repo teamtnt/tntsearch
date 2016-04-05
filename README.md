@@ -27,7 +27,7 @@ In order to be able to make full text search queries you have to create an index
 Usage:
 ```php
 
-    use TeamTNT\TNTSearch;
+    use TeamTNT\TNTSearch\TNTSearch;
 
     $tnt = new TNTSearch;
 
@@ -42,6 +42,7 @@ Usage:
 
     $indexer = $tnt->createIndex('name.index');
     $indexer->query('SELECT id, article FROM articles;');
+    //$indexer->setLanguage('german');
     $indexer->run();
 
 ```
@@ -53,7 +54,7 @@ Searching for a phrase or keyword is trivial
 
 
 ```php
-    use TeamTNT\TNTSearch;
+    use TeamTNT\TNTSearch\TNTSearch;
 
     $tnt = new TNTSearch;
 
