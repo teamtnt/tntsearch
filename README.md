@@ -1,6 +1,7 @@
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Total Downloads][ico-downloads]][link-downloads]
 [![Software License][ico-license]](LICENSE.md)
+[![Slack Status](https://img.shields.io/badge/slack-chat-E01563.svg?style=flat-square)](https://tntsearch.slack.com)
 
 #TNTSearch
 
