@@ -9,5 +9,6 @@ class GermanStemmerTestTest extends PHPUnit_Framework_TestCase
     {
         $stemmer = new GermanStemmer;
         $this->assertEquals("vergnug", $stemmer->stem("vergnüglich"));
+        $this->assertEquals("unfallversicherungstrag", $stemmer->stem("Unfallversicherungsträger"));
     }
 }
