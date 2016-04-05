@@ -47,6 +47,13 @@ Usage:
     $indexer->run();
 
 ```
+
+Important: "storage" settings marks the folder where all of your indexes
+will be saved so make sure to have permission to write to this folder otherwise
+you might expect the following exception thrown:
+
+* [PDOException] SQLSTATE[HY000] [14] unable to open database file *
+
 Note: Your select statment MUST contain an ID field.
 
 ### Searching

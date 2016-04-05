@@ -14,6 +14,7 @@ class TNTIndexer
     protected $index    = null;
     protected $dbh      = null;
     protected $wordlist = [];
+    protected $decodeHTMLEntities = false;
 
     public function __construct()
     {
@@ -233,7 +234,15 @@ class TNTIndexer
 
     public function breakIntoTokens($text)
     {
+        if( $this->decodeHTMLEntities ) {
+            $text = html_entity_decode($text);
+        }
         return preg_split("/[^\p{L}\p{N}@_]+/u", $text, -1, PREG_SPLIT_NO_EMPTY);
+    }
+
+    public function decodeHtmlEntities($value = true)
+    {
+        $this->decodeHTMLEntities = $value;
     }
 
     public function saveToIndex($stems, $docId)
