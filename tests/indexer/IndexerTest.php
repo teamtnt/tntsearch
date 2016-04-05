@@ -1,6 +1,7 @@
 <?php
 
 use TeamTNT\TNTSearch\TNTSearch;
+use TeamTNT\TNTSearch\Indexer\TNTIndexer;
 
 class TNTIndexerTest extends PHPUnit_Framework_TestCase
 {   
@@ -30,6 +31,27 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
 
         $res = $tnt->search('Queen Mab');
         $this->assertEquals('7', $res['ids']);
+    }
+
+    public function testBreakIntoTokens()
+    {
+        $indexer = new TNTIndexer;
+
+        $text = "This is some text";
+        $res = $indexer->breakIntoTokens($text);
+
+        $this->assertContains("This", $res);
+        $this->assertContains("text", $res);
+
+        $text = "123 123 123";
+        $res = $indexer->breakIntoTokens($text);
+        $this->assertContains("123", $res);
+
+        $text = "Hi! This text contains an test@email.com. Test's email 123.";
+        $res = $indexer->breakIntoTokens($text);
+        $this->assertContains("test@email", $res);
+        $this->assertContains("contains", $res);
+        $this->assertContains("123", $res);
     }
 
     public function testIfCroatianStemmerIsSet()

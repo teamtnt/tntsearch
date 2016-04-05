@@ -35,8 +35,8 @@ class TNTSearch
 
     public function search($phrase, $numOfResults = 100)
     {
-        $phrase = preg_replace("/[^\w\ _]+/", ' ', $phrase);
-        $keywords = preg_split('/\PL+/u', $phrase, -1, PREG_SPLIT_NO_EMPTY);
+
+        $keywords = $this->breakIntoTokens($phrase);
 
         $keywords = new Collection($keywords);
         $this->setStemmer();
@@ -167,6 +167,12 @@ class TNTSearch
     public function info($str)
     {
         echo $str . "\n";
+    }
+
+    public function breakIntoTokens($text)
+    {
+        $indexer = new TNTIndexer;
+        return $indexer->breakIntoTokens($text);
     }
 
     public function highlight($text, $needle, $tag = 'em', $options = [])

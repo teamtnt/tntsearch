@@ -223,12 +223,17 @@ class TNTIndexer
     public function stemText($text)
     {
         $stemmer = $this->getStemmer();
-        $words   = preg_split('/\PL+/u', $text, -1, PREG_SPLIT_NO_EMPTY);
+        $words   = $this->breakIntoTokens($text);
         $stems   = [];
         foreach ($words as $word) {
             $stems[] = $stemmer->stem(strtolower($word));
         }
         return $stems;
+    }
+
+    public function breakIntoTokens($text)
+    {
+        return preg_split("/[^\p{L}\p{N}()@_&-]+/u", $text, -1, PREG_SPLIT_NO_EMPTY);
     }
 
     public function saveToIndex($stems, $docId)
