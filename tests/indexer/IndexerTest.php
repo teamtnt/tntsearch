@@ -52,6 +52,11 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         $this->assertContains("test@email", $res);
         $this->assertContains("contains", $res);
         $this->assertContains("123", $res);
+
+        $text = "Superman (1941)";
+        $res = $indexer->breakIntoTokens($text);
+        $this->assertContains("Superman", $res);
+        $this->assertContains("1941", $res);
     }
 
     public function testIfCroatianStemmerIsSet()

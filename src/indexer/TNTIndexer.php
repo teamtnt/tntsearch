@@ -233,7 +233,7 @@ class TNTIndexer
 
     public function breakIntoTokens($text)
     {
-        return preg_split("/[^\p{L}\p{N}()@_&-]+/u", $text, -1, PREG_SPLIT_NO_EMPTY);
+        return preg_split("/[^\p{L}\p{N}@_&-]+/u", $text, -1, PREG_SPLIT_NO_EMPTY);
     }
 
     public function saveToIndex($stems, $docId)
