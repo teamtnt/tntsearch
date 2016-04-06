@@ -35,7 +35,7 @@ class TNTSearch
 
     public function search($phrase, $numOfResults = 100)
     {
-
+        $startTimer = microtime(true);
         $keywords = $this->breakIntoTokens($phrase);
 
         $keywords = new Collection($keywords);
@@ -77,12 +77,14 @@ class TNTSearch
             $counter++;
             if($counter <= $numOfResults) return $item;
         });
+        $stopTimer = microtime(true);
 
         if($this->isFileSystemIndex()) {
             return $this->filesystemMapIdsToPaths($docs)->toArray();
         }
         return [
-            'ids' => array_keys($docs->toArray())
+            'ids'            => array_keys($docs->toArray()),
+            'execution time' => round($stopTimer - $startTimer, 7) * 1000 . " ms"
         ];
     }
 
