@@ -14,7 +14,7 @@ The easiest way to install TNTSearch is via [composer](http://getcomposer.org/).
 ```json
 {
     "require": {
-        "teamtnt/tntsearch": "dev-master"
+        "teamtnt/tntsearch": "0.1.*"
     }
 }
 ```
