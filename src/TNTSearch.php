@@ -82,7 +82,7 @@ class TNTSearch
             return $this->filesystemMapIdsToPaths($docs)->toArray();
         }
         return [
-            'ids' => $docs->implode(', ')
+            'ids' => array_keys($docs->toArray())
         ];
     }
 
