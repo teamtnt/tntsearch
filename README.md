@@ -67,7 +67,7 @@ Searching for a phrase or keyword is trivial
     $tnt = new TNTSearch;
 
     $tnt->loadConfig($config);
-    $tnt->selectIndex("bbc.index");
+    $tnt->selectIndex("name.index");
 
     $res = $tnt->search("This is a test search", 12);
 
