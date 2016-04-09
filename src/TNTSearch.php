@@ -2,12 +2,11 @@
 
 namespace TeamTNT\TNTSearch;
 
-use TeamTNT\TNTSearch\Support\Collection;
-use TeamTNT\TNTSearch\Support\Hihglighter;
+use PDO;
 use TeamTNT\TNTSearch\Indexer\TNTIndexer;
 use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
-use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
-use PDO;
+use TeamTNT\TNTSearch\Support\Collection;
+use TeamTNT\TNTSearch\Support\Hihglighter;
 
 class TNTSearch
 {
@@ -16,7 +15,7 @@ class TNTSearch
 
     public function loadConfig($config)
     {
-        $this->config = $config;
+        $this->config            = $config;
         $this->config['storage'] = rtrim($this->config['storage'], '/') . '/';
     }
 
@@ -36,33 +35,34 @@ class TNTSearch
     public function search($phrase, $numOfResults = 100)
     {
         $startTimer = microtime(true);
-        $keywords = $this->breakIntoTokens($phrase);
+        $keywords   = $this->breakIntoTokens($phrase);
 
         $keywords = new Collection($keywords);
         $this->setStemmer();
 
-        $keywords = $keywords->map(function($keyword) {
+        $keywords = $keywords->map(function ($keyword) {
             return $this->stemmer->stem($keyword);
         });
 
-        $tfWeight = 1; $dlWeight = 0.5;
+        $tfWeight  = 1;
+        $dlWeight  = 0.5;
         $docScores = [];
-
-        $count = $this->totalDocumentsInCollection();
-        foreach($keywords as $term) {
-            $df = $this->totalMatchingDocuments( $term );
-            foreach($this->getAllDocumentsForKeyword($term) as $document) {
-                $docID = $document['doc_id'];
-                $tf    = $document['hit_count'];
+        $count     = $this->totalDocumentsInCollection();
+        foreach ($keywords as $index => $term) {
+            $isLastKeyword = ($keywords->count() - 1) == $index;
+            $df            = $this->totalMatchingDocuments($term, $isLastKeyword);
+            foreach ($this->getAllDocumentsForKeyword($term) as $document) {
+                $docID     = $document['doc_id'];
+                $tf        = $document['hit_count'];
                 $docLength = 0;
-                $idf = log($count/$df);
-                $num = ($tfWeight + 1) * $tf;
-                $denom = $tfWeight
-                    * ((1 - $dlWeight) + $dlWeight)
-                    + $tf;
-                $score = $idf * ($num/$denom);
+                $idf       = log($count / $df);
+                $num       = ($tfWeight + 1) * $tf;
+                $denom     = $tfWeight
+                     * ((1 - $dlWeight) + $dlWeight)
+                     + $tf;
+                $score             = $idf * ($num / $denom);
                 $docScores[$docID] = isset($docScores[$docID]) ?
-                    $docScores[$docID] + $score : $score;
+                $docScores[$docID] + $score : $score;
             }
         }
 
@@ -71,30 +71,33 @@ class TNTSearch
         $docs = new Collection($docScores);
 
         $counter = 0;
-        $docs = $docs->map(function($doc, $key) {
+        $docs    = $docs->map(function ($doc, $key) {
             return $key;
-        })->filter(function($item) use (&$counter, $numOfResults) {
+        })->filter(function ($item) use (&$counter, $numOfResults) {
             $counter++;
-            if($counter <= $numOfResults) return $item;
+            if ($counter <= $numOfResults) {
+                return $item;
+            }
+
         });
         $stopTimer = microtime(true);
 
-        if($this->isFileSystemIndex()) {
+        if ($this->isFileSystemIndex()) {
             return $this->filesystemMapIdsToPaths($docs)->toArray();
         }
         return [
             'ids'            => array_keys($docs->toArray()),
-            'execution time' => round($stopTimer - $startTimer, 7) * 1000 . " ms"
+            'execution time' => round($stopTimer - $startTimer, 7) * 1000 . " ms",
         ];
     }
 
     public function getAllDocumentsForKeyword($keyword)
     {
         $word = $this->getWordlistByKeyword($keyword);
-        if(!isset($word[0])) {
+        if (!isset($word[0])) {
             return [];
         }
-        $query = "SELECT * FROM doclist WHERE term_id = :id";
+        $query   = "SELECT * FROM doclist WHERE term_id = :id";
         $stmtDoc = $this->index->prepare($query);
 
         $stmtDoc->bindValue(':id', $word[0]['id'], SQLITE3_INTEGER);
@@ -102,23 +105,28 @@ class TNTSearch
         return $stmtDoc->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function totalMatchingDocuments($keyword)
+    public function totalMatchingDocuments($keyword, $isLastWord = false)
     {
-        $occurance = $this->getWordlistByKeyword($keyword);
-        if(isset($occurance[0]))
+        $occurance = $this->getWordlistByKeyword($keyword, $isLastWord);
+        if (isset($occurance[0])) {
             return $occurance[0]['num_docs'];
+        }
+
         return 0;
     }
 
-    public function getWordlistByKeyword($keyword) 
+    public function getWordlistByKeyword($keyword, $isLastWord = false)
     {
-        if(isset($this->wordlist[$keyword])) {
+        if (isset($this->wordlist[$keyword])) {
             return $this->wordlist[$keyword];
         }
-        $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY length(term) ASC LIMIT 1";
-        $stmtWord = $this->index->prepare($searchWordlist);
-        if($this->asYouType == true) {
-            $stmtWord->bindValue(':keyword', strtolower($keyword)."%", SQLITE3_TEXT);
+        $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword LIMIT 1";
+        $stmtWord       = $this->index->prepare($searchWordlist);
+
+        if ($this->asYouType && $isLastWord) {
+            $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY length(term) ASC, num_hits DESC LIMIT 1";
+            $stmtWord       = $this->index->prepare($searchWordlist);
+            $stmtWord->bindValue(':keyword', strtolower($keyword) . "%", SQLITE3_TEXT);
         } else {
             $stmtWord->bindValue(':keyword', strtolower($keyword), SQLITE3_TEXT);
         }
@@ -130,7 +138,7 @@ class TNTSearch
     public function totalDocumentsInCollection()
     {
         $query = "SELECT * FROM info WHERE key = 'total_documents'";
-        $docs = $this->index->query($query);
+        $docs  = $this->index->query($query);
 
         return $docs->fetch(PDO::FETCH_ASSOC)['value'];
     }
@@ -138,9 +146,9 @@ class TNTSearch
     public function setStemmer()
     {
         $query = "SELECT * FROM info WHERE key = 'stemmer'";
-        $docs = $this->index->query($query);
-        if($language = $docs->fetch(PDO::FETCH_ASSOC)['value']) {
-            $class = 'TeamTNT\\TNTSearch\\Stemmer\\'.ucfirst(strtolower($language)).'Stemmer';
+        $docs  = $this->index->query($query);
+        if ($language = $docs->fetch(PDO::FETCH_ASSOC)['value']) {
+            $class         = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
             $this->stemmer = new $class;
         } else {
             $this->stemmer = new PorterStemmer;
@@ -150,17 +158,17 @@ class TNTSearch
     public function isFileSystemIndex()
     {
         $query = "SELECT * FROM info WHERE key = 'driver'";
-        $docs = $this->index->query($query);
+        $docs  = $this->index->query($query);
 
         return $docs->fetch(PDO::FETCH_ASSOC)['value'] == 'filesystem';
     }
 
     public function filesystemMapIdsToPaths($docs)
     {
-        $query = "SELECT * FROM filemap WHERE id in (".$docs->implode(', ').");";
-        $res = $this->index->query($query)->fetchAll(PDO::FETCH_ASSOC);
+        $query = "SELECT * FROM filemap WHERE id in (" . $docs->implode(', ') . ");";
+        $res   = $this->index->query($query)->fetchAll(PDO::FETCH_ASSOC);
 
-        return $docs->map(function($key) use ($res) {
+        return $docs->map(function ($key) use ($res) {
             $index = array_search($key, array_column($res, 'id'));
             return $res[$index];
         });
@@ -183,7 +191,7 @@ class TNTSearch
         return $hl->highlight($text, $needle, $tag, $options);
     }
 
-    public function snippet($words, $fulltext, $rellength=300, $prevcount=50, $indicator='...')
+    public function snippet($words, $fulltext, $rellength = 300, $prevcount = 50, $indicator = '...')
     {
         $hl = new Hihglighter;
         return $hl->extractRelevant($words, $fulltext, $rellength, $prevcount, $indicator);

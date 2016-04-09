@@ -27,6 +27,7 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         $indexer->run();
 
         $tnt->selectIndex($this->indexName);
+        $tnt->asYouType = true;
         $res = $tnt->search('Juliet');
         $this->assertEquals([9, 5, 6, 7, 8], $res['ids']);
 
