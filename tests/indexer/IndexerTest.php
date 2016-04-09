@@ -22,6 +22,7 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         $tnt->loadConfig($this->config);
 
         $indexer = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput = true;
         $indexer->query('SELECT id, title, article FROM articles;');
         $indexer->run();
 
@@ -68,6 +69,7 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         $indexer = $tnt->createIndex($this->indexName);
         $indexer->query('SELECT id, title, article FROM articles;');
         $indexer->setLanguage('croatian');
+        $indexer->disableOutput = true;
         $indexer->run();
 
         $this->index = new PDO('sqlite:' . $this->config['storage'] . $this->indexName);
@@ -86,6 +88,7 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         $indexer = $tnt->createIndex($this->indexName);
         $indexer->query('SELECT id, title, article FROM articles;');
         $indexer->setLanguage('german');
+        $indexer->disableOutput = true;
         $indexer->run();
 
         $this->index = new PDO('sqlite:' . $this->config['storage'] . $this->indexName);

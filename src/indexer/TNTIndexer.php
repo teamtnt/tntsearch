@@ -15,6 +15,7 @@ class TNTIndexer
     protected $dbh      = null;
     protected $wordlist = [];
     protected $decodeHTMLEntities = false;
+    public    $disableOutput = false;
 
     public function __construct()
     {
@@ -163,19 +164,19 @@ class TNTIndexer
             $this->processDocument(new Collection($row));
 
             if ($counter % 1000 == 0) {
-                echo "Processed $counter rows\n";
+                $this->info("Processed $counter rows");
             }
             if ($counter % 10000 == 0) {
                 $this->index->commit();
                 $this->index->beginTransaction();
-                echo "Commited\n";
+                $this->info("Commited");
             }
         }
         $this->index->commit();
 
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', $counter)");
 
-        echo "Total rows $counter\n";
+        $this->info("Total rows $counter");
     }
 
     public function readDocumentsFromFileSystem()
@@ -349,6 +350,13 @@ class TNTIndexer
                 $positionCounter++;
             }
             $fieldCounter++;
+        }
+    }
+
+    public function info($text) 
+    {
+        if(!$this->disableOutput) {
+            echo $text .PHP_EOL;
         }
     }
 }
