@@ -12,6 +12,7 @@ class TNTSearch
 {
     public $config;
     public $asYouType = false;
+    public $maxDocs   = 500;
 
     public function loadConfig($config)
     {
@@ -97,7 +98,7 @@ class TNTSearch
         if (!isset($word[0])) {
             return [];
         }
-        $query   = "SELECT * FROM doclist WHERE term_id = :id";
+        $query   = "SELECT * FROM doclist WHERE term_id = :id ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
         $stmtDoc = $this->index->prepare($query);
 
         $stmtDoc->bindValue(':id', $word[0]['id'], SQLITE3_INTEGER);
