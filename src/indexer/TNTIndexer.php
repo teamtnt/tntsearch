@@ -5,17 +5,18 @@ namespace TeamTNT\TNTSearch\Indexer;
 use Exception;
 use PDO;
 use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
-use TeamTNT\TNTSearch\Stemmer\GermanStemmer;
 use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
 
 class TNTIndexer
 {
-    protected $index    = null;
-    protected $dbh      = null;
-    protected $wordlist = [];
+    protected $index              = null;
+    protected $dbh                = null;
+    protected $wordlist           = [];
+    protected $inMemoryTerms      = [];
     protected $decodeHTMLEntities = false;
-    public    $disableOutput = false;
+    public $disableOutput         = false;
+    public $inMemory              = true;
 
     public function __construct()
     {
@@ -48,10 +49,10 @@ class TNTIndexer
         $this->stemmer = new CroatianStemmer;
     }
 
-    public function setLanguage($language = 'porter') 
+    public function setLanguage($language = 'porter')
     {
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', '$language')");
-        $class = 'TeamTNT\\TNTSearch\\Stemmer\\'.ucfirst(strtolower($language)).'Stemmer';
+        $class         = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
         $this->stemmer = new $class;
     }
 
@@ -235,7 +236,7 @@ class TNTIndexer
 
     public function breakIntoTokens($text)
     {
-        if( $this->decodeHTMLEntities ) {
+        if ($this->decodeHTMLEntities) {
             $text = html_entity_decode($text);
         }
         return preg_split("/[^\p{L}\p{N}@_]+/u", $text, -1, PREG_SPLIT_NO_EMPTY);
@@ -287,17 +288,23 @@ class TNTIndexer
                 $insertStmt->execute();
 
                 $terms[$key]['id'] = $this->index->lastInsertId();
-
+                if ($this->inMemory) {
+                    $this->inMemoryTerms[$key] = $terms[$key]['id'];
+                }
             } catch (\Exception $e) {
                 if ($e->getCode() == 23000) {
                     $updateStmt->bindValue(':docs', $term['docs'], SQLITE3_INTEGER);
                     $updateStmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
                     $updateStmt->bindValue(':keyword', $key, SQLITE3_TEXT);
                     $updateStmt->execute();
-                    $selectStmt->bindValue(':keyword', $key);
-                    $selectStmt->execute();
-                    $res               = $selectStmt->fetch(PDO::FETCH_ASSOC);
-                    $terms[$key]['id'] = $res['id'];
+                    if (!$this->inMemory) {
+                        $selectStmt->bindValue(':keyword', $key);
+                        $selectStmt->execute();
+                        $res               = $selectStmt->fetch(PDO::FETCH_ASSOC);
+                        $terms[$key]['id'] = $res['id'];
+                    } else {
+                        $terms[$key]['id'] = $this->inMemoryTerms[$key];
+                    }
                 } else {
                     echo $e->getMessage() . "\n";
                 }
@@ -353,10 +360,10 @@ class TNTIndexer
         }
     }
 
-    public function info($text) 
+    public function info($text)
     {
-        if(!$this->disableOutput) {
-            echo $text .PHP_EOL;
+        if (!$this->disableOutput) {
+            echo $text . PHP_EOL;
         }
     }
 }
