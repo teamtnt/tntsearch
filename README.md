@@ -7,6 +7,10 @@
 
 A fully featured full text search engine written in PHP
 
+##Demo
+
+To see TNTSearch in action take a look at [the demo page](http://tntsearch.tntstudio.us/)
+
 ##Installation
 
 The easiest way to install TNTSearch is via [composer](http://getcomposer.org/). Create the following `composer.json` file and run the `php composer.phar install` command to install it.
