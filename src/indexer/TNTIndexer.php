@@ -17,6 +17,7 @@ class TNTIndexer
     protected $decodeHTMLEntities = false;
     public $disableOutput         = false;
     public $inMemory              = true;
+    public $steps                 = 1000;
 
     public function __construct()
     {
@@ -164,7 +165,7 @@ class TNTIndexer
 
             $this->processDocument(new Collection($row));
 
-            if ($counter % 1000 == 0) {
+            if ($counter % $this->steps == 0) {
                 $this->info("Processed $counter rows");
             }
             if ($counter % 10000 == 0) {
