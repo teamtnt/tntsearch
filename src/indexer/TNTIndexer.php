@@ -260,9 +260,6 @@ class TNTIndexer
         $terms = [];
         $stems->map(function ($column, $key) use (&$terms) {
             foreach ($column as $term) {
-                if (strlen($term) < 3) {
-                    continue;
-                }
 
                 if (array_key_exists($term, $terms)) {
                     $terms[$term]['hits']++;
