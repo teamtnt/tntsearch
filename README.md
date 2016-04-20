@@ -84,6 +84,27 @@ Searching for a phrase or keyword is trivial
 The ORDER BY FIELD clause is important otherwise the database engine will not return
 the results in required order
 
+### Boolean search
+
+```php
+    use TeamTNT\TNTSearch\TNTSearch;
+
+    $tnt = new TNTSearch;
+
+    $tnt->loadConfig($config);
+    $tnt->selectIndex("name.index");
+
+    //this will return all documents that have romeo in it but not juliet
+    $res = $tnt->searchBoolean("romeo -juliet");
+    
+    //returns all documents that have romeo or hamlet in it
+    $res = $tnt->searchBoolean("romeo or hamlet");
+    
+    //returns all documents that have either romeo AND juliet or prince AND hamlet
+    $res = $tnt->searchBoolean("(romeo juliet) or (prince hamlet)");
+
+```
+
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details.
