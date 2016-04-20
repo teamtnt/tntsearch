@@ -143,7 +143,7 @@ class TNTSearch
                 $stack[] = array_unique(array_merge($left, $right));
             } else
             if ($token == '~') {
-                $left  = array_pop($stack);
+                $left = array_pop($stack);
                 if (is_string($left)) {
                     $left = $this->getAllDocumentsForWhereKeywordNot($this->stemmer->stem($left), true)
                         ->pluck('doc_id');
@@ -162,8 +162,16 @@ class TNTSearch
             $docs = new Collection;
         }
 
+        $counter = 0;
+        $docs    = $docs->filter(function ($item) use (&$counter, $numOfResults) {
+            $counter++;
+            if ($counter <= $numOfResults) {
+                return $item;
+            }
+        });
+
         $stopTimer = microtime(true);
-        
+
         if ($this->isFileSystemIndex()) {
             return $this->filesystemMapIdsToPaths($docs)->toArray();
         }
