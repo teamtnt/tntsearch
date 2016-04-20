@@ -6,6 +6,7 @@ use PDO;
 use TeamTNT\TNTSearch\Indexer\TNTIndexer;
 use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
+use TeamTNT\TNTSearch\Support\Expression;
 use TeamTNT\TNTSearch\Support\Hihglighter;
 
 class TNTSearch
@@ -31,6 +32,7 @@ class TNTSearch
     {
         $this->index = new PDO('sqlite:' . $this->config['storage'] . $indexName);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->setStemmer();
     }
 
     public function search($phrase, $numOfResults = 100)
@@ -39,7 +41,6 @@ class TNTSearch
         $keywords   = $this->breakIntoTokens($phrase);
 
         $keywords = new Collection($keywords);
-        $this->setStemmer();
 
         $keywords = $keywords->map(function ($keyword) {
             return $this->stemmer->stem($keyword);
@@ -92,18 +93,119 @@ class TNTSearch
         ];
     }
 
-    public function getAllDocumentsForKeyword($keyword)
+    public function searchBoolean($phrase, $numOfResults = 100)
+    {
+        $stack      = [];
+        $startTimer = microtime(true);
+
+        $expression = new Expression;
+        $postfix    = $expression->toPostfix($phrase);
+        foreach ($postfix as $token) {
+            if ($token == '&') {
+                $left  = array_pop($stack);
+                $right = array_pop($stack);
+                if (is_string($left)) {
+                    $left = $this->getAllDocumentsForKeyword($this->stemmer->stem($left), true)
+                        ->pluck('doc_id');
+                }
+                if (is_string($right)) {
+                    $right = $this->getAllDocumentsForKeyword($this->stemmer->stem($right), true)
+                        ->pluck('doc_id');
+                }
+                if (is_null($left)) {
+                    $left = [];
+                }
+
+                if (is_null($right)) {
+                    $right = [];
+                }
+                $stack[] = array_values(array_intersect($left, $right));
+            } else
+            if ($token == '|') {
+                $left  = array_pop($stack);
+                $right = array_pop($stack);
+
+                if (is_string($left)) {
+                    $left = $this->getAllDocumentsForKeyword($this->stemmer->stem($left), true)
+                        ->pluck('doc_id');
+                }
+                if (is_string($right)) {
+                    $right = $this->getAllDocumentsForKeyword($this->stemmer->stem($right), true)
+                        ->pluck('doc_id');
+                }
+                if (is_null($left)) {
+                    $left = [];
+                }
+
+                if (is_null($right)) {
+                    $right = [];
+                }
+                $stack[] = array_unique(array_merge($left, $right));
+            } else
+            if ($token == '~') {
+                $left  = array_pop($stack);
+                if (is_string($left)) {
+                    $left = $this->getAllDocumentsForWhereKeywordNot($this->stemmer->stem($left), true)
+                        ->pluck('doc_id');
+                }
+                if (is_null($left)) {
+                    $left = [];
+                }
+                $stack[] = $left;
+            } else {
+                $stack[] = $token;
+            }
+        }
+        if (count($stack)) {
+            $docs = new Collection($stack[0]);
+        } else {
+            $docs = new Collection;
+        }
+
+        $stopTimer = microtime(true);
+        
+        if ($this->isFileSystemIndex()) {
+            return $this->filesystemMapIdsToPaths($docs)->toArray();
+        }
+
+        return [
+            'ids'            => $docs->toArray(),
+            'execution time' => round($stopTimer - $startTimer, 7) * 1000 . " ms",
+        ];
+    }
+
+    public function getAllDocumentsForKeyword($keyword, $noLimit = false)
     {
         $word = $this->getWordlistByKeyword($keyword);
         if (!isset($word[0])) {
             return [];
         }
-        $query   = "SELECT * FROM doclist WHERE term_id = :id ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
+        $query = "SELECT * FROM doclist WHERE term_id = :id ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
+        if ($noLimit) {
+            $query = "SELECT * FROM doclist WHERE term_id = :id ORDER BY hit_count DESC";
+        }
         $stmtDoc = $this->index->prepare($query);
 
         $stmtDoc->bindValue(':id', $word[0]['id'], SQLITE3_INTEGER);
         $stmtDoc->execute();
-        return $stmtDoc->fetchAll(PDO::FETCH_ASSOC);
+        return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    public function getAllDocumentsForWhereKeywordNot($keyword, $noLimit = false)
+    {
+        $word = $this->getWordlistByKeyword($keyword);
+        if (!isset($word[0])) {
+            return [];
+        }
+        $query = "SELECT * FROM doclist WHERE doc_id NOT IN (SELECT doc_id FROM doclist WHERE term_id = :id) GROUP BY doc_id ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
+        if ($noLimit) {
+            $query = "SELECT * FROM doclist WHERE doc_id NOT IN (SELECT doc_id FROM doclist WHERE term_id = :id) GROUP BY doc_id ORDER BY hit_count DESC";
+        }
+        $stmtDoc = $this->index->prepare($query);
+
+        $stmtDoc->bindValue(':id', $word[0]['id'], SQLITE3_INTEGER);
+        $stmtDoc->execute();
+        return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
     }
 
     public function totalMatchingDocuments($keyword, $isLastWord = false)

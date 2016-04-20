@@ -5,13 +5,14 @@ use TeamTNT\TNTSearch\TNTSearch;
 class TNTSearchTest extends PHPUnit_Framework_TestCase
 {
     protected $indexName = "testIndex";
+    
     protected $config = [
         'driver'   => 'sqlite',
-        'database' => ':memory:',
+        'database' => __DIR__.'/_files/articles.sqlite',
         'host'     => 'localhost',
         'username' => 'testUser',
         'password' => 'testPass',
-        'storage'  => __DIR__
+        'storage'  => __DIR__.'/_files/'
     ];
 
     public function testLoadConfig()
@@ -34,6 +35,34 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('TeamTNT\TNTSearch\Indexer\TNTIndexer', $indexer);
         $this->assertFileExists($indexer->getStoragePath() . $this->indexName);
+    }
+
+    public function testSearchBoolean()
+    {
+        $tnt = new TNTSearch;
+
+        $tnt->loadConfig($this->config);
+
+        $indexer = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput = true;
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+        $res = $tnt->searchBoolean('romeo juliet queen');
+        $this->assertEquals([7], $res['ids']);
+
+        $res = $tnt->searchBoolean('Hamlet or Macbeth');
+        $this->assertEquals([3,4,1,2], $res['ids']);
+
+        $res = $tnt->searchBoolean('juliet -well');
+        $this->assertEquals([5,6,7,8, 10], $res['ids']);
+
+        $res = $tnt->searchBoolean('juliet -romeo');
+        $this->assertEquals([10], $res['ids']);
+
+        $res = $tnt->searchBoolean('hamlet -king');
+        $this->assertEquals([2], $res['ids']);
     }
 
     public function tearDown()
