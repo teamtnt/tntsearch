@@ -6,7 +6,6 @@ use ArrayIterator;
 use Countable;
 use IteratorAggregate;
 
-
 class Collection implements Countable, IteratorAggregate
 {
 
@@ -67,6 +66,11 @@ class Collection implements Countable, IteratorAggregate
     public function get($key)
     {
         return $this->items[$key];
+    }
+
+    public function pluck($value, $key = null)
+    {
+        return array_column($this->items, $value, $key);
     }
 
     public function implode($glue)
