@@ -1,25 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="phpunit.php"
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         bootstrap="phpunit.php"
          colors="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
+         processIsolation="false"
          stopOnFailure="false"
+         syntaxCheck="false"
 >
-
     <testsuites>
         <testsuite name="TNTSearch Test Suite">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
-
-    <filter>
-      <whitelist addUncoveredFilesFromWhitelist="true">
-        <directory suffix=".php">./src/</directory>
-      </whitelist>
-    </filter>
-
-    <logging>
-        <log type="coverage-html" target="./tests/coverage" charset="UTF-8"/>
-    </logging>
 </phpunit>

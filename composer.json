@@ -29,8 +29,5 @@
         "files": [
             "helper/helpers.php"
         ]
-    },
-    "scripts": {
-        "test": "phpunit"
     }
 }
