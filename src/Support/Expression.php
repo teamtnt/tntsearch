@@ -37,7 +37,7 @@ class Expression
                 }
             }
         }
-        while ($stack) {
+        while (!empty($stack)) {
             $postfix[] = array_pop($stack);
         }
 
