@@ -66,19 +66,19 @@ class PorterStemmer implements Stemmer
         if (substr($word, -1) == 's') {
 
             self::replace($word, 'sses', 'ss')
-            or self::replace($word, 'ies', 'i')
-            or self::replace($word, 'ss', 'ss')
-            or self::replace($word, 's', '');
+            || self::replace($word, 'ies', 'i')
+            || self::replace($word, 'ss', 'ss')
+            || self::replace($word, 's', '');
         }
 
         // Part b
-        if (substr($word, -2, 1) != 'e' or !self::replace($word, 'eed', 'ee', 0)) {
+        if (substr($word, -2, 1) != 'e' || !self::replace($word, 'eed', 'ee', 0)) {
             // First rule
             $v = self::$regex_vowel;
 
             // ing and ed
             if (preg_match("#$v+#", substr($word, 0, -3)) && self::replace($word, 'ing', '')
-                or preg_match("#$v+#", substr($word, 0, -2)) && self::replace($word, 'ed', '')) {
+                || preg_match("#$v+#", substr($word, 0, -2)) && self::replace($word, 'ed', '')) {
                 // Note use of && and OR, for precedence reasons
 
                 // If one of above two test successful
@@ -130,12 +130,12 @@ class PorterStemmer implements Stemmer
         switch (substr($word, -2, 1)) {
             case 'a':
                 self::replace($word, 'ational', 'ate', 0)
-                or self::replace($word, 'tional', 'tion', 0);
+                || self::replace($word, 'tional', 'tion', 0);
                 break;
 
             case 'c':
                 self::replace($word, 'enci', 'ence', 0)
-                or self::replace($word, 'anci', 'ance', 0);
+                || self::replace($word, 'anci', 'ance', 0);
                 break;
 
             case 'e':
@@ -148,29 +148,29 @@ class PorterStemmer implements Stemmer
 
             case 'l':
                 self::replace($word, 'entli', 'ent', 0)
-                or self::replace($word, 'ousli', 'ous', 0)
-                or self::replace($word, 'alli', 'al', 0)
-                or self::replace($word, 'bli', 'ble', 0)
-                or self::replace($word, 'eli', 'e', 0);
+                || self::replace($word, 'ousli', 'ous', 0)
+                || self::replace($word, 'alli', 'al', 0)
+                || self::replace($word, 'bli', 'ble', 0)
+                || self::replace($word, 'eli', 'e', 0);
                 break;
 
             case 'o':
                 self::replace($word, 'ization', 'ize', 0)
-                or self::replace($word, 'ation', 'ate', 0)
-                or self::replace($word, 'ator', 'ate', 0);
+                || self::replace($word, 'ation', 'ate', 0)
+                || self::replace($word, 'ator', 'ate', 0);
                 break;
 
             case 's':
                 self::replace($word, 'iveness', 'ive', 0)
-                or self::replace($word, 'fulness', 'ful', 0)
-                or self::replace($word, 'ousness', 'ous', 0)
-                or self::replace($word, 'alism', 'al', 0);
+                || self::replace($word, 'fulness', 'ful', 0)
+                || self::replace($word, 'ousness', 'ous', 0)
+                || self::replace($word, 'alism', 'al', 0);
                 break;
 
             case 't':
                 self::replace($word, 'biliti', 'ble', 0)
-                or self::replace($word, 'aliti', 'al', 0)
-                or self::replace($word, 'iviti', 'ive', 0);
+                || self::replace($word, 'aliti', 'al', 0)
+                || self::replace($word, 'iviti', 'ive', 0);
                 break;
         }
 
@@ -195,7 +195,7 @@ class PorterStemmer implements Stemmer
 
             case 't':
                 self::replace($word, 'icate', 'ic', 0)
-                or self::replace($word, 'iciti', 'ic', 0);
+                || self::replace($word, 'iciti', 'ic', 0);
                 break;
 
             case 'u':
@@ -228,7 +228,7 @@ class PorterStemmer implements Stemmer
 
             case 'c':
                 self::replace($word, 'ance', '', 1)
-                or self::replace($word, 'ence', '', 1);
+                || self::replace($word, 'ence', '', 1);
                 break;
 
             case 'e':
@@ -241,18 +241,18 @@ class PorterStemmer implements Stemmer
 
             case 'l':
                 self::replace($word, 'able', '', 1)
-                or self::replace($word, 'ible', '', 1);
+                || self::replace($word, 'ible', '', 1);
                 break;
 
             case 'n':
                 self::replace($word, 'ant', '', 1)
-                or self::replace($word, 'ement', '', 1)
-                or self::replace($word, 'ment', '', 1)
-                or self::replace($word, 'ent', '', 1);
+                || self::replace($word, 'ement', '', 1)
+                || self::replace($word, 'ment', '', 1)
+                || self::replace($word, 'ent', '', 1);
                 break;
 
             case 'o':
-                if (substr($word, -4) == 'tion' or substr($word, -4) == 'sion') {
+                if (substr($word, -4) == 'tion' || substr($word, -4) == 'sion') {
                     self::replace($word, 'ion', '', 1);
                 } else {
                     self::replace($word, 'ou', '', 1);
@@ -265,7 +265,7 @@ class PorterStemmer implements Stemmer
 
             case 't':
                 self::replace($word, 'ate', '', 1)
-                or self::replace($word, 'iti', '', 1);
+                || self::replace($word, 'iti', '', 1);
                 break;
 
             case 'u':
@@ -330,7 +330,7 @@ class PorterStemmer implements Stemmer
 
         if (substr($str, $len) == $check) {
             $substr = substr($str, 0, $len);
-            if (is_null($m) or self::m($substr) > $m) {
+            if (is_null($m) || self::m($substr) > $m) {
                 $str = $substr . $repl;
             }
 
