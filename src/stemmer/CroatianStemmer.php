@@ -1,30 +1,30 @@
 <?php
 
 /*
-This is a reimplementation in PHP of a simple rule-based stemmer for Croatian 
-at http://nlp.ffzg.hr/resources/tools/stemmer-for-croatian/ (Python). 
+This is a reimplementation in PHP of a simple rule-based stemmer for Croatian
+at http://nlp.ffzg.hr/resources/tools/stemmer-for-croatian/ (Python).
 The original author is Ivan Pandžić. */
 
 namespace TeamTNT\TNTSearch\Stemmer;
 
 class CroatianStemmer implements Stemmer
 {
-    protected static $stop = ['biti','jesam','budem','sam','jesi','budeš','si','jesmo','budemo',
-       'smo','jeste','budete','ste','jesu','budu','su','bih','bijah','bjeh',
-       'bijaše','bi','bje','bješe','bijasmo','bismo','bjesmo','bijaste','biste',
-       'bjeste','bijahu','biste','bjeste','bijahu','bi','biše','bjehu','bješe',
-       'bio','bili','budimo','budite','bila','bilo','bile','ću','ćeš','će',
-       'ćemo','ćete','želim','želiš','želi','želimo','želite','žele','moram',
-       'moraš','mora','moramo','morate','moraju','trebam','trebaš','treba',
-       'trebamo','trebate','trebaju','mogu','možeš','može','možemo','možete'];
+    protected static $stop = ['biti', 'jesam', 'budem', 'sam', 'jesi', 'budeš', 'si', 'jesmo', 'budemo',
+        'smo', 'jeste', 'budete', 'ste', 'jesu', 'budu', 'su', 'bih', 'bijah', 'bjeh',
+        'bijaše', 'bi', 'bje', 'bješe', 'bijasmo', 'bismo', 'bjesmo', 'bijaste', 'biste',
+        'bjeste', 'bijahu', 'biste', 'bjeste', 'bijahu', 'bi', 'biše', 'bjehu', 'bješe',
+        'bio', 'bili', 'budimo', 'budite', 'bila', 'bilo', 'bile', 'ću', 'ćeš', 'će',
+        'ćemo', 'ćete', 'želim', 'želiš', 'želi', 'želimo', 'želite', 'žele', 'moram',
+        'moraš', 'mora', 'moramo', 'morate', 'moraju', 'trebam', 'trebaš', 'treba',
+        'trebamo', 'trebate', 'trebaju', 'mogu', 'možeš', 'može', 'možemo', 'možete'];
 
     public static function stem($token)
-    {  
+    {
         $token = strtolower($token);
 
-        if(in_array($token, self::$stop)) {
+        if (in_array($token, self::$stop)) {
             return $token;
-        }    
+        }
         return self::korjenuj(self::transformiraj($token));
     }
 
@@ -34,18 +34,21 @@ class CroatianStemmer implements Stemmer
     }
 
     public static function imaSamoglasnik($niz)
-    {        
+    {
         preg_match('/[aeiouR]/', self::istakniSlogotvornoR($niz), $matches);
 
-        if(count($matches) > 0) return true;
+        if (count($matches) > 0) {
+            return true;
+        }
+
         return false;
     }
 
     public static function transformiraj($pojavnica)
     {
         foreach (self::$transformations as $trazi => $zamijeni) {
-            if(self::endsWith($pojavnica, $trazi)) {
-                return substr($pojavnica, 0, -1*strlen($trazi)) . $zamijeni;
+            if (self::endsWith($pojavnica, $trazi)) {
+                return substr($pojavnica, 0, -1 * strlen($trazi)) . $zamijeni;
             }
         }
         return $pojavnica;
@@ -54,12 +57,12 @@ class CroatianStemmer implements Stemmer
     public static function korjenuj($pojavnica)
     {
         foreach (self::$rules as $rule) {
-            $rules = explode(" ", $rule);
+            $rules    = explode(" ", $rule);
             $osnova   = $rules[0];
             $nastavak = $rules[1];
-            preg_match("/^(".$osnova.")(".$nastavak.")$/", $pojavnica, $dioba);
-            if(!empty($dioba)) {
-                if(self::imaSamoglasnik($dioba[1]) && strlen($dioba[1]) > 1) {
+            preg_match("/^(" . $osnova . ")(" . $nastavak . ")$/", $pojavnica, $dioba);
+            if (!empty($dioba)) {
+                if (self::imaSamoglasnik($dioba[1]) && strlen($dioba[1]) > 1) {
                     return $dioba[1];
                 }
             }
@@ -67,7 +70,8 @@ class CroatianStemmer implements Stemmer
         return $pojavnica;
     }
 
-    public static function endsWith($haystack, $needle) {
+    public static function endsWith($haystack, $needle)
+    {
         // search forward starting from end minus needle length characters
         return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== false);
     }
@@ -203,7 +207,7 @@ class CroatianStemmer implements Stemmer
         'izama'    => 'izma',
         'jebe'     => 'jebi',
         'baci'     => 'baci',
-        'ašan'     => 'ašni'
+        'ašan'     => 'ašni',
     ];
 
     protected static $rules = [
@@ -230,7 +234,7 @@ class CroatianStemmer implements Stemmer
         ".+(b|c|d|l|n|m|ž|g|f|p|r|s|t|z)ij ima|ama|om|a|e|i|u|o| ",
         // L
         //.+al inom|ina|inu|ine|ima|om|in|i|a|e
-        //.+[^(lo|ž)]il ima|om|a|e|u|i| 
+        //.+[^(lo|ž)]il ima|om|a|e|u|i|
         ".+[^z]nal ima|ama|om|a|e|i|u|o| ",
         ".+ijal ima|ama|om|a|e|i|u|o| ",
         ".+ozil ima|om|a|e|u|i| ",
@@ -241,7 +245,7 @@ class CroatianStemmer implements Stemmer
         ".+ram ama|om|a|e|i|u|o",
         //.+(es|e|u)m ama|om|a|e|i|u|o
         // R
-        //.+(a|d|e|o|u)r ama|ima|om|u|a|e|i| 
+        //.+(a|d|e|o|u)r ama|ima|om|u|a|e|i|
         ".+(a|d|e|o)r ama|ima|om|u|a|e|i| ",
         // S
         ".+(e|i)s ima|om|e|a|u",
@@ -252,10 +256,10 @@ class CroatianStemmer implements Stemmer
         ".+ikat ima|om|a|e|i|u|o| ",
         ".+lat ima|om|a|e|i|u|o| ",
         ".+et ama|ima|om|a|e|i|u|o| ",
-        //.+ot ama|ima|om|a|u|e|i| 
+        //.+ot ama|ima|om|a|u|e|i|
         ".+(e|i|k|o)st ima|ama|om|a|e|i|u|o| ",
         ".+išt ima|em|a|e|u",
-        //.+ut ovima|evima|ove|ovi|ova|eve|evi|eva|ima|om|a|u|e|i| 
+        //.+ut ovima|evima|ove|ovi|ova|eve|evi|eva|ima|om|a|u|e|i|
         // V
         ".+ova smo|ste|hu|ti|še|li|la|le|lo|t|h|o",
         ".+(a|e|i)v ijemu|ijima|ijega|ijeg|ijem|ijim|ijih|ijoj|oga|ome|omu|ima|ama|iji|ije|ija|iju|im|ih|oj|om|og|i|a|u|e|o| ",
@@ -268,7 +272,7 @@ class CroatianStemmer implements Stemmer
         ".+roši vši|smo|ste|še|mo|te|ti|li|la|lo|le|m|š|t|h|o",
         ".+oš ijemu|ijima|ijega|ijeg|ijem|ijim|ijih|ijoj|oga|ome|omu|ima|iji|ije|ija|iju|im|ih|oj|om|og|i|a|u|e| ",
         ".+(e|o)vit ijima|ijega|ijemu|ijem|ijim|ijih|ijoj|ijeg|iji|ije|ija|oga|ome|omu|ima|og|om|im|ih|oj|i|e|o|a|u| ",
-        //.+tit ijima|ijega|ijemu|ijem|ijim|ijih|ijoj|ijeg|iji|ije|ija|oga|ome|omu|ima|og|om|im|ih|oj|e|o|a|u|i| 
+        //.+tit ijima|ijega|ijemu|ijem|ijim|ijih|ijoj|ijeg|iji|ije|ija|oga|ome|omu|ima|og|om|im|ih|oj|e|o|a|u|i|
         ".+ast ijima|ijega|ijemu|ijem|ijim|ijih|ijoj|ijeg|iji|ije|ija|oga|ome|omu|ima|og|om|im|ih|oj|i|e|o|a|u| ",
         ".+k ijemu|ijima|ijega|ijeg|ijem|ijim|ijih|ijoj|oga|ome|omu|ima|iji|ije|ija|iju|im|ih|oj|om|og|i|a|u|e|o| ",
         // GLAGOLI
@@ -276,7 +280,7 @@ class CroatianStemmer implements Stemmer
         ".+ir ujemo|ujete|ujući|ajući|ivat|ujem|uješ|ujmo|ujte|avši|asmo|aste|ati|amo|ate|aju|aše|ahu|ala|alo|ali|ale|uje|uju|uj|al|an|am|aš|at|ah|ao",
         ".+ač ismo|iste|iti|imo|ite|iše|eći|ila|ilo|ili|ile|ena|eno|eni|ene|io|im|iš|it|ih|en|i|e",
         ".+ača vši|smo|ste|smo|ste|hu|ti|mo|te|še|la|lo|li|le|ju|na|no|ni|ne|o|m|š|t|h|n",
-        //.+ači smo|ste|ti|li|la|lo|le|mo|te|še|m|š|t|h|o| 
+        //.+ači smo|ste|ti|li|la|lo|le|mo|te|še|m|š|t|h|o|
         // Druga_vrsta
         ".+n uvši|usmo|uste|ući|imo|ite|emo|ete|ula|ulo|ule|uli|uto|uti|uta|em|eš|uo|ut|e|u|i",
         ".+ni vši|smo|ste|ti|mo|te|mo|te|la|lo|le|li|m|š|o",
@@ -308,6 +312,6 @@ class CroatianStemmer implements Stemmer
         ".+ ajući|alima|alom|avši|asmo|aste|ajmo|ajte|ivši|amo|ate|aju|ati|aše|ahu|ali|ala|ale|alo|ana|ano|ani|ane|am|aš|at|ah|ao|aj|an",
         ".+ anje|enje|anja|enja|enom|enoj|enog|enim|enih|anom|anoj|anog|anim|anih|eno|ovi|ova|oga|ima|ove|enu|anu|ena|ama",
         ".+ nijega|nijemu|nijima|nijeg|nijem|nijim|nijih|nima|niji|nije|nija|niju|noj|nom|nog|nim|nih|an|na|nu|ni|ne|no",
-        ".+ om|og|im|ih|em|oj|an|u|o|i|e|a"
+        ".+ om|og|im|ih|em|oj|an|u|o|i|e|a",
     ];
 }
