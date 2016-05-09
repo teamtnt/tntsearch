@@ -1,12 +1,12 @@
 <?php
 
-use TeamTNT\TNTSearch\Support\Hihglighter;
+use TeamTNT\TNTSearch\Support\Highlighter;
 
 class HighlighterTest extends PHPUnit_Framework_TestCase
 {
     public function testHighlight()
     {
-        $hl = new Hihglighter;
+        $hl = new Highlighter;
         $text = "This is some text";
         $output = $hl->highlight($text, "is text", 'em', ['wholeWord' => false]);
         $this->assertEquals("Th<em>is</em> <em>is</em> some <em>text</em>", $output);
@@ -29,7 +29,7 @@ class HighlighterTest extends PHPUnit_Framework_TestCase
 
     public function testExtractRelevant()
     {
-        $hl = new Hihglighter;
+        $hl = new Highlighter;
         $words = "This is some text";
         $fulltext = "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla " . 
             "bla bla bla This is a sentence that contains the phrase This is some text and " .

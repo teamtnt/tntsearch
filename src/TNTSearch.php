@@ -7,7 +7,7 @@ use TeamTNT\TNTSearch\Indexer\TNTIndexer;
 use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Support\Expression;
-use TeamTNT\TNTSearch\Support\Hihglighter;
+use TeamTNT\TNTSearch\Support\Highlighter;
 
 class TNTSearch
 {
@@ -298,13 +298,13 @@ class TNTSearch
 
     public function highlight($text, $needle, $tag = 'em', $options = [])
     {
-        $hl = new Hihglighter;
+        $hl = new Highlighter;
         return $hl->highlight($text, $needle, $tag, $options);
     }
 
     public function snippet($words, $fulltext, $rellength = 300, $prevcount = 50, $indicator = '...')
     {
-        $hl = new Hihglighter;
+        $hl = new Highlighter;
         return $hl->extractRelevant($words, $fulltext, $rellength, $prevcount, $indicator);
     }
 }
