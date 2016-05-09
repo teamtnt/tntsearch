@@ -2,7 +2,7 @@
 
 namespace TeamTNT\TNTSearch\Support;
 
-class Hihglighter
+class Highlighter
 {
     protected $options = [
         'simple'        => false,
