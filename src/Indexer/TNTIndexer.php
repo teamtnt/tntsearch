@@ -238,6 +238,29 @@ class TNTIndexer
         $this->processDocument(new Collection($document));
     }
 
+    public function delete($documentId)
+    {
+        $selectStmt = $this->index->prepare("SELECT * FROM doclist WHERE doc_id = :documentId;");
+        $selectStmt->bindParam(":documentId", $documentId, SQLITE3_INTEGER);
+        $selectStmt->execute();
+        $rows = $selectStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $updateStmt = $this->index->prepare("UPDATE wordlist SET num_docs = num_docs - 1, num_hits = num_hits - :hits WHERE id = :term_id");
+
+        foreach ($rows as $document) {
+            $updateStmt->bindParam(":hits", $document['hit_count'], SQLITE3_INTEGER);
+            $updateStmt->bindParam(":term_id", $document['term_id'], SQLITE3_INTEGER);
+            $updateStmt->execute();
+        }
+
+        $deleteStmt = $this->index->prepare("DELETE FROM doclist WHERE doc_id = :documentId;");
+        $deleteStmt->bindParam(":documentId", $documentId, SQLITE3_INTEGER);
+        $deleteStmt->execute();
+
+        $deleteStmt = $this->index->prepare("DELETE FROM wordlist WHERE num_hits = 0");
+        $deleteStmt->execute();
+    }
+
     public function stemText($text)
     {
         $stemmer = $this->getStemmer();
