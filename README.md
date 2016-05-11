@@ -18,7 +18,7 @@ The easiest way to install TNTSearch is via [composer](http://getcomposer.org/).
 ```json
 {
     "require": {
-        "teamtnt/tntsearch": "0.4.*"
+        "teamtnt/tntsearch": "0.5.*"
     }
 }
 ```
@@ -103,6 +103,31 @@ the results in required order
     //returns all documents that have either romeo AND juliet or prince AND hamlet
     $res = $tnt->searchBoolean("(romeo juliet) or (prince hamlet)");
 
+```
+
+## Updating the index
+
+Once you created an index you don't need to reindex it each time you make some changes 
+to your document collection. TNTSearch supports dynamic index updates.
+
+```php
+    use TeamTNT\TNTSearch\TNTSearch;
+
+    $tnt = new TNTSearch;
+
+    $tnt->loadConfig($config);
+    $tnt->selectIndex("name.index");
+    
+    $index = $tnt->getIndex();
+
+    //to insert a new document to the index
+    $index->insert(['id' => '11', 'title' => 'new title', 'article' => 'new article']);
+    
+    //to update an existing document
+    $index->update(11, ['id' => '11', 'title' => 'updated title', 'article' => 'updated article']);
+
+    //to delete the document from index
+    $index->delete(12);
 ```
 
 ## Contributing
