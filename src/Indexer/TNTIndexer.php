@@ -238,6 +238,12 @@ class TNTIndexer
         $this->processDocument(new Collection($document));
     }
 
+    public function update($id, $document)
+    {
+        $this->delete($id);
+        $this->insert($document);
+    }
+
     public function delete($documentId)
     {
         $selectStmt = $this->index->prepare("SELECT * FROM doclist WHERE doc_id = :documentId;");

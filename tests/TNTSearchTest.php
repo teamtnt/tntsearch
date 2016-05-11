@@ -104,6 +104,14 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
         $docCount = $index->countDocHitsInWordList('juliet');
         $this->assertEquals(6, $docCount, 'Juliet should occur in 6 documents after delete');
+
+        $count = $index->countWordInWordList('romeo');
+        $this->assertEquals(5, $count, 'Word romeo should be 5');
+
+        $index->update(11, ['id' => '11', 'title' => 'romeo', 'article' => 'new article about romeo']);
+        
+        $count = $index->countWordInWordList('romeo');
+        $this->assertEquals(7, $count, 'Word romeo should be 7');
     }
 
     public function tearDown()
