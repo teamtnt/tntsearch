@@ -5,14 +5,14 @@ use TeamTNT\TNTSearch\TNTSearch;
 class TNTSearchTest extends PHPUnit_Framework_TestCase
 {
     protected $indexName = "testIndex";
-    
+
     protected $config = [
         'driver'   => 'sqlite',
-        'database' => __DIR__.'/_files/articles.sqlite',
+        'database' => __DIR__ . '/_files/articles.sqlite',
         'host'     => 'localhost',
         'username' => 'testUser',
         'password' => 'testPass',
-        'storage'  => __DIR__.'/_files/'
+        'storage'  => __DIR__ . '/_files/',
     ];
 
     public function testLoadConfig()
@@ -43,7 +43,7 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
         $tnt->loadConfig($this->config);
 
-        $indexer = $tnt->createIndex($this->indexName);
+        $indexer                = $tnt->createIndex($this->indexName);
         $indexer->disableOutput = true;
         $indexer->query('SELECT id, title, article FROM articles;');
         $indexer->run();
@@ -53,10 +53,10 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         $this->assertEquals([7], $res['ids']);
 
         $res = $tnt->searchBoolean('Hamlet or Macbeth');
-        $this->assertEquals([3,4,1,2], $res['ids']);
+        $this->assertEquals([3, 4, 1, 2], $res['ids']);
 
         $res = $tnt->searchBoolean('juliet -well');
-        $this->assertEquals([5,6,7,8, 10], $res['ids']);
+        $this->assertEquals([5, 6, 7, 8, 10], $res['ids']);
 
         $res = $tnt->searchBoolean('juliet -romeo');
         $this->assertEquals([10], $res['ids']);
@@ -65,9 +65,45 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         $this->assertEquals([2], $res['ids']);
     }
 
+    public function testIndexUpdate()
+    {
+        $tnt = new TNTSearch;
+
+        $tnt->loadConfig($this->config);
+
+        $indexer                = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput = true;
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+
+        $index = $tnt->getIndex();
+        $count = $index->countWordInWordList('titl');
+
+        $this->assertTrue($count == 0, 'Word titl should be 0');
+        $index->insert(['id' => '11', 'title' => 'new title', 'article' => 'new article']);
+
+        $count = $index->countWordInWordList('titl');
+        $this->assertEquals(1, $count, 'Word titl should be 1');
+
+        $docCount = $index->countDocHitsInWordList('juliet');
+        $this->assertEquals(6, $docCount, 'Juliet should occur in 6 documents');
+
+        $index->insert(['id' => '12', 'title' => 'juliet', 'article' => 'new article about juliet']);
+        $count = $index->countWordInWordList('juliet');
+
+        $docCount = $index->countDocHitsInWordList('juliet');
+        $this->assertEquals(7, $docCount, 'Juliet should occur in 7 documents');
+
+        $this->assertEquals(9, $count, 'Word juliet should be 9');
+    }
+
     public function tearDown()
     {
-        if(file_exists(__DIR__ ."/".$this->indexName))
-            unlink(__DIR__ ."/".$this->indexName);
+        if (file_exists(__DIR__ . "/" . $this->indexName)) {
+            unlink(__DIR__ . "/" . $this->indexName);
+        }
+
     }
 }

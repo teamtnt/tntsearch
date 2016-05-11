@@ -307,4 +307,13 @@ class TNTSearch
         $hl = new Highlighter;
         return $hl->extractRelevant($words, $fulltext, $rellength, $prevcount, $indicator);
     }
+
+    public function getIndex()
+    {
+        $indexer           = new TNTIndexer;
+        $indexer->inMemory = false;
+        $indexer->setIndex($this->index);
+        $indexer->setStemmer($this->stemmer);
+        return $indexer;
+    }
 }

@@ -44,6 +44,11 @@ class TNTIndexer
         return $this->stemmer;
     }
 
+    public function setStemmer($stemmer)
+    {
+        $this->stemmer = $stemmer;
+    }
+
     public function setCroatianStemmer()
     {
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', 'croatian')");
@@ -55,6 +60,11 @@ class TNTIndexer
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', '$language')");
         $class         = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
         $this->stemmer = new $class;
+    }
+
+    public function setIndex($index)
+    {
+        $this->index = $index;
     }
 
     public function createIndex($indexName)
@@ -220,8 +230,12 @@ class TNTIndexer
         $stems = $row->map(function ($column, $name) {
             return $this->stemText($column);
         });
-
         $this->saveToIndex($stems, $row->get('id'));
+    }
+
+    public function insert($document)
+    {
+        $this->processDocument(new Collection($document));
     }
 
     public function stemText($text)
@@ -356,6 +370,32 @@ class TNTIndexer
             }
             $fieldCounter++;
         }
+    }
+
+    public function countWordInWordList($word)
+    {
+        $selectStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
+        $selectStmt->bindValue(':keyword', $word);
+        $selectStmt->execute();
+        $res = $selectStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($res) {
+            return $res['num_hits'];
+        }
+        return 0;
+    }
+
+    public function countDocHitsInWordList($word)
+    {
+        $selectStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
+        $selectStmt->bindValue(':keyword', $word);
+        $selectStmt->execute();
+        $res = $selectStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($res) {
+            return $res['num_docs'];
+        }
+        return 0;
     }
 
     public function info($text)
