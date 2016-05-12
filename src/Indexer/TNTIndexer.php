@@ -283,7 +283,7 @@ class TNTIndexer
         if ($this->decodeHTMLEntities) {
             $text = html_entity_decode($text);
         }
-        return preg_split("/[^\p{L}\p{N}@_]+/u", $text, -1, PREG_SPLIT_NO_EMPTY);
+        return preg_split("/[^\p{L}\p{N}]+/u", $text, -1, PREG_SPLIT_NO_EMPTY);
     }
 
     public function decodeHtmlEntities($value = true)
