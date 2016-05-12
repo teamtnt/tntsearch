@@ -186,7 +186,7 @@ class TNTSearch
     {
         $word = $this->getWordlistByKeyword($keyword);
         if (!isset($word[0])) {
-            return [];
+            return new Collection([]);
         }
         $query = "SELECT * FROM doclist WHERE term_id = :id ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
         if ($noLimit) {
@@ -203,7 +203,7 @@ class TNTSearch
     {
         $word = $this->getWordlistByKeyword($keyword);
         if (!isset($word[0])) {
-            return [];
+            return new Collection([]);
         }
         $query = "SELECT * FROM doclist WHERE doc_id NOT IN (SELECT doc_id FROM doclist WHERE term_id = :id) GROUP BY doc_id ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
         if ($noLimit) {
