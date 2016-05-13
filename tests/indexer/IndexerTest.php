@@ -51,7 +51,8 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
 
         $text = "Hi! This text contains an test@email.com. Test's email 123.";
         $res = $indexer->breakIntoTokens($text);
-        $this->assertContains("test@email", $res);
+        $this->assertContains("test", $res);
+        $this->assertContains("email", $res);
         $this->assertContains("contains", $res);
         $this->assertContains("123", $res);
 

@@ -99,7 +99,8 @@ class TNTSearch
         $startTimer = microtime(true);
 
         $expression = new Expression;
-        $postfix    = $expression->toPostfix($phrase);
+        $postfix    = $expression->toPostfix("|" . $phrase);
+
         foreach ($postfix as $token) {
             if ($token == '&') {
                 $left  = array_pop($stack);
