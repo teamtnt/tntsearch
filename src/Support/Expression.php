@@ -9,10 +9,6 @@ class Expression
 
     public function toPostfix($exp)
     {
-        $exp = str_replace(' or ', "|", $exp);
-        $exp = str_replace('-', "~", $exp);
-        $exp = str_replace(' ', "&", $exp);
-
         $postfix = [];
         $stack   = [];
 
@@ -90,15 +86,14 @@ class Expression
 
     public function lex($string)
     {
-        $skip = [" ", ".", ",", "@", "!", ";", ":"];
+        $bad  = [' or ', '-', ' ', '@', '.'];
+        $good = [ '|'  , '~', '&', '&', '&'];
+
+        $string = str_replace($bad, $good, $string);
+
         $tokens = [];
         $token  = "";
         foreach (str_split($string) as $char) {
-            if (in_array($char, $skip)) {
-                $tokens[] = $token;
-                $token    = "";
-                continue;
-            }
 
             if ($this->isOperator($char)) {
                 if ($token) {
