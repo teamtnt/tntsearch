@@ -23,6 +23,53 @@ The easiest way to install TNTSearch is via [composer](http://getcomposer.org/).
 }
 ```
 
+Laravel 5 (optional)
+------------------
+
+Add the service provider in `app/config/app.php`:
+
+```php
+TeamTNT\TNTSearch\TNTSearchServiceProvider::class,
+```
+
+And add the TNTSearch alias to `app/config/app.php`:
+
+```php
+'TNTSearch' => TeamTNT\TNTSearch\Facades\TNTSearch::class,
+```
+
+The configuration will automatically include your database
+conection and storage so no further setup is necesarry. However,
+if you want to overide the default settings, create an `tntsearch` 
+config entry in `app/config/services.php` like:
+
+```php
+'tntsearch' => [
+    'driver'   => 'mysql',
+    'host'     => env('DB_HOST', 'localhost'),
+    'database' => env('DB_DATABASE'),
+    'username' => env('DB_USERNAME'),
+    'password' => env('DB_PASSWORD'),
+    'storage'  => './storage/',
+]
+```
+
+Creating and indexing can now be done without loading the configuration like:
+
+```php
+//don't forget to load the Facade
+use TNTSearch;
+
+//indexing
+$indexer = TNTSearch::createIndex('articles.index');
+$indexer->query('SELECT id, article FROM articles;');
+$indexer->run();
+
+//searching
+TNTSearch::selectIndex("articles.index");
+$res = TNTSearch::searchBoolean('search string', 10);
+```
+
 ##Examples
 
 ### Creating an index
