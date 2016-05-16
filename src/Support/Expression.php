@@ -90,10 +90,13 @@ class Expression
 
     public function lex($string)
     {
+        $skip = [" ", ".", ",", "@", "!", ";", ":"];
         $tokens = [];
         $token  = "";
         foreach (str_split($string) as $char) {
-            if ($char == " ") {
+            if (in_array($char, $skip)) {
+                $tokens[] = $token;
+                $token    = "";
                 continue;
             }
 
