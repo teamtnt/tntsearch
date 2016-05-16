@@ -54,7 +54,7 @@ config entry in `app/config/services.php` like:
 ]
 ```
 
-Creating and indexing can now be done without loading the configuration like:
+Searching and indexing can now be done without loading the configuration like:
 
 ```php
 //don't forget to load the Facade
