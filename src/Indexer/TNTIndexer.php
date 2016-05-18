@@ -458,6 +458,17 @@ class TNTIndexer
         file_put_contents($filename, $dictionary, LOCK_EX);
     }
 
+    public function buildTrigrams($keyword)
+    {
+        $t        = "__" . $keyword . "__";
+        $trigrams = "";
+        for ($i = 0; $i < strlen($t) - 2; $i++) {
+            $trigrams .= substr($t, $i, 3) . " ";
+        }
+
+        return trim($trigrams);
+    }
+
     public function info($text)
     {
         if (!$this->disableOutput) {
