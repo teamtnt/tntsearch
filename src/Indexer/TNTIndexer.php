@@ -4,6 +4,8 @@ namespace TeamTNT\TNTSearch\Indexer;
 
 use Exception;
 use PDO;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
 use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
@@ -425,6 +427,35 @@ class TNTIndexer
             return $res['num_docs'];
         }
         return 0;
+    }
+
+    public function buildDictionary($filename, $count = -1, $hits = true, $docs = false)
+    {
+        $selectStmt = $this->index->prepare("SELECT * FROM wordlist ORDER BY num_hits DESC;");
+        $selectStmt->execute();
+
+        $dictionary = "";
+        $counter    = 0;
+
+        while ($row = $selectStmt->fetch(PDO::FETCH_ASSOC)) {
+            $dictionary .= $row['term'];
+            if ($hits) {
+                $dictionary .= "\t" . $row['num_hits'];
+            }
+
+            if ($docs) {
+                $dictionary .= "\t" . $row['num_docs'];
+            }
+
+            $counter++;
+            if ($counter >= $count && $count > 0) {
+                break;
+            }
+
+            $dictionary .= "\n";
+        }
+
+        file_put_contents($filename, $dictionary, LOCK_EX);
     }
 
     public function info($text)
