@@ -152,9 +152,18 @@ class TNTIndexer
         }
 
         if ($driver == 'pgsql') {
-            return "pgsql:{$host}dbname={$database}";
-        }
+            $host = isset($host) ? "host={$host};" : '';
+            $dsn  = "pgsql:{$host}dbname={$database}";
+            if (isset($config['port'])) {
+                $dsn .= ";port={$port}";
+            }
 
+            if (isset($config['sslmode'])) {
+                $dsn .= ";sslmode={$sslmode}";
+            }
+
+            return $dsn;
+        }
     }
 
     public function query($query)
