@@ -90,7 +90,8 @@ class Expression
         $good = [ '|'  , '~', '&', '&', '&'];
 
         $string = str_replace($bad, $good, $string);
-
+        $string = strtolower($string);
+        
         $tokens = [];
         $token  = "";
         foreach (str_split($string) as $char) {

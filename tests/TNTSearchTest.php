@@ -72,6 +72,12 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
         $res = $tnt->searchBoolean('hamlet');
         $this->assertEquals([1,2], $res['ids']);
+
+        $res = $tnt->searchBoolean('eldred -bar');
+        $this->assertEquals([11], $res['ids']);
+
+        $res = $tnt->searchBoolean('Eldred -bar');
+        $this->assertEquals([11], $res['ids']);
     }
 
     public function testIndexUpdate()

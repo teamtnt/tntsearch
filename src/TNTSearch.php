@@ -294,7 +294,7 @@ class TNTSearch
     public function breakIntoTokens($text)
     {
         $indexer = new TNTIndexer;
-        return $indexer->breakIntoTokens($text);
+        return $indexer->breakIntoTokens(strtolower($text));
     }
 
     public function highlight($text, $needle, $tag = 'em', $options = [])
