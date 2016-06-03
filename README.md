@@ -23,6 +23,14 @@ The easiest way to install TNTSearch is via [composer](http://getcomposer.org/).
 }
 ```
 
+##Requirements
+
+Before you proceed make sure your server meets the following requirements:
+
+* PHP >= 5.5
+* PDO PHP Extension
+* SQLite PHP Extension
+
 Laravel 5 (optional)
 ------------------
 
