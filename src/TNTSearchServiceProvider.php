@@ -3,7 +3,6 @@
 namespace TeamTNT\TNTSearch;
 
 use Illuminate\Support\ServiceProvider;
-use TeamTNT\TNTSearch\TNTSearch;
 
 class TNTSearchServiceProvider extends ServiceProvider
 {
