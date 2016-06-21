@@ -62,7 +62,14 @@ class PorterStemmer implements Stemmer
      */
     private static function step1ab($word)
     {
-        // Part a
+        $word = self::doPartA($word);
+        $word = self::doPartB($word);
+
+        return $word;
+    }
+
+    private static function doPartA($word)
+    {
         if (substr($word, -1) == 's') {
 
             self::replace($word, 'sses', 'ss')
@@ -70,8 +77,11 @@ class PorterStemmer implements Stemmer
             || self::replace($word, 'ss', 'ss')
             || self::replace($word, 's', '');
         }
+        return $word;
+    }
 
-        // Part b
+    private static function doPartB($word)
+    {
         if (substr($word, -2, 1) != 'e' || !self::replace($word, 'eed', 'ee', 0)) {
             // First rule
             $v = self::$regex_vowel;
@@ -100,7 +110,6 @@ class PorterStemmer implements Stemmer
                 }
             }
         }
-
         return $word;
     }
 
