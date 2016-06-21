@@ -68,10 +68,10 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         $this->assertEquals([], $res['ids']);
 
         $res = $tnt->searchBoolean('hamlet or superman');
-        $this->assertEquals([1,2], $res['ids']);
+        $this->assertEquals([1, 2], $res['ids']);
 
         $res = $tnt->searchBoolean('hamlet');
-        $this->assertEquals([1,2], $res['ids']);
+        $this->assertEquals([1, 2], $res['ids']);
 
         $res = $tnt->searchBoolean('eldred -bar');
         $this->assertEquals([11], $res['ids']);
@@ -112,7 +112,6 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         $docCount = $index->countDocHitsInWordList('juliet');
         $this->assertEquals(7, $docCount, 'Juliet should occur in 7 documents');
 
-
         $index->delete(12);
         $count = $index->countWordInWordList('juliet');
         $this->assertEquals(7, $count, 'Word juliet should be 7 after delete');
@@ -124,9 +123,41 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(5, $count, 'Word romeo should be 5');
 
         $index->update(11, ['id' => '11', 'title' => 'romeo', 'article' => 'new article about romeo']);
-        
+
         $count = $index->countWordInWordList('romeo');
         $this->assertEquals(7, $count, 'Word romeo should be 7');
+    }
+
+    public function testMultipleSearch()
+    {
+        $tnt = new TNTSearch;
+
+        $tnt->loadConfig($this->config);
+
+        $indexer                = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput = true;
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+
+        $res = $tnt->search('Othello');
+        $this->assertEmpty($res['ids']);
+        $this->assertEquals(12, $tnt->totalDocumentsInCollection()); 
+
+        $index = $tnt->getIndex();
+
+        $count = $index->countWordInWordList('Othello');
+        $this->assertTrue($count == 0, 'Word Othello should be 0');
+        $index->insert(['id' => '13', 'title' => 'Othello', 'article' => 'For she had eyes and chose me.']);
+
+        $count = $index->countWordInWordList('Othello');
+        $this->assertEquals(1, $count, 'Word Othello should be 1');
+        $this->assertEquals(13, $tnt->totalDocumentsInCollection()); 
+
+        $res = $tnt->search('Othello');
+        $this->assertEquals([13], $res['ids']);
+
     }
 
     public function tearDown()

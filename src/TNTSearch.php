@@ -39,7 +39,6 @@ class TNTSearch
     {
         $startTimer = microtime(true);
         $keywords   = $this->breakIntoTokens($phrase);
-
         $keywords = new Collection($keywords);
 
         $keywords = $keywords->map(function ($keyword) {
@@ -50,6 +49,7 @@ class TNTSearch
         $dlWeight  = 0.5;
         $docScores = [];
         $count     = $this->totalDocumentsInCollection();
+
         foreach ($keywords as $index => $term) {
             $isLastKeyword = ($keywords->count() - 1) == $index;
             $df            = $this->totalMatchingDocuments($term, $isLastKeyword);
@@ -229,9 +229,6 @@ class TNTSearch
 
     public function getWordlistByKeyword($keyword, $isLastWord = false)
     {
-        if (isset($this->wordlist[$keyword])) {
-            return $this->wordlist[$keyword];
-        }
         $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword LIMIT 1";
         $stmtWord       = $this->index->prepare($searchWordlist);
 
@@ -243,8 +240,7 @@ class TNTSearch
             $stmtWord->bindValue(':keyword', strtolower($keyword), SQLITE3_TEXT);
         }
         $stmtWord->execute();
-        $this->wordlist[$keyword] = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
-        return $this->wordlist[$keyword];
+        return $stmtWord->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function totalDocumentsInCollection()

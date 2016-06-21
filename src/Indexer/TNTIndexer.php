@@ -247,6 +247,8 @@ class TNTIndexer
     public function insert($document)
     {
         $this->processDocument(new Collection($document));
+        $total = $this->totalDocumentsInCollection() + 1;
+        $this->updateInfoTable('total_documents', $total);
     }
 
     public function update($id, $document)
@@ -276,6 +278,14 @@ class TNTIndexer
 
         $deleteStmt = $this->index->prepare("DELETE FROM wordlist WHERE num_hits = 0");
         $deleteStmt->execute();
+
+        $total = $this->totalDocumentsInCollection() - 1;
+        $this->updateInfoTable('total_documents', $total);
+    }
+
+    public function updateInfoTable($key, $value)
+    {
+        $this->index->exec("UPDATE info SET value = $value WHERE key = '$key'");
     }
 
     public function stemText($text)
@@ -465,6 +475,14 @@ class TNTIndexer
         }
 
         file_put_contents($filename, $dictionary, LOCK_EX);
+    }
+
+    public function totalDocumentsInCollection()
+    {
+        $query = "SELECT * FROM info WHERE key = 'total_documents'";
+        $docs  = $this->index->query($query);
+
+        return $docs->fetch(PDO::FETCH_ASSOC)['value'];
     }
 
     public function buildTrigrams($keyword)
