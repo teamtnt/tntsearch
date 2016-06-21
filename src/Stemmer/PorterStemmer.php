@@ -83,18 +83,18 @@ class PorterStemmer implements Stemmer
 
                 // If one of above two test successful
                 if (!self::replace($word, 'at', 'ate')
-                    and !self::replace($word, 'bl', 'ble')
-                    and !self::replace($word, 'iz', 'ize')) {
+                    && !self::replace($word, 'bl', 'ble')
+                    && !self::replace($word, 'iz', 'ize')) {
 
                     // Double consonant ending
                     if (self::doubleConsonant($word)
-                        and substr($word, -2) != 'll'
-                        and substr($word, -2) != 'ss'
-                        and substr($word, -2) != 'zz') {
+                        && substr($word, -2) != 'll'
+                        && substr($word, -2) != 'ss'
+                        && substr($word, -2) != 'zz') {
 
                         $word = substr($word, 0, -1);
 
-                    } else if (self::m($word) == 1 and self::cvc($word)) {
+                    } else if (self::m($word) == 1 && self::cvc($word)) {
                         $word .= 'e';
                     }
                 }
@@ -305,7 +305,7 @@ class PorterStemmer implements Stemmer
         }
 
         // Part b
-        if (self::m($word) > 1 and self::doubleConsonant($word) and substr($word, -1) == 'l') {
+        if (self::m($word) > 1 && self::doubleConsonant($word) && substr($word, -1) == 'l') {
             $word = substr($word, 0, -1);
         }
 
@@ -379,7 +379,7 @@ class PorterStemmer implements Stemmer
     {
         $c = self::$regex_consonant;
 
-        return preg_match("#$c{2}$#", $str, $matches) and $matches[0]{0} == $matches[0]{1};
+        return preg_match("#$c{2}$#", $str, $matches) && $matches[0]{0} == $matches[0]{1};
     }
 
     /**
@@ -394,9 +394,9 @@ class PorterStemmer implements Stemmer
         $v = self::$regex_vowel;
 
         return preg_match("#($c$v$c)$#", $str, $matches)
-        and strlen($matches[1]) == 3
-            and $matches[1]{2} != 'w'
-            and $matches[1]{2} != 'x'
-            and $matches[1]{2} != 'y';
+        && strlen($matches[1]) == 3
+            && $matches[1]{2} != 'w'
+            && $matches[1]{2} != 'x'
+            && $matches[1]{2} != 'y';
     }
 }
