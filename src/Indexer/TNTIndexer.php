@@ -422,12 +422,17 @@ class TNTIndexer
         }
     }
 
-    public function countWordInWordList($word)
+    public function getWordFromWordList($word)
     {
         $selectStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
         $selectStmt->bindValue(':keyword', $word);
         $selectStmt->execute();
-        $res = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        return $selectStmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function countWordInWordList($word)
+    {
+        $res = $this->getWordFromWordList($word);
 
         if ($res) {
             return $res['num_hits'];
@@ -437,10 +442,7 @@ class TNTIndexer
 
     public function countDocHitsInWordList($word)
     {
-        $selectStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
-        $selectStmt->bindValue(':keyword', $word);
-        $selectStmt->execute();
-        $res = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        $res = $this->getWordFromWordList($word);
 
         if ($res) {
             return $res['num_docs'];
