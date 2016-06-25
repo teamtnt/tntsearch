@@ -160,6 +160,23 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
     }
 
+    public function testAsYouType()
+    {
+        $tnt = new TNTSearch;
+
+        $tnt->loadConfig($this->config);
+
+        $indexer                = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput = true;
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+        $tnt->asYouType = true;
+        $res = $tnt->search('k');
+        $this->assertEquals([1], $res['ids']);
+    }
+
     public function tearDown()
     {
         if (file_exists(__DIR__ . "/" . $this->indexName)) {

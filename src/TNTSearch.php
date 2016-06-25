@@ -53,7 +53,7 @@ class TNTSearch
         foreach ($keywords as $index => $term) {
             $isLastKeyword = ($keywords->count() - 1) == $index;
             $df            = $this->totalMatchingDocuments($term, $isLastKeyword);
-            foreach ($this->getAllDocumentsForKeyword($term) as $document) {
+            foreach ($this->getAllDocumentsForKeyword($term, false, $isLastKeyword) as $document) {
                 $docID     = $document['doc_id'];
                 $tf        = $document['hit_count'];
                 $docLength = 0;
@@ -183,9 +183,9 @@ class TNTSearch
         ];
     }
 
-    public function getAllDocumentsForKeyword($keyword, $noLimit = false)
+    public function getAllDocumentsForKeyword($keyword, $noLimit = false, $isLastKeyword = false)
     {
-        $word = $this->getWordlistByKeyword($keyword);
+        $word = $this->getWordlistByKeyword($keyword, $isLastKeyword);
         if (!isset($word[0])) {
             return new Collection([]);
         }
