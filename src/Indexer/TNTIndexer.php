@@ -9,6 +9,8 @@ use RecursiveIteratorIterator;
 use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
 use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
+use TeamTNT\TNTSearch\Support\Tokenizer;
+use TeamTNT\TNTSearch\Support\TokenizerInterface;
 
 class TNTIndexer
 {
@@ -23,7 +25,13 @@ class TNTIndexer
 
     public function __construct()
     {
-        $this->stemmer = new PorterStemmer;
+        $this->stemmer   = new PorterStemmer;
+        $this->tokenizer = new Tokenizer;
+    }
+
+    public function setTokenizer(TokenizerInterface $tokenizer)
+    {
+        $this->tokenizer = $tokenizer;
     }
 
     public function loadConfig($config)
@@ -294,7 +302,7 @@ class TNTIndexer
         $words   = $this->breakIntoTokens($text);
         $stems   = [];
         foreach ($words as $word) {
-            $stems[] = $stemmer->stem(strtolower($word));
+            $stems[] = $stemmer->stem($word);
         }
         return $stems;
     }
@@ -304,7 +312,7 @@ class TNTIndexer
         if ($this->decodeHTMLEntities) {
             $text = html_entity_decode($text);
         }
-        return preg_split("/[^\p{L}\p{N}]+/u", $text, -1, PREG_SPLIT_NO_EMPTY);
+        return $this->tokenizer->tokenize($text);
     }
 
     public function decodeHtmlEntities($value = true)

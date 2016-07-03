@@ -15,4 +15,16 @@
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
+<!--     <filter>
+        <whitelist>
+            <directory suffix=".php">./src/</directory>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <log type="coverage-html" target="./coverage" charset="UTF-8"
+            yui="true" highlight="true"
+            lowUpperBound="50" highLowerBound="80"/>
+        <log type="testdox-html" target="./coverage/testdox.html" />
+    </logging> -->
 </phpunit>

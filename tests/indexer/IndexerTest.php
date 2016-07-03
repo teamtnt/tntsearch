@@ -2,6 +2,7 @@
 
 use TeamTNT\TNTSearch\Indexer\TNTIndexer;
 use TeamTNT\TNTSearch\TNTSearch;
+use TeamTNT\TNTSearch\Support\TokenizerInterface;
 
 class TNTIndexerTest extends PHPUnit_Framework_TestCase
 {
@@ -33,33 +34,6 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
 
         $res = $tnt->search('Queen Mab');
         $this->assertEquals([7], $res['ids']);
-    }
-
-    public function testBreakIntoTokens()
-    {
-        $indexer = new TNTIndexer;
-
-        $text = "This is some text";
-        $res  = $indexer->breakIntoTokens($text);
-
-        $this->assertContains("This", $res);
-        $this->assertContains("text", $res);
-
-        $text = "123 123 123";
-        $res  = $indexer->breakIntoTokens($text);
-        $this->assertContains("123", $res);
-
-        $text = "Hi! This text contains an test@email.com. Test's email 123.";
-        $res  = $indexer->breakIntoTokens($text);
-        $this->assertContains("test", $res);
-        $this->assertContains("email", $res);
-        $this->assertContains("contains", $res);
-        $this->assertContains("123", $res);
-
-        $text = "Superman (1941)";
-        $res  = $indexer->breakIntoTokens($text);
-        $this->assertContains("Superman", $res);
-        $this->assertContains("1941", $res);
     }
 
     public function testIfCroatianStemmerIsSet()
@@ -128,7 +102,22 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         if (file_exists(__DIR__ . '/../_files/' . $this->indexName)) {
             unlink(__DIR__ . '/../_files/' . $this->indexName);
         }
-
     }
 
+    public function testSetTokenizer()
+    {
+        $someTokenizer = new SomeTokenizer;
+
+        $indexer = new TNTIndexer;
+        $indexer->setTokenizer($someTokenizer);
+
+        $this->assertInstanceOf(TokenizerInterface::class, $indexer->tokenizer);
+    }
+}
+
+class SomeTokenizer implements TokenizerInterface {
+
+    public function tokenize($text) {
+        return $text;
+    }
 }

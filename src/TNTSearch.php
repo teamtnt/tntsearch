@@ -8,6 +8,8 @@ use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Support\Expression;
 use TeamTNT\TNTSearch\Support\Highlighter;
+use TeamTNT\TNTSearch\Support\Tokenizer;
+use TeamTNT\TNTSearch\Support\TokenizerInterface;
 
 class TNTSearch
 {
@@ -19,6 +21,16 @@ class TNTSearch
     {
         $this->config            = $config;
         $this->config['storage'] = rtrim($this->config['storage'], '/') . '/';
+    }
+
+    public function __construct()
+    {
+        $this->tokenizer = new Tokenizer;
+    }
+
+    public function setTokenizer(TokenizerInterface $tokenizer)
+    {
+        $this->tokenizer = $tokenizer;
     }
 
     public function createIndex($indexName)
@@ -39,7 +51,7 @@ class TNTSearch
     {
         $startTimer = microtime(true);
         $keywords   = $this->breakIntoTokens($phrase);
-        $keywords = new Collection($keywords);
+        $keywords   = new Collection($keywords);
 
         $keywords = $keywords->map(function ($keyword) {
             return $this->stemmer->stem($keyword);
@@ -289,8 +301,7 @@ class TNTSearch
 
     public function breakIntoTokens($text)
     {
-        $indexer = new TNTIndexer;
-        return $indexer->breakIntoTokens(strtolower($text));
+        return $this->tokenizer->tokenize($text);
     }
 
     public function highlight($text, $needle, $tag = 'em', $options = [])
