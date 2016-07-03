@@ -112,12 +112,16 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         $indexer->setTokenizer($someTokenizer);
 
         $this->assertInstanceOf(TokenizerInterface::class, $indexer->tokenizer);
+
+        $res  = $indexer->breakIntoTokens('Canon 70-200');
+        $this->assertContains("canon", $res);
+        $this->assertContains("70-200", $res);
     }
 }
 
 class SomeTokenizer implements TokenizerInterface {
 
     public function tokenize($text) {
-        return $text;
+        return preg_split("/[^\p{L}\p{N}-]+/u", strtolower($text), -1, PREG_SPLIT_NO_EMPTY);
     }
 }
