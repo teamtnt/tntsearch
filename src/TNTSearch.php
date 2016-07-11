@@ -17,6 +17,8 @@ class TNTSearch
     public $asYouType = false;
     public $maxDocs   = 500;
 
+    const FILESYSTEM_DRIVER = 'filesystem';
+
     public function loadConfig($config)
     {
         $this->config            = $config;
@@ -279,7 +281,7 @@ class TNTSearch
         $query = "SELECT * FROM info WHERE key = 'driver'";
         $docs  = $this->index->query($query);
 
-        return $docs->fetch(PDO::FETCH_ASSOC)['value'] == 'filesystem';
+        return $docs->fetch(PDO::FETCH_ASSOC)['value'] == self::FILESYSTEM_DRIVER;
     }
 
     public function filesystemMapIdsToPaths($docs)

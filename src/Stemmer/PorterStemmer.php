@@ -59,6 +59,8 @@ class PorterStemmer implements Stemmer
 
     /**
      * Step 1
+     * @param $word
+     * @return string
      */
     private static function step1ab($word)
     {
@@ -117,6 +119,7 @@ class PorterStemmer implements Stemmer
      * Step 1c
      *
      * @param string $word Word to stem
+     * @return string
      */
     private static function step1c($word)
     {
@@ -133,6 +136,7 @@ class PorterStemmer implements Stemmer
      * Step 2
      *
      * @param string $word Word to stem
+     * @return string
      */
     private static function step2($word)
     {
@@ -190,6 +194,7 @@ class PorterStemmer implements Stemmer
      * Step 3
      *
      * @param string $word String to stem
+     * @return string
      */
     private static function step3($word)
     {
@@ -227,6 +232,7 @@ class PorterStemmer implements Stemmer
      * Step 4
      *
      * @param string $word Word to stem
+     * @return string
      */
     private static function step4($word)
     {
@@ -297,6 +303,7 @@ class PorterStemmer implements Stemmer
      * Step 5
      *
      * @param string $word Word to stem
+     * @return string
      */
     private static function step5($word)
     {

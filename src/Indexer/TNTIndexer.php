@@ -23,6 +23,11 @@ class TNTIndexer
     public $inMemory              = true;
     public $steps                 = 1000;
 
+    const FILESYSTEM_DRIVER = 'filesystem';
+    const MYSQL_DRIVER      = 'mysql';
+    const SQLITE_DRIVER     = 'sqlite';
+    const PGSQL_DRIVER      = 'pgsql';
+
     public function __construct()
     {
         $this->stemmer   = new PorterStemmer;
@@ -123,13 +128,13 @@ class TNTIndexer
     {
         extract($this->config, EXTR_SKIP);
 
-        if ($driver == "filesystem") {
+        if ($driver == self::FILESYSTEM_DRIVER) {
             return;
         }
 
         $hostDsn   = $this->getHostDsn($this->config);
         $this->dbh = new PDO($hostDsn, $username, $password);
-        if ($driver == "mysql") {
+        if ($driver == self::MYSQL_DRIVER) {
             $this->dbh->prepare("set names utf8 collate utf8_unicode_ci")->execute();
             $this->dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
         }
@@ -140,7 +145,7 @@ class TNTIndexer
     {
         extract($config, EXTR_SKIP);
 
-        if ($driver == 'sqlite') {
+        if ($driver == self::SQLITE_DRIVER) {
             if ($database == ':memory:') {
                 return 'sqlite::memory:';
             }
@@ -153,13 +158,13 @@ class TNTIndexer
             return "sqlite:{$path}";
         }
 
-        if ($driver == 'mysql') {
+        if ($driver == self::MYSQL_DRIVER) {
             return isset($port)
             ? "mysql:host={$host};port={$port};dbname={$database}"
             : "mysql:host={$host};dbname={$database}";
         }
 
-        if ($driver == 'pgsql') {
+        if ($driver == self::PGSQL_DRIVER) {
             $host = isset($host) ? "host={$host};" : '';
             $dsn  = "pgsql:{$host}dbname={$database}";
             if (isset($config['port'])) {
@@ -181,7 +186,7 @@ class TNTIndexer
 
     public function run()
     {
-        if ($this->config['driver'] == "filesystem") {
+        if ($this->config['driver'] == self::FILESYSTEM_DRIVER) {
             return $this->readDocumentsFromFileSystem();
         }
 
