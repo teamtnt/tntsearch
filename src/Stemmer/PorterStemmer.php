@@ -70,6 +70,9 @@ class PorterStemmer implements Stemmer
         return $word;
     }
 
+    /**
+     * @param string $word
+     */
     private static function doPartA($word)
     {
         if (substr($word, -1) == 's') {
