@@ -402,10 +402,18 @@ class PorterStemmer implements Stemmer
         $c = self::$regex_consonant;
         $v = self::$regex_vowel;
 
-        return preg_match("#($c$v$c)$#", $str, $matches)
-        && strlen($matches[1]) == 3
-            && $matches[1]{2} != 'w'
-            && $matches[1]{2} != 'x'
-            && $matches[1]{2} != 'y';
+        $matchFound = preg_match("#($c$v$c)$#", $str, $matches);
+
+        $return = false;
+
+        if ($matchFound && strlen($matches[1]) == 3) {
+            $return = true;
+            if (in_array($matches[1]{2}, ['w', 'x', 'y'])) {
+                $return = false;
+            }
+        }
+
+        return $return;
+
     }
 }
