@@ -59,6 +59,8 @@ class PorterStemmer implements Stemmer
 
     /**
      * Step 1
+     * @param string $word
+     * @return string
      */
     private static function step1ab($word)
     {
