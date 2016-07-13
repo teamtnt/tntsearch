@@ -27,7 +27,11 @@ class MySqlConnector extends Connector implements ConnectorInterface
             $connection->exec("use `{$config['database']}`;");
         }
 
-        $collation = $config['collation'];
+        $collation = 'utf8_unicode_ci';
+
+        if (! empty($config['collation'])) {
+            $collation = $config['collation'];
+        }
 
         // Next we will set the "names" and "collation" on the clients connections so
         // a correct character set will be used by this client. The collation also

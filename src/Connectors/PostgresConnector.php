@@ -35,7 +35,11 @@ class PostgresConnector extends Connector implements ConnectorInterface
 
         $connection = $this->createConnection($dsn, $config, $options);
 
-        $charset = $config['charset'];
+        $charset = 'utf8';
+        
+        if (isset($config['charset'])) {
+            $charset = $config['charset'];
+        }
 
         $connection->prepare("set names '$charset'")->execute();
 
