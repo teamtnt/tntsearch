@@ -5,6 +5,7 @@ class Tokenizer implements TokenizerInterface
 {
     public function tokenize($text)
     {
-        return preg_split("/[^\p{L}\p{N}]+/u", strtolower($text), -1, PREG_SPLIT_NO_EMPTY);
+        $text = mb_strtolower($text);
+        return preg_split("/[^\p{L}\p{N}]+/u", $text, -1, PREG_SPLIT_NO_EMPTY);
     }
 }
