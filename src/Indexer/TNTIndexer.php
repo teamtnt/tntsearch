@@ -10,6 +10,7 @@ use TeamTNT\TNTSearch\Connectors\FileSystemConnector;
 use TeamTNT\TNTSearch\Connectors\MySqlConnector;
 use TeamTNT\TNTSearch\Connectors\PostgresConnector;
 use TeamTNT\TNTSearch\Connectors\SQLiteConnector;
+use TeamTNT\TNTSearch\FileReaders\TextFileReader;
 use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
 use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
@@ -22,6 +23,7 @@ class TNTIndexer
     protected $dbh                = null;
     public $stemmer               = null;
     public $tokenizer             = null;
+    public $filereader            = null;
     public $config                = [];
     protected $query              = "";
     protected $wordlist           = [];
@@ -33,8 +35,9 @@ class TNTIndexer
 
     public function __construct()
     {
-        $this->stemmer   = new PorterStemmer;
-        $this->tokenizer = new Tokenizer;
+        $this->stemmer    = new PorterStemmer;
+        $this->tokenizer  = new Tokenizer;
+        $this->filereader = new TextFileReader;
     }
 
     public function setTokenizer(TokenizerInterface $tokenizer)
@@ -83,6 +86,11 @@ class TNTIndexer
     public function setIndex($index)
     {
         $this->index = $index;
+    }
+
+    public function setFileReader($filereader)
+    {
+        $this->filereader = $filereader;
     }
 
     public function createIndex($indexName)
@@ -207,7 +215,7 @@ class TNTIndexer
                 $file = [
                     'id'      => $counter,
                     'name'    => $name,
-                    'content' => file_get_contents($object),
+                    'content' => $this->filereader->read($object),
                 ];
                 $this->processDocument(new Collection($file));
                 $this->index->exec("INSERT INTO filemap ( 'id', 'path') values ( $counter, '$object')");
