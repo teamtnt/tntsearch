@@ -147,6 +147,6 @@ class SomeTokenizer implements TokenizerInterface
 
     public function tokenize($text)
     {
-        return preg_split("/[^\p{L}\p{N}-]+/u", strtolower($text), -1, PREG_SPLIT_NO_EMPTY);
+        return preg_split("/[^\p{L}\p{N}-]+/u", mb_strtolower($text), -1, PREG_SPLIT_NO_EMPTY);
     }
 }

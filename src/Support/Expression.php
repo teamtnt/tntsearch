@@ -90,7 +90,7 @@ class Expression
         $good = [ '|'  , '~', '&', '&', '&'];
 
         $string = str_replace($bad, $good, $string);
-        $string = strtolower($string);
+        $string = mb_strtolower($string);
         
         $tokens = [];
         $token  = "";
