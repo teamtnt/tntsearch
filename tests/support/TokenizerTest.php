@@ -29,5 +29,10 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $res  = $tokenizer->tokenize($text);
         $this->assertContains("superman", $res);
         $this->assertContains("1941", $res);
+
+        $text = "čćž šđ";
+        $res  = $tokenizer->tokenize($text);
+        $this->assertContains("čćž", $res);
+        $this->assertContains("šđ", $res);
     }
 }

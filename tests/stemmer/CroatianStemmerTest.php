@@ -53,5 +53,7 @@ class CroatianStemmerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("biznis", $stemmer->stem("biznisom"));
         $this->assertEquals("razgovara", $stemmer->stem("razgovarati"));
         $this->assertEquals("najbogat", $stemmer->stem("najbogatijih"));
+
+        $this->assertEquals("čćžšđ", $stemmer->stem("čćžšđ"));
     }
 }
