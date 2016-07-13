@@ -6,6 +6,10 @@ use Exception;
 use PDO;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use TeamTNT\TNTSearch\Connectors\FileSystemConnector;
+use TeamTNT\TNTSearch\Connectors\MySqlConnector;
+use TeamTNT\TNTSearch\Connectors\PostgresConnector;
+use TeamTNT\TNTSearch\Connectors\SQLiteConnector;
 use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
 use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
@@ -115,63 +119,29 @@ class TNTIndexer
                     value INTEGER)");
 
         $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'term_id_index' ON doclist ('term_id' COLLATE BINARY);");
-        $this->setSource();
+
+        $connector = $this->createConnector($this->config);
+        $this->dbh = $connector->connect($this->config);
         return $this;
     }
 
-    public function setSource()
+    public function createConnector(array $config)
     {
-        extract($this->config, EXTR_SKIP);
-
-        if ($driver == "filesystem") {
-            return;
+        if (!isset($config['driver'])) {
+            throw new Exception('A driver must be specified.');
         }
 
-        $hostDsn   = $this->getHostDsn($this->config);
-        $this->dbh = new PDO($hostDsn, $username, $password);
-        if ($driver == "mysql") {
-            $this->dbh->prepare("set names utf8 collate utf8_unicode_ci")->execute();
-            $this->dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+        switch ($config['driver']) {
+            case 'mysql':
+                return new MySqlConnector;
+            case 'pgsql':
+                return new PostgresConnector;
+            case 'sqlite':
+                return new SQLiteConnector;
+            case 'filesystem':
+                return new FileSystemConnector;
         }
-        $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    }
-
-    protected function getHostDsn(array $config)
-    {
-        extract($config, EXTR_SKIP);
-
-        if ($driver == 'sqlite') {
-            if ($database == ':memory:') {
-                return 'sqlite::memory:';
-            }
-
-            $path = realpath($config['database']);
-
-            if ($path === false) {
-                throw new Exception("Database (${config['database']}) does not exist.");
-            }
-            return "sqlite:{$path}";
-        }
-
-        if ($driver == 'mysql') {
-            return isset($port)
-            ? "mysql:host={$host};port={$port};dbname={$database}"
-            : "mysql:host={$host};dbname={$database}";
-        }
-
-        if ($driver == 'pgsql') {
-            $host = isset($host) ? "host={$host};" : '';
-            $dsn  = "pgsql:{$host}dbname={$database}";
-            if (isset($config['port'])) {
-                $dsn .= ";port={$port}";
-            }
-
-            if (isset($config['sslmode'])) {
-                $dsn .= ";sslmode={$sslmode}";
-            }
-
-            return $dsn;
-        }
+        throw new Exception("Unsupported driver [{$config['driver']}]");
     }
 
     public function query($query)
@@ -212,6 +182,11 @@ class TNTIndexer
 
     public function readDocumentsFromFileSystem()
     {
+        $exclude = [];
+        if (isset($this->config['exclude'])) {
+            $exclude = $this->config['exclude'];
+        }
+
         $this->index->exec("CREATE TABLE IF NOT EXISTS filemap (
                     id INTEGER PRIMARY KEY,
                     path TEXT)");
@@ -223,7 +198,7 @@ class TNTIndexer
 
         foreach ($objects as $name => $object) {
             $name = str_replace($path . '/', '', $name);
-            if (stringEndsWith($name, $this->config['extension']) && !in_array($name, $this->config['exclude'])) {
+            if (stringEndsWith($name, $this->config['extension']) && !in_array($name, $exclude)) {
                 $counter++;
                 $file = [
                     'id'      => $counter,
@@ -232,7 +207,7 @@ class TNTIndexer
                 ];
                 $this->processDocument(new Collection($file));
                 $this->index->exec("INSERT INTO filemap ( 'id', 'path') values ( $counter, '$object')");
-                echo "Processed $counter " . $object . "\n";
+                $this->info("Processed $counter $object");
             }
         }
 
@@ -241,7 +216,7 @@ class TNTIndexer
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', $counter)");
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'driver', 'filesystem')");
 
-        echo "Total rows $counter\n";
+        $this->info("Total rows $counter");
     }
 
     public function processDocument($row)
@@ -267,10 +242,9 @@ class TNTIndexer
 
     public function delete($documentId)
     {
-        $selectStmt = $this->index->prepare("SELECT * FROM doclist WHERE doc_id = :documentId;");
-        $selectStmt->bindParam(":documentId", $documentId, SQLITE3_INTEGER);
-        $selectStmt->execute();
-        $rows = $selectStmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $this->prepareAndExecuteStatement("SELECT * FROM doclist WHERE doc_id = :documentId;", [
+            ['key' => ':documentId', 'value' => $documentId, 'type' => SQLITE3_INTEGER],
+        ])->fetchAll(PDO::FETCH_ASSOC);
 
         $updateStmt = $this->index->prepare("UPDATE wordlist SET num_docs = num_docs - 1, num_hits = num_hits - :hits WHERE id = :term_id");
 
@@ -280,12 +254,11 @@ class TNTIndexer
             $updateStmt->execute();
         }
 
-        $deleteStmt = $this->index->prepare("DELETE FROM doclist WHERE doc_id = :documentId;");
-        $deleteStmt->bindParam(":documentId", $documentId, SQLITE3_INTEGER);
-        $deleteStmt->execute();
+        $this->prepareAndExecuteStatement("DELETE FROM doclist WHERE doc_id = :documentId;", [
+            ['key' => ':documentId', 'value' => $documentId, 'type' => SQLITE3_INTEGER],
+        ]);
 
-        $deleteStmt = $this->index->prepare("DELETE FROM wordlist WHERE num_hits = 0");
-        $deleteStmt->execute();
+        $this->prepareAndExecuteStatement("DELETE FROM wordlist WHERE num_hits = 0");
 
         $total = $this->totalDocumentsInCollection() - 1;
         $this->updateInfoTable('total_documents', $total);
@@ -504,6 +477,16 @@ class TNTIndexer
         }
 
         return trim($trigrams);
+    }
+
+    public function prepareAndExecuteStatement($query, $params = [])
+    {
+        $statemnt = $this->index->prepare($query);
+        foreach ($params as $param) {
+            $statemnt->bindParam($param['key'], $param['value'], $param['type']);
+        }
+        $statemnt->execute();
+        return $statemnt;
     }
 
     public function info($text)

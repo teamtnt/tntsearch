@@ -1,8 +1,8 @@
 <?php
 
 use TeamTNT\TNTSearch\Indexer\TNTIndexer;
-use TeamTNT\TNTSearch\TNTSearch;
 use TeamTNT\TNTSearch\Support\TokenizerInterface;
+use TeamTNT\TNTSearch\TNTSearch;
 
 class TNTIndexerTest extends PHPUnit_Framework_TestCase
 {
@@ -34,6 +34,29 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
 
         $res = $tnt->search('Queen Mab');
         $this->assertEquals([7], $res['ids']);
+    }
+
+    public function testIndexFromFileSystem()
+    {
+        $config = [
+            'driver'    => 'filesystem',
+            'storage'   => __DIR__ . '/../_files/',
+            'location'  => __DIR__ . '/../_files/articles/',
+            'extension' => 'txt',
+        ];
+
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($config);
+        $indexer                = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput = true;
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+
+        $index = $tnt->getIndex();
+        $count = $index->countWordInWordList('document');
+
+        $this->assertTrue($count == 3, 'Word document should be 3');
     }
 
     public function testIfCroatianStemmerIsSet()
@@ -113,15 +136,17 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf(TokenizerInterface::class, $indexer->tokenizer);
 
-        $res  = $indexer->breakIntoTokens('Canon 70-200');
+        $res = $indexer->breakIntoTokens('Canon 70-200');
         $this->assertContains("canon", $res);
         $this->assertContains("70-200", $res);
     }
 }
 
-class SomeTokenizer implements TokenizerInterface {
+class SomeTokenizer implements TokenizerInterface
+{
 
-    public function tokenize($text) {
+    public function tokenize($text)
+    {
         return preg_split("/[^\p{L}\p{N}-]+/u", strtolower($text), -1, PREG_SPLIT_NO_EMPTY);
     }
 }
