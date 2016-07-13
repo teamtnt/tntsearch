@@ -20,7 +20,7 @@
         "php" : "~5.5|~7.0",
         "ext-pdo_sqlite": "*",
         "ext-sqlite3": "*",
-        "mbstring": "*"
+        "ext-mbstring": "*"
     },
     "require-dev": {
         "phpunit/phpunit" : "5.*"
