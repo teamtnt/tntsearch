@@ -16,6 +16,9 @@ class TNTSearch
     public $config;
     public $asYouType = false;
     public $maxDocs   = 500;
+    public $tokenizer = null;
+    public $index     = null;
+    public $stemmer   = null;
 
     public function loadConfig($config)
     {
@@ -66,11 +69,11 @@ class TNTSearch
             $isLastKeyword = ($keywords->count() - 1) == $index;
             $df            = $this->totalMatchingDocuments($term, $isLastKeyword);
             foreach ($this->getAllDocumentsForKeyword($term, false, $isLastKeyword) as $document) {
-                $docID     = $document['doc_id'];
-                $tf        = $document['hit_count'];
-                $idf       = log($count / $df);
-                $num       = ($tfWeight + 1) * $tf;
-                $denom     = $tfWeight
+                $docID = $document['doc_id'];
+                $tf    = $document['hit_count'];
+                $idf   = log($count / $df);
+                $num   = ($tfWeight + 1) * $tf;
+                $denom = $tfWeight
                      * ((1 - $dlWeight) + $dlWeight)
                      + $tf;
                 $score             = $idf * ($num / $denom);

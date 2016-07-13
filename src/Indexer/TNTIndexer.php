@@ -22,6 +22,7 @@ class TNTIndexer
     protected $dbh                = null;
     public $stemmer               = null;
     public $tokenizer             = null;
+    public $config                = [];
     protected $query              = "";
     protected $wordlist           = [];
     protected $inMemoryTerms      = [];
