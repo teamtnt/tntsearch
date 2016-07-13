@@ -2,9 +2,11 @@
 
 namespace TeamTNT\TNTSearch\FileReaders;
 
-class TextFileReader
+use SplFileInfo;
+
+class TextFileReader implements FileReaderInterface
 {
-    public function read($fileinfo)
+    public function read(SplFileInfo $fileinfo)
     {
         return file_get_contents($fileinfo);
     }

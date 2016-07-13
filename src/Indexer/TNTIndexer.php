@@ -32,6 +32,7 @@ class TNTIndexer
     public $disableOutput         = false;
     public $inMemory              = true;
     public $steps                 = 1000;
+    public $indexName             = "";
 
     public function __construct()
     {
@@ -95,6 +96,8 @@ class TNTIndexer
 
     public function createIndex($indexName)
     {
+        $this->indexName = $indexName;
+
         if (file_exists($this->config['storage'] . $indexName)) {
             unlink($this->config['storage'] . $indexName);
         }
@@ -229,6 +232,7 @@ class TNTIndexer
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'driver', 'filesystem')");
 
         $this->info("Total rows $counter");
+        $this->info("Index created: {$this->config['storage']}");
     }
 
     public function processDocument($row)

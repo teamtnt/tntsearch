@@ -20,8 +20,6 @@ class CroatianStemmer implements Stemmer
 
     public static function stem($token)
     {
-        $token = strtolower($token);
-
         if (in_array($token, self::$stop)) {
             return $token;
         }

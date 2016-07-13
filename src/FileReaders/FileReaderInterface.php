@@ -2,6 +2,8 @@
 
 namespace TeamTNT\TNTSearch\FileReaders;
 
+use SplFileInfo;
+
 interface FileReaderInterface
 {
     /**
