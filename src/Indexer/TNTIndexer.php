@@ -20,6 +20,9 @@ class TNTIndexer
 {
     protected $index              = null;
     protected $dbh                = null;
+    public $stemmer               = null;
+    public $tokenizer             = null;
+    protected $query              = "";
     protected $wordlist           = [];
     protected $inMemoryTerms      = [];
     protected $decodeHTMLEntities = false;
