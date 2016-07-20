@@ -143,7 +143,7 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
         $res = $tnt->search('Othello');
         $this->assertEmpty($res['ids']);
-        $this->assertEquals(12, $tnt->totalDocumentsInCollection()); 
+        $this->assertEquals(12, $tnt->totalDocumentsInCollection());
 
         $index = $tnt->getIndex();
 
@@ -153,7 +153,7 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
         $count = $index->countWordInWordList('Othello');
         $this->assertEquals(1, $count, 'Word Othello should be 1');
-        $this->assertEquals(13, $tnt->totalDocumentsInCollection()); 
+        $this->assertEquals(13, $tnt->totalDocumentsInCollection());
 
         $res = $tnt->search('Othello');
         $this->assertEquals([13], $res['ids']);
@@ -173,8 +173,31 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
         $tnt->selectIndex($this->indexName);
         $tnt->asYouType = true;
-        $res = $tnt->search('k');
+        $res            = $tnt->search('k');
         $this->assertEquals([1], $res['ids']);
+    }
+
+    public function testFuzzySearch()
+    {
+        $tnt = new TNTSearch;
+
+        $tnt->loadConfig($this->config);
+
+        $indexer                = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput = true;
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+        $tnt->fuzziness = true;
+        $res            = $tnt->search('juleit');
+        $this->assertEquals("9", $res['ids'][0]);
+
+        $res = $tnt->search('quen');
+        $this->assertEquals("7", $res['ids'][0]);
+
+        $res = $tnt->search('asdf');
+        $this->assertEquals([], $res['ids']);
     }
 
     public function tearDown()

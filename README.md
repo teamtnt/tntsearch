@@ -24,7 +24,7 @@ The easiest way to install TNTSearch is via [composer](http://getcomposer.org/).
 ```json
 {
     "require": {
-        "teamtnt/tntsearch": "0.7.*"
+        "teamtnt/tntsearch": "0.8.*"
     }
 }
 ```
@@ -146,7 +146,7 @@ Searching for a phrase or keyword is trivial
 The ORDER BY FIELD clause is important otherwise the database engine will not return
 the results in required order
 
-### Boolean search
+### Boolean Search
 
 ```php
     use TeamTNT\TNTSearch\TNTSearch;
@@ -167,6 +167,31 @@ the results in required order
 
 ```
 
+### Fuzzy Search
+
+The fuzzines can be tweaked by setting the following member variables:
+
+```php
+
+public $fuzzy_prefix_length  = 2;
+public $fuzzy_max_expansions = 50;
+public $fuzzy_distance       = 2 //represents the levenshtein distance;
+```
+
+```php
+    use TeamTNT\TNTSearch\TNTSearch;
+
+    $tnt = new TNTSearch;
+
+    $tnt->loadConfig($config);
+    $tnt->selectIndex("name.index");
+    $tnt->fuzziness = true;
+    
+    //when the fuzziness flag is set to true the keyword juleit will return
+    //documents that match the word juliet, the default levenshtein distance is 2
+    $res = $tnt->search("juleit");
+
+```
 ## Updating the index
 
 Once you created an index you don't need to reindex it each time you make some changes 

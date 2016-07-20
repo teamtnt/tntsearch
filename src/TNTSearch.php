@@ -14,11 +14,15 @@ use TeamTNT\TNTSearch\Support\TokenizerInterface;
 class TNTSearch
 {
     public $config;
-    public $asYouType = false;
-    public $maxDocs   = 500;
-    public $tokenizer = null;
-    public $index     = null;
-    public $stemmer   = null;
+    public $asYouType            = false;
+    public $maxDocs              = 500;
+    public $tokenizer            = null;
+    public $index                = null;
+    public $stemmer              = null;
+    public $fuzziness            = false;
+    public $fuzzy_prefix_length  = 2;
+    public $fuzzy_max_expansions = 50;
+    public $fuzzy_distance       = 2;
 
     public function loadConfig($config)
     {
@@ -246,6 +250,10 @@ class TNTSearch
         $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword LIMIT 1";
         $stmtWord       = $this->index->prepare($searchWordlist);
 
+        if ($this->fuzziness) {
+            return $this->fuzzySearch($keyword);
+        }
+
         if ($this->asYouType && $isLastWord) {
             $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY length(term) ASC, num_hits DESC LIMIT 1";
             $stmtWord       = $this->index->prepare($searchWordlist);
@@ -255,6 +263,24 @@ class TNTSearch
         }
         $stmtWord->execute();
         return $stmtWord->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function fuzzySearch($keyword)
+    {
+        $prefix         = substr($keyword, 0, $this->fuzzy_prefix_length);
+        $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY num_hits DESC LIMIT {$this->fuzzy_max_expansions}";
+        $stmtWord       = $this->index->prepare($searchWordlist);
+        $stmtWord->bindValue(':keyword', mb_strtolower($prefix) . "%");
+        $stmtWord->execute();
+        $matches = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
+
+        $resultSet = [];
+        foreach ($matches as $match) {
+            if (levenshtein($match['term'], $keyword) <= $this->fuzzy_distance) {
+                $resultSet[] = $match;
+            }
+        }
+        return $resultSet;
     }
 
     public function totalDocumentsInCollection()
