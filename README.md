@@ -179,17 +179,17 @@ public $fuzzy_distance       = 2 //represents the levenshtein distance;
 ```
 
 ```php
-    use TeamTNT\TNTSearch\TNTSearch;
+use TeamTNT\TNTSearch\TNTSearch;
 
-    $tnt = new TNTSearch;
+$tnt = new TNTSearch;
 
-    $tnt->loadConfig($config);
-    $tnt->selectIndex("name.index");
-    $tnt->fuzziness = true;
-    
-    //when the fuzziness flag is set to true the keyword juleit will return
-    //documents that match the word juliet, the default levenshtein distance is 2
-    $res = $tnt->search("juleit");
+$tnt->loadConfig($config);
+$tnt->selectIndex("name.index");
+$tnt->fuzziness = true;
+
+//when the fuzziness flag is set to true the keyword juleit will return
+//documents that match the word juliet, the default levenshtein distance is 2
+$res = $tnt->search("juleit");
 
 ```
 ## Updating the index
@@ -198,23 +198,23 @@ Once you created an index you don't need to reindex it each time you make some c
 to your document collection. TNTSearch supports dynamic index updates.
 
 ```php
-    use TeamTNT\TNTSearch\TNTSearch;
+use TeamTNT\TNTSearch\TNTSearch;
 
-    $tnt = new TNTSearch;
+$tnt = new TNTSearch;
 
-    $tnt->loadConfig($config);
-    $tnt->selectIndex("name.index");
-    
-    $index = $tnt->getIndex();
+$tnt->loadConfig($config);
+$tnt->selectIndex("name.index");
 
-    //to insert a new document to the index
-    $index->insert(['id' => '11', 'title' => 'new title', 'article' => 'new article']);
-    
-    //to update an existing document
-    $index->update(11, ['id' => '11', 'title' => 'updated title', 'article' => 'updated article']);
+$index = $tnt->getIndex();
 
-    //to delete the document from index
-    $index->delete(12);
+//to insert a new document to the index
+$index->insert(['id' => '11', 'title' => 'new title', 'article' => 'new article']);
+
+//to update an existing document
+$index->update(11, ['id' => '11', 'title' => 'updated title', 'article' => 'updated article']);
+
+//to delete the document from index
+$index->delete(12);
 ```
 
 ## Contributing
