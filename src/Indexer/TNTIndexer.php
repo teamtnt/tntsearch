@@ -107,7 +107,7 @@ class TNTIndexer
 
         $this->index->exec("CREATE TABLE IF NOT EXISTS wordlist (
                     id INTEGER PRIMARY KEY,
-                    term TEXT,
+                    term TEXT UNIQUE COLLATE nocase,
                     num_hits INTEGER,
                     num_docs INTEGER)");
 
@@ -321,7 +321,6 @@ class TNTIndexer
         $terms = [];
         $stems->map(function ($column, $key) use (&$terms) {
             foreach ($column as $term) {
-
                 if (array_key_exists($term, $terms)) {
                     $terms[$term]['hits']++;
                     $terms[$term]['docs'] = 1;
@@ -341,7 +340,7 @@ class TNTIndexer
 
         foreach ($terms as $key => $term) {
             try {
-                $insertStmt->bindParam(":keyword", $key, SQLITE3_TEXT);
+                $insertStmt->bindParam(":keyword", $key);
                 $insertStmt->bindParam(":hits", $term['hits'], SQLITE3_INTEGER);
                 $insertStmt->bindParam(":docs", $term['docs'], SQLITE3_INTEGER);
                 $insertStmt->execute();
@@ -354,10 +353,10 @@ class TNTIndexer
                 if ($e->getCode() == 23000) {
                     $updateStmt->bindValue(':docs', $term['docs'], SQLITE3_INTEGER);
                     $updateStmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
-                    $updateStmt->bindValue(':keyword', $key, SQLITE3_TEXT);
+                    $updateStmt->bindValue(':keyword', $key);
                     $updateStmt->execute();
                     if (!$this->inMemory) {
-                        $selectStmt->bindValue(':keyword', $key, SQLITE3_TEXT);
+                        $selectStmt->bindValue(':keyword', $key);
                         $selectStmt->execute();
                         $res               = $selectStmt->fetch(PDO::FETCH_ASSOC);
                         $terms[$key]['id'] = $res['id'];
@@ -422,7 +421,7 @@ class TNTIndexer
     public function getWordFromWordList($word)
     {
         $selectStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
-        $selectStmt->bindValue(':keyword', $word, SQLITE3_TEXT);
+        $selectStmt->bindValue(':keyword', $word);
         $selectStmt->execute();
         return $selectStmt->fetch(PDO::FETCH_ASSOC);
     }

@@ -249,9 +249,9 @@ class TNTSearch
         if ($this->asYouType && $isLastWord) {
             $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY length(term) ASC, num_hits DESC LIMIT 1";
             $stmtWord       = $this->index->prepare($searchWordlist);
-            $stmtWord->bindValue(':keyword', mb_strtolower($keyword) . "%", SQLITE3_TEXT);
+            $stmtWord->bindValue(':keyword', mb_strtolower($keyword) . "%");
         } else {
-            $stmtWord->bindValue(':keyword', mb_strtolower($keyword), SQLITE3_TEXT);
+            $stmtWord->bindValue(':keyword', mb_strtolower($keyword));
         }
         $stmtWord->execute();
         return $stmtWord->fetchAll(PDO::FETCH_ASSOC);
