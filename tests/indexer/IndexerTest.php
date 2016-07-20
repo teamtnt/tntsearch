@@ -30,7 +30,9 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         $tnt->selectIndex($this->indexName);
         $tnt->asYouType = true;
         $res            = $tnt->search('Juliet');
-        $this->assertEquals([9, 5, 6, 7, 8, 10], $res['ids']);
+
+        //the most relevant doc has the id 9
+        $this->assertEquals("9", $res['ids'][0]);
 
         $res = $tnt->search('Queen Mab');
         $this->assertEquals([7], $res['ids']);
