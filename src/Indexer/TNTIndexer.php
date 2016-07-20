@@ -357,7 +357,7 @@ class TNTIndexer
                     $updateStmt->bindValue(':keyword', $key, SQLITE3_TEXT);
                     $updateStmt->execute();
                     if (!$this->inMemory) {
-                        $selectStmt->bindValue(':keyword', $key);
+                        $selectStmt->bindValue(':keyword', $key, SQLITE3_TEXT);
                         $selectStmt->execute();
                         $res               = $selectStmt->fetch(PDO::FETCH_ASSOC);
                         $terms[$key]['id'] = $res['id'];
@@ -422,7 +422,7 @@ class TNTIndexer
     public function getWordFromWordList($word)
     {
         $selectStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
-        $selectStmt->bindValue(':keyword', $word);
+        $selectStmt->bindValue(':keyword', $word, SQLITE3_TEXT);
         $selectStmt->execute();
         return $selectStmt->fetch(PDO::FETCH_ASSOC);
     }
