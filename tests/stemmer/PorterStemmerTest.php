@@ -23,8 +23,8 @@ class PorterStemmerTestTest extends PHPUnit_Framework_TestCase
         $stemmer = new PorterStemmer;
 
         foreach ($vocabulary as $key => $word) {
-            $stem = $stemmer->stem($word);
-            $this->assertEquals($expected[$key], $stem);
+            $stem = $stemmer->stem(trim($word));
+            $this->assertEquals(trim($expected[$key]), $stem);
         }
     }
 }

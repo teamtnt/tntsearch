@@ -1,0 +1,19 @@
+language: php
+
+php:
+  - 5.5
+  - 5.6
+  - 7.0
+  - 7.1
+  - hhvm
+
+addons:
+  code_climate:
+    repo_token: e43f1f89afb5a2f6acfaea42a6a9ebd8d33538208fafa8636826c173b3f7ec26 
+
+before_script:
+  - composer self-update
+  - composer install
+
+after_script:
+  - vendor/bin/test-reporter
