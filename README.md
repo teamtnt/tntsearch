@@ -172,7 +172,6 @@ the results in required order
 The fuzzines can be tweaked by setting the following member variables:
 
 ```php
-
 public $fuzzy_prefix_length  = 2;
 public $fuzzy_max_expansions = 50;
 public $fuzzy_distance       = 2 //represents the levenshtein distance;
