@@ -93,24 +93,23 @@ In order to be able to make full text search queries you have to create an index
 
 Usage:
 ```php
+use TeamTNT\TNTSearch\TNTSearch;
 
-    use TeamTNT\TNTSearch\TNTSearch;
+$tnt = new TNTSearch;
 
-    $tnt = new TNTSearch;
+$tnt->loadConfig([
+    'driver'    => 'mysql',
+    'host'      => 'localhost',
+    'database'  => 'dbname',
+    'username'  => 'user',
+    'password'  => 'pass',
+    'storage'   => '/var/www/tntsearch/examples/'
+]);
 
-    $tnt->loadConfig([
-        'driver'    => 'mysql',
-        'host'      => 'localhost',
-        'database'  => 'dbname',
-        'username'  => 'user',
-        'password'  => 'pass',
-        'storage'   => '/var/www/tntsearch/examples/'
-    ]);
-
-    $indexer = $tnt->createIndex('name.index');
-    $indexer->query('SELECT id, article FROM articles;');
-    //$indexer->setLanguage('german');
-    $indexer->run();
+$indexer = $tnt->createIndex('name.index');
+$indexer->query('SELECT id, article FROM articles;');
+//$indexer->setLanguage('german');
+$indexer->run();
 
 ```
 
@@ -128,19 +127,19 @@ Searching for a phrase or keyword is trivial
 
 
 ```php
-    use TeamTNT\TNTSearch\TNTSearch;
+use TeamTNT\TNTSearch\TNTSearch;
 
-    $tnt = new TNTSearch;
+$tnt = new TNTSearch;
 
-    $tnt->loadConfig($config);
-    $tnt->selectIndex("name.index");
+$tnt->loadConfig($config);
+$tnt->selectIndex("name.index");
 
-    $res = $tnt->search("This is a test search", 12);
+$res = $tnt->search("This is a test search", 12);
 
-    print_r($res); //returns an array of 12 document ids that best match your query
+print_r($res); //returns an array of 12 document ids that best match your query
 
-    //to display the results you need an additional query
-    //SELECT * FROM articles WHERE id IN $res ORDER BY FIELD(id, $res);
+//to display the results you need an additional query
+//SELECT * FROM articles WHERE id IN $res ORDER BY FIELD(id, $res);
 ```
 
 The ORDER BY FIELD clause is important otherwise the database engine will not return
@@ -149,21 +148,21 @@ the results in required order
 ### Boolean Search
 
 ```php
-    use TeamTNT\TNTSearch\TNTSearch;
+use TeamTNT\TNTSearch\TNTSearch;
 
-    $tnt = new TNTSearch;
+$tnt = new TNTSearch;
 
-    $tnt->loadConfig($config);
-    $tnt->selectIndex("name.index");
+$tnt->loadConfig($config);
+$tnt->selectIndex("name.index");
 
-    //this will return all documents that have romeo in it but not juliet
-    $res = $tnt->searchBoolean("romeo -juliet");
-    
-    //returns all documents that have romeo or hamlet in it
-    $res = $tnt->searchBoolean("romeo or hamlet");
-    
-    //returns all documents that have either romeo AND juliet or prince AND hamlet
-    $res = $tnt->searchBoolean("(romeo juliet) or (prince hamlet)");
+//this will return all documents that have romeo in it but not juliet
+$res = $tnt->searchBoolean("romeo -juliet");
+
+//returns all documents that have romeo or hamlet in it
+$res = $tnt->searchBoolean("romeo or hamlet");
+
+//returns all documents that have either romeo AND juliet or prince AND hamlet
+$res = $tnt->searchBoolean("(romeo juliet) or (prince hamlet)");
 
 ```
 
