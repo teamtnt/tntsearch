@@ -8,6 +8,8 @@
 
 A fully featured full text search engine written in PHP
 
+![TNTSearch Banner](https://cloud.githubusercontent.com/assets/824840/17067635/edf2ae50-504c-11e6-9c63-a73955f55c29.jpg)
+
 ##Demo
 
 To see TNTSearch in action take a look at [the demo page](http://tntsearch.tntstudio.us/)
