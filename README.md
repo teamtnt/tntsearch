@@ -217,6 +217,10 @@ $index->update(11, ['id' => '11', 'title' => 'updated title', 'article' => 'upda
 $index->delete(12);
 ```
 
+## Drivers
+
+* [TNTSearch Driver for Laravel Scout](https://github.com/teamtnt/laravel-scout-tntsearch-driver)
+
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details.
