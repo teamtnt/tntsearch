@@ -3,6 +3,7 @@
 namespace TeamTNT\TNTSearch;
 
 use PDO;
+use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
 use TeamTNT\TNTSearch\Indexer\TNTIndexer;
 use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
@@ -59,7 +60,11 @@ class TNTSearch
 
     public function selectIndex($indexName)
     {
-        $this->index = new PDO('sqlite:' . $this->config['storage'] . $indexName);
+        $pathToIndex = $this->config['storage'] . $indexName;
+        if (!file_exists($pathToIndex)) {
+            throw new IndexNotFoundException("Index {$pathToIndex} does not exist", 1);
+        }
+        $this->index = new PDO('sqlite:' . $pathToIndex);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->setStemmer();
     }

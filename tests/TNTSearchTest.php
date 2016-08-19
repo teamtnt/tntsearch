@@ -1,5 +1,6 @@
 <?php
 
+use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
 use TeamTNT\TNTSearch\TNTSearch;
 
 class TNTSearchTest extends PHPUnit_Framework_TestCase
@@ -198,6 +199,17 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
         $res = $tnt->search('asdf');
         $this->assertEquals([], $res['ids']);
+    }
+
+    /**
+     * @expectedException     TeamTNT\TNTSearch\Exceptions\IndexNotFoundException
+     * @expectedExceptionCode 1
+     */
+    public function testIndexDoesNotExistException()
+    {
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($this->config);
+        $tnt->selectIndex('IndexThatDoesNotExist');
     }
 
     public function tearDown()
