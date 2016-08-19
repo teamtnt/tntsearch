@@ -23,6 +23,7 @@ class TNTSearch
     public $fuzzy_prefix_length  = 2;
     public $fuzzy_max_expansions = 50;
     public $fuzzy_distance       = 2;
+    protected $dbh               = null;
 
     public function loadConfig($config)
     {
@@ -35,6 +36,11 @@ class TNTSearch
         $this->tokenizer = new Tokenizer;
     }
 
+    public function setDatabaseHandle(PDO $dbh)
+    {
+        $this->dbh = $dbh;
+    }
+
     public function setTokenizer(TokenizerInterface $tokenizer)
     {
         $this->tokenizer = $tokenizer;
@@ -44,6 +50,10 @@ class TNTSearch
     {
         $indexer = new TNTIndexer;
         $indexer->loadConfig($this->config);
+
+        if ($this->dbh) {
+            $indexer->setDatabaseHandle($this->dbh);
+        }
         return $indexer->createIndex($indexName);
     }
 

@@ -159,6 +159,11 @@ class TNTIndexer
         throw new Exception("Unsupported driver [{$config['driver']}]");
     }
 
+    public function setDatabaseHandle(PDO $dbh)
+    {
+        $this->dbh = $dbh;
+    }
+
     public function query($query)
     {
         $this->query = $query;
