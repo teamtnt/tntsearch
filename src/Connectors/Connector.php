@@ -12,12 +12,12 @@ class Connector
      * @var array
      */
     protected $options = [
-        PDO::ATTR_CASE              => PDO::CASE_NATURAL,
-        PDO::ATTR_ERRMODE           => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_ORACLE_NULLS      => PDO::NULL_NATURAL,
+        PDO::ATTR_CASE                     => PDO::CASE_NATURAL,
+        PDO::ATTR_ERRMODE                  => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_ORACLE_NULLS             => PDO::NULL_NATURAL,
         PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => PDO::MYSQL_ATTR_USE_BUFFERED_QUERY,
-        PDO::ATTR_STRINGIFY_FETCHES => false,
-        PDO::ATTR_EMULATE_PREPARES  => false,
+        PDO::ATTR_STRINGIFY_FETCHES        => false,
+        PDO::ATTR_EMULATE_PREPARES         => false,
     ];
 
     /**
@@ -42,6 +42,14 @@ class Connector
     public function createConnection($dsn, array $config, array $options)
     {
         extract($config, EXTR_SKIP);
+
+        if (!array_key_exists('username', $config)) {
+            $username = null;
+        }
+
+        if (!array_key_exists('password', $config)) {
+            $password = null;
+        }
 
         return new PDO($dsn, $username, $password, $options);
 
