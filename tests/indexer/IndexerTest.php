@@ -142,6 +142,25 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         $this->assertContains("canon", $res);
         $this->assertContains("70-200", $res);
     }
+
+    public function testCustomPrimaryKey()
+    {
+        $tnt = new TNTSearch;
+
+        $tnt->loadConfig($this->config);
+
+        $indexer                = $tnt->createIndex($this->indexName);
+        $indexer->setPrimaryKey('post_id');
+        $indexer->disableOutput = true;
+        $indexer->query('SELECT * FROM posts;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+        $res = $tnt->search('second');
+
+        //the most relevant doc has the id 9
+        $this->assertEquals("2", $res['ids'][0]);
+    }
 }
 
 class SomeTokenizer implements TokenizerInterface
