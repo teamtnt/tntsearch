@@ -21,6 +21,7 @@ class TNTIndexer
 {
     protected $index              = null;
     protected $dbh                = null;
+    protected $primaryKey         = null;
     public $stemmer               = null;
     public $tokenizer             = null;
     public $filereader            = null;
@@ -64,6 +65,19 @@ class TNTIndexer
     public function getStemmer()
     {
         return $this->stemmer;
+    }
+
+    public function getPrimaryKey()
+    {
+        if (isset($this->primaryKey)) {
+            return $this->primaryKey;
+        }
+        return 'id';
+    }
+
+    public function setPrimaryKey($primaryKey)
+    {
+        $this->primaryKey = $primaryKey;
     }
 
     public function setStemmer($stemmer)
@@ -136,7 +150,7 @@ class TNTIndexer
         $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'term_id_index' ON doclist ('term_id' COLLATE BINARY);");
 
         $connector = $this->createConnector($this->config);
-        if(!$this->dbh) {
+        if (!$this->dbh) {
             $this->dbh = $connector->connect($this->config);
         }
         return $this;
@@ -247,7 +261,7 @@ class TNTIndexer
         $stems = $row->map(function ($column, $name) {
             return $this->stemText($column);
         });
-        $this->saveToIndex($stems, $row->get('id'));
+        $this->saveToIndex($stems, $row->get($this->getPrimaryKey()));
     }
 
     public function insert($document)
