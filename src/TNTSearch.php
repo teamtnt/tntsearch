@@ -111,7 +111,7 @@ class TNTSearch
         })->filter(function ($item) use (&$counter, $numOfResults) {
             $counter++;
             if ($counter <= $numOfResults) {
-                return $item;
+                return true;
             }
 
         });
