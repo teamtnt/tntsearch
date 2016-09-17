@@ -30,6 +30,10 @@ class TNTSearch
     {
         $this->config            = $config;
         $this->config['storage'] = rtrim($this->config['storage'], '/') . '/';
+        if (isset($config['fuzziness']))
+        {
+            $this->fuzziness = $config['fuzziness'];
+        }
     }
 
     public function __construct()
