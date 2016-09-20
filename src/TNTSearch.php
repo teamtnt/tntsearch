@@ -228,7 +228,7 @@ class TNTSearch
         }
         $stmtDoc = $this->index->prepare($query);
 
-        $stmtDoc->bindValue(':id', $word[0]['id'], SQLITE3_INTEGER);
+        $stmtDoc->bindValue(':id', $word[0]['id']);
         $stmtDoc->execute();
         return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
     }
@@ -245,7 +245,7 @@ class TNTSearch
         }
         $stmtDoc = $this->index->prepare($query);
 
-        $stmtDoc->bindValue(':id', $word[0]['id'], SQLITE3_INTEGER);
+        $stmtDoc->bindValue(':id', $word[0]['id']);
         $stmtDoc->execute();
         return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
     }

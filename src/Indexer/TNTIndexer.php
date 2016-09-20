@@ -280,19 +280,19 @@ class TNTIndexer
     public function delete($documentId)
     {
         $rows = $this->prepareAndExecuteStatement("SELECT * FROM doclist WHERE doc_id = :documentId;", [
-            ['key' => ':documentId', 'value' => $documentId, 'type' => SQLITE3_INTEGER],
+            ['key' => ':documentId', 'value' => $documentId],
         ])->fetchAll(PDO::FETCH_ASSOC);
 
         $updateStmt = $this->index->prepare("UPDATE wordlist SET num_docs = num_docs - 1, num_hits = num_hits - :hits WHERE id = :term_id");
 
         foreach ($rows as $document) {
-            $updateStmt->bindParam(":hits", $document['hit_count'], SQLITE3_INTEGER);
-            $updateStmt->bindParam(":term_id", $document['term_id'], SQLITE3_INTEGER);
+            $updateStmt->bindParam(":hits", $document['hit_count']);
+            $updateStmt->bindParam(":term_id", $document['term_id']);
             $updateStmt->execute();
         }
 
         $this->prepareAndExecuteStatement("DELETE FROM doclist WHERE doc_id = :documentId;", [
-            ['key' => ':documentId', 'value' => $documentId, 'type' => SQLITE3_INTEGER],
+            ['key' => ':documentId', 'value' => $documentId],
         ]);
 
         $this->prepareAndExecuteStatement("DELETE FROM wordlist WHERE num_hits = 0");
@@ -362,8 +362,8 @@ class TNTIndexer
         foreach ($terms as $key => $term) {
             try {
                 $insertStmt->bindParam(":keyword", $key);
-                $insertStmt->bindParam(":hits", $term['hits'], SQLITE3_INTEGER);
-                $insertStmt->bindParam(":docs", $term['docs'], SQLITE3_INTEGER);
+                $insertStmt->bindParam(":hits", $term['hits']);
+                $insertStmt->bindParam(":docs", $term['docs']);
                 $insertStmt->execute();
 
                 $terms[$key]['id'] = $this->index->lastInsertId();
@@ -372,8 +372,8 @@ class TNTIndexer
                 }
             } catch (\Exception $e) {
                 if ($e->getCode() == 23000) {
-                    $updateStmt->bindValue(':docs', $term['docs'], SQLITE3_INTEGER);
-                    $updateStmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
+                    $updateStmt->bindValue(':docs', $term['docs']);
+                    $updateStmt->bindValue(':hits', $term['hits']);
                     $updateStmt->bindValue(':keyword', $key);
                     $updateStmt->execute();
                     if (!$this->inMemory) {
@@ -398,9 +398,9 @@ class TNTIndexer
         $stmt   = $this->index->prepare($insert);
 
         foreach ($terms as $key => $term) {
-            $stmt->bindValue(':id', $term['id'], SQLITE3_INTEGER);
-            $stmt->bindValue(':doc', $docId, SQLITE3_INTEGER);
-            $stmt->bindValue(':hits', $term['hits'], SQLITE3_INTEGER);
+            $stmt->bindValue(':id', $term['id']);
+            $stmt->bindValue(':doc', $docId);
+            $stmt->bindValue(':hits', $term['hits']);
             try {
                 $stmt->execute();
             } catch (\Exception $e) {
@@ -426,11 +426,11 @@ class TNTIndexer
             $termCounts            = array_count_values($terms);
             foreach ($terms as $term) {
                 if (isset($termsList[$term])) {
-                    $stmt->bindValue(':term_id', $termsList[$term]['id'], SQLITE3_INTEGER);
-                    $stmt->bindValue(':doc_id', $docId, SQLITE3_INTEGER);
-                    $stmt->bindValue(':field_id', $fieldCounter, SQLITE3_INTEGER);
-                    $stmt->bindValue(':position', $positionCounter, SQLITE3_INTEGER);
-                    $stmt->bindValue(':hit_count', $termCounts[$term], SQLITE3_INTEGER);
+                    $stmt->bindValue(':term_id', $termsList[$term]['id']);
+                    $stmt->bindValue(':doc_id', $docId);
+                    $stmt->bindValue(':field_id', $fieldCounter);
+                    $stmt->bindValue(':position', $positionCounter);
+                    $stmt->bindValue(':hit_count', $termCounts[$term]);
                     $stmt->execute();
                 }
                 $positionCounter++;
@@ -519,7 +519,7 @@ class TNTIndexer
     {
         $statemnt = $this->index->prepare($query);
         foreach ($params as $param) {
-            $statemnt->bindParam($param['key'], $param['value'], $param['type']);
+            $statemnt->bindParam($param['key'], $param['value']);
         }
         $statemnt->execute();
         return $statemnt;
