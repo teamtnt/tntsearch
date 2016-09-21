@@ -123,7 +123,7 @@ $res = $tnt->searchBoolean("(romeo juliet) or (prince hamlet)");
 
 ### Fuzzy Search
 
-The fuzzines can be tweaked by setting the following member variables:
+The fuzziness can be tweaked by setting the following member variables:
 
 ```php
 public $fuzzy_prefix_length  = 2;
