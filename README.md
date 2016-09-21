@@ -25,7 +25,6 @@ The easiest way to install TNTSearch is via [composer](http://getcomposer.org/):
 
 ```
 composer require teamtnt/tntsearch
-
 ```
 
 ##Requirements
