@@ -36,22 +36,6 @@ Before you proceed make sure your server meets the following requirements:
 * SQLite PHP Extension
 * mbstring PHP Extension
 
-Searching and indexing can now be done without loading the configuration like:
-
-```php
-//don't forget to load the Facade
-use TNTSearch;
-
-//indexing
-$indexer = TNTSearch::createIndex('articles.index');
-$indexer->query('SELECT id, article FROM articles;');
-$indexer->run();
-
-//searching
-TNTSearch::selectIndex("articles.index");
-$res = TNTSearch::searchBoolean('search string', 10);
-```
-
 ##Examples
 
 ### Creating an index
@@ -86,7 +70,11 @@ you might expect the following exception thrown:
 
 * [PDOException] SQLSTATE[HY000] [14] unable to open database file *
 
-Note: Your select statment MUST contain an ID field.
+Note: If your primary key is different that `id` set it like:
+
+```php
+$indexer->setPrimaryKey('article_id');
+```
 
 ### Searching
 
