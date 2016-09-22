@@ -226,7 +226,7 @@ class TNTSearch
             return $this->getAllDocumentsForFuzzyKeyword($word, $noLimit);
         }
 
-        return $this->getAllDocumentsForStrictKeyword($noLimit, $word);
+        return $this->getAllDocumentsForStrictKeyword($word, $noLimit);
     }
 
     public function getAllDocumentsForWhereKeywordNot($keyword, $noLimit = false)
