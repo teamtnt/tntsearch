@@ -217,7 +217,8 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         $index->insert(['id' => '15', 'title' => '199y', 'article' => 'Nineties with the y...']);
         $tnt->fuzziness = true;
         $res            = $tnt->search('199');
-        $this->assertEquals([14,15], $res['ids']);
+        $this->assertContains(14, $res['ids']);
+        $this->assertContains(15, $res['ids']);
     }
 
     /**
