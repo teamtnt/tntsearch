@@ -201,6 +201,26 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         $this->assertEquals([], $res['ids']);
     }
 
+    public function testFuzzySearchMultipleWordsFound()
+    {
+        $tnt = new TNTSearch();
+        $tnt->loadConfig($this->config);
+        $indexer                = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput = true;
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+        $index = $tnt->getIndex();
+
+        $index->insert(['id' => '14', 'title' => '199x', 'article' => 'Nineties with the x...']);
+        $index->insert(['id' => '15', 'title' => '199y', 'article' => 'Nineties with the y...']);
+        $tnt->fuzziness = true;
+        $res            = $tnt->search('199');
+        $this->assertContains(14, $res['ids']);
+        $this->assertContains(15, $res['ids']);
+    }
+
     /**
      * @expectedException     TeamTNT\TNTSearch\Exceptions\IndexNotFoundException
      * @expectedExceptionCode 1
