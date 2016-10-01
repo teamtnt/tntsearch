@@ -106,6 +106,7 @@ class TNTSearch
         $docs = new Collection($docScores);
 
         $counter = 0;
+        $totalHits = $docs->count();
         $docs    = $docs->map(function ($doc, $key) {
             return $key;
         })->filter(function ($item) use (&$counter, $numOfResults) {
@@ -122,7 +123,8 @@ class TNTSearch
         }
         return [
             'ids'            => array_keys($docs->toArray()),
-            'execution time' => round($stopTimer - $startTimer, 7) * 1000 . " ms",
+            'hits'           => $totalHits,
+            'execution time' => round($stopTimer - $startTimer, 7) * 1000 . " ms"
         ];
     }
 
@@ -212,6 +214,7 @@ class TNTSearch
 
         return [
             'ids'            => $docs->toArray(),
+            'hits'           => $docs->count(),
             'execution time' => round($stopTimer - $startTimer, 7) * 1000 . " ms",
         ];
     }

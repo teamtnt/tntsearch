@@ -55,6 +55,7 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
         $res = $tnt->searchBoolean('Hamlet or Macbeth');
         $this->assertEquals([3, 4, 1, 2], $res['ids']);
+        $this->assertEquals(4, $res['hits']);
 
         $res = $tnt->searchBoolean('juliet -well');
         $this->assertEquals([5, 6, 7, 8, 10], $res['ids']);
@@ -176,6 +177,23 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         $tnt->asYouType = true;
         $res            = $tnt->search('k');
         $this->assertEquals([1], $res['ids']);
+    }
+
+    public function testHits()
+    {
+        $tnt = new TNTSearch;
+
+        $tnt->loadConfig($this->config);
+
+        $indexer                = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput = true;
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+
+        $res = $tnt->search('juliet');
+        $this->assertEquals(6, $res['hits']);
     }
 
     public function testFuzzySearch()
