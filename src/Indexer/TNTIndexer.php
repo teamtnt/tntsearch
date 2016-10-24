@@ -158,6 +158,16 @@ class TNTIndexer
         return $this;
     }
 
+    public function indexBeginTransaction()
+    {
+        $this->index->beginTransaction();
+    }
+
+    public function indexEndTransaction()
+    {
+        $this->index->commit();
+    }
+
     public function createConnector(array $config)
     {
         if (!isset($config['driver'])) {
