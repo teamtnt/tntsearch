@@ -306,15 +306,19 @@ class TNTSearch
         return $docs->fetch(PDO::FETCH_ASSOC)['value'];
     }
 
-    public function setStemmer()
+    public function setStemmer($stemmer = null)
     {
-        $query = "SELECT * FROM info WHERE key = 'stemmer'";
-        $docs  = $this->index->query($query);
-        if ($language = $docs->fetch(PDO::FETCH_ASSOC)['value']) {
-            $class         = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
-            $this->stemmer = new $class;
-        } else {
-            $this->stemmer = new PorterStemmer;
+        if(is_null($stemmer)) {
+            $query = "SELECT * FROM info WHERE key = 'stemmer'";
+            $docs = $this->index->query($query);
+            if ($language = $docs->fetch(PDO::FETCH_ASSOC)['value']) {
+                $class = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
+                $this->stemmer = new $class;
+            } else {
+                $this->stemmer = new PorterStemmer;
+            }
+        }else{
+            $this->stemmer = $stemmer;
         }
     }
 
