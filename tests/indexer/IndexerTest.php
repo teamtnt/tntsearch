@@ -59,6 +59,7 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         $count = $index->countWordInWordList('document');
 
         $this->assertTrue($count == 3, 'Word document should be 3');
+        $this->assertEquals('TeamTNT\TNTSearch\Stemmer\PorterStemmer', get_class($tnt->getStemmer()));
     }
 
     public function testIfCroatianStemmerIsSet()
@@ -77,7 +78,10 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         $query       = "SELECT * FROM info WHERE key = 'stemmer'";
         $docs        = $this->index->query($query);
         $value       = $docs->fetch(PDO::FETCH_ASSOC)['value'];
-        $this->assertEquals('croatian', $value);
+        $this->assertEquals('TeamTNT\TNTSearch\Stemmer\CroatianStemmer', $value);
+        
+        $tnt->selectIndex($this->indexName);
+        $this->assertEquals('TeamTNT\TNTSearch\Stemmer\CroatianStemmer', get_class($tnt->getStemmer()));
     }
 
     public function testIfGermanStemmerIsSet()
@@ -96,7 +100,10 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         $query       = "SELECT * FROM info WHERE key = 'stemmer'";
         $docs        = $this->index->query($query);
         $value       = $docs->fetch(PDO::FETCH_ASSOC)['value'];
-        $this->assertEquals('german', $value);
+        $this->assertEquals('TeamTNT\TNTSearch\Stemmer\GermanStemmer', $value);
+
+        $tnt->selectIndex($this->indexName);
+        $this->assertEquals('TeamTNT\TNTSearch\Stemmer\GermanStemmer', get_class($tnt->getStemmer()));
     }
 
     public function testBuildTrigrams()

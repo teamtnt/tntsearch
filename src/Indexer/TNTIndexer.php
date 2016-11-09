@@ -83,19 +83,19 @@ class TNTIndexer
     public function setStemmer($stemmer)
     {
         $this->stemmer = $stemmer;
+        $class         = get_class($stemmer);
+        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', '$class')");
     }
 
     public function setCroatianStemmer()
     {
-        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', 'croatian')");
-        $this->stemmer = new CroatianStemmer;
+        $this->setStemmer(new CroatianStemmer);
     }
 
     public function setLanguage($language = 'porter')
     {
-        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', '$language')");
-        $class         = 'TeamTNT\\TNTSearch\\Stemmer\\'.ucfirst(strtolower($language)).'Stemmer';
-        $this->stemmer = new $class;
+        $class = 'TeamTNT\\TNTSearch\\Stemmer\\'.ucfirst(strtolower($language)).'Stemmer';
+        $this->setStemmer(new $class);
     }
 
     public function setIndex($index)

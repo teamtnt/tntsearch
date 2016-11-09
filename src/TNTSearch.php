@@ -29,7 +29,7 @@ class TNTSearch
     public function loadConfig($config)
     {
         $this->config            = $config;
-        $this->config['storage'] = rtrim($this->config['storage'], '/') . '/';
+        $this->config['storage'] = rtrim($this->config['storage'], '/').'/';
     }
 
     public function __construct()
@@ -60,11 +60,11 @@ class TNTSearch
 
     public function selectIndex($indexName)
     {
-        $pathToIndex = $this->config['storage'] . $indexName;
+        $pathToIndex = $this->config['storage'].$indexName;
         if (!file_exists($pathToIndex)) {
             throw new IndexNotFoundException("Index {$pathToIndex} does not exist", 1);
         }
-        $this->index = new PDO('sqlite:' . $pathToIndex);
+        $this->index = new PDO('sqlite:'.$pathToIndex);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->setStemmer();
     }
@@ -105,9 +105,9 @@ class TNTSearch
 
         $docs = new Collection($docScores);
 
-        $counter = 0;
+        $counter   = 0;
         $totalHits = $docs->count();
-        $docs    = $docs->map(function ($doc, $key) {
+        $docs      = $docs->map(function ($doc, $key) {
             return $key;
         })->filter(function ($item) use (&$counter, $numOfResults) {
             $counter++;
@@ -124,7 +124,7 @@ class TNTSearch
         return [
             'ids'            => array_keys($docs->toArray()),
             'hits'           => $totalHits,
-            'execution time' => round($stopTimer - $startTimer, 7) * 1000 . " ms"
+            'execution time' => round($stopTimer - $startTimer, 7) * 1000 ." ms"
         ];
     }
 
@@ -134,7 +134,7 @@ class TNTSearch
         $startTimer = microtime(true);
 
         $expression = new Expression;
-        $postfix    = $expression->toPostfix("|" . $phrase);
+        $postfix    = $expression->toPostfix("|".$phrase);
 
         foreach ($postfix as $token) {
             if ($token == '&') {
@@ -215,7 +215,7 @@ class TNTSearch
         return [
             'ids'            => $docs->toArray(),
             'hits'           => $docs->count(),
-            'execution time' => round($stopTimer - $startTimer, 7) * 1000 . " ms",
+            'execution time' => round($stopTimer - $startTimer, 7) * 1000 ." ms"
         ];
     }
 
@@ -267,7 +267,7 @@ class TNTSearch
         if ($this->asYouType && $isLastWord) {
             $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY length(term) ASC, num_hits DESC LIMIT 1";
             $stmtWord       = $this->index->prepare($searchWordlist);
-            $stmtWord->bindValue(':keyword', mb_strtolower($keyword) . "%");
+            $stmtWord->bindValue(':keyword', mb_strtolower($keyword)."%");
         } else {
             $stmtWord->bindValue(':keyword', mb_strtolower($keyword));
         }
@@ -285,7 +285,7 @@ class TNTSearch
         $prefix         = substr($keyword, 0, $this->fuzzy_prefix_length);
         $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY num_hits DESC LIMIT {$this->fuzzy_max_expansions}";
         $stmtWord       = $this->index->prepare($searchWordlist);
-        $stmtWord->bindValue(':keyword', mb_strtolower($prefix) . "%");
+        $stmtWord->bindValue(':keyword', mb_strtolower($prefix)."%");
         $stmtWord->execute();
         $matches = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
 
@@ -306,12 +306,16 @@ class TNTSearch
         return $docs->fetch(PDO::FETCH_ASSOC)['value'];
     }
 
+    public function getStemmer()
+    {
+        return $this->stemmer;
+    }
+
     public function setStemmer()
     {
         $query = "SELECT * FROM info WHERE key = 'stemmer'";
         $docs  = $this->index->query($query);
-        if ($language = $docs->fetch(PDO::FETCH_ASSOC)['value']) {
-            $class         = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
+        if ($class = $docs->fetch(PDO::FETCH_ASSOC)['value']) {
             $this->stemmer = new $class;
         } else {
             $this->stemmer = new PorterStemmer;
@@ -328,7 +332,7 @@ class TNTSearch
 
     public function filesystemMapIdsToPaths($docs)
     {
-        $query = "SELECT * FROM filemap WHERE id in (" . $docs->implode(', ') . ");";
+        $query = "SELECT * FROM filemap WHERE id in (".$docs->implode(', ').");";
         $res   = $this->index->query($query)->fetchAll(PDO::FETCH_ASSOC);
 
         return $docs->map(function ($key) use ($res) {
@@ -339,7 +343,7 @@ class TNTSearch
 
     public function info($str)
     {
-        echo $str . "\n";
+        echo $str."\n";
     }
 
     public function breakIntoTokens($text)
@@ -371,7 +375,7 @@ class TNTSearch
     private function getAllDocumentsForFuzzyKeyword($words, $noLimit)
     {
         $binding_params = implode(',', array_fill(0, count($words), '?'));
-        $query = "SELECT * FROM doclist WHERE term_id in ($binding_params) ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
+        $query          = "SELECT * FROM doclist WHERE term_id in ($binding_params) ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
         if ($noLimit) {
             $query = "SELECT * FROM doclist WHERE term_id in ($binding_params) ORDER BY hit_count DESC";
         }

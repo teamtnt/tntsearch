@@ -3,8 +3,7 @@
     "type": "library",
     "description": "A fully featured full text search engine written in PHP",
     "keywords": [
-        "teamtnt",
-        "tntsearch"
+        "teamtnt", "tntsearch", "search", "fulltext"
     ],
     "homepage": "https://github.com/teamtnt/tntsearch",
     "license": "MIT",
