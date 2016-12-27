@@ -174,7 +174,7 @@ $index->delete(12);
 
 * [TNTSearch Driver for Laravel Scout](https://github.com/teamtnt/laravel-scout-tntsearch-driver)
 
-##Support [![OpenCollective](https://opencollective.com/cyclejs/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/cyclejs/sponsors/badge.svg)](#sponsors)
+##Support [![OpenCollective](https://opencollective.com/tntsearch/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/tntsearch/sponsors/badge.svg)](#sponsors)
 
 ###Backers
 
