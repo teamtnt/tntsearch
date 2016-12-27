@@ -178,7 +178,7 @@ $index->delete(12);
 
 ###Backers
 
-Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/tntsearchs#backer)]
+Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/tntsearch#backer)]
 
 ## Sponsors
 
