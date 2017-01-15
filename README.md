@@ -18,6 +18,7 @@ To see TNTSearch in action take a look at [the demo page](http://tntsearch.tntst
 
 * [Solving the search problem with Laravel and TNTSearch](http://tnt.studio/blog/solving-the-search-problem-with-laravel-and-tntsearch)
 * [Searching for Bobby Fisher with Laravel 5](http://tnt.studio/blog/searching-for-bobby-fisher-with-laravel-5)
+* [Did you mean functionality with Laravel Scout](http://tnt.studio/blog/did-you-mean-functionality-with-laravel-scout)
 
 ##Installation
 
