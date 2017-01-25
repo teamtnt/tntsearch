@@ -10,7 +10,7 @@ class TNTSearchServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->app['tntsearch'] = $this->app->share(function ($app) {
+        $this->app->singleton('tntsearch', function () {
             $config = [
                 'driver'   => 'mysql',
                 'host'     => env('DB_HOST', 'localhost'),
