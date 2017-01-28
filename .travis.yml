@@ -10,6 +10,9 @@ addons:
   code_climate:
     repo_token: e43f1f89afb5a2f6acfaea42a6a9ebd8d33538208fafa8636826c173b3f7ec26 
 
+script:
+  - vendor/bin/phpunit
+
 before_script:
   - composer self-update
   - composer install
