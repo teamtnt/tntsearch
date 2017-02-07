@@ -171,6 +171,34 @@ $index->update(11, ['id' => '11', 'title' => 'updated title', 'article' => 'upda
 $index->delete(12);
 ```
 
+## Geo Search
+
+### Indexing
+
+```php
+$candyShopIndexer = new TNTGeoIndexer;
+$candyShopIndexer->loadConfig($config);
+$candyShopIndexer->createIndex('candyShops.index');
+$candyShopIndexer->query('SELECT id, longitude, latitude FROM candy_shops;');
+$candyShopIndexer->run();
+```
+### Searching
+
+```php
+$currentLocation = [
+    'longitude' => 11.576124,
+    'latitude'  => 48.137154
+];
+
+$distance = 2; //km
+
+$candyShopIndex = new TNTGeoSearch();
+$candyShopIndex->loadConfig($config);
+$candyShopIndex->selectIndex('candyShops.index');
+
+$candyShops = $candyShopIndex->findNearest($currentLocation, $distance, 10);
+```
+
 ## Drivers
 
 * [TNTSearch Driver for Laravel Scout](https://github.com/teamtnt/laravel-scout-tntsearch-driver)
