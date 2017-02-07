@@ -5,7 +5,8 @@ use TeamTNT\TNTSearch\Indexer\TNTGeoIndexer;
 
 class TNTGeoIndexerTest extends PHPUnit_Framework_TestCase
 {
-    protected $indexName = "testGeoIndex";
+    protected $indexName = "cities-geo.index";
+
     protected $config    = [
         'driver'   => 'sqlite',
         'database' => __DIR__ . '/../_files/cities.sqlite',
@@ -20,15 +21,8 @@ class TNTGeoIndexerTest extends PHPUnit_Framework_TestCase
         $geoIndex = new TNTGeoIndexer;
         $geoIndex->disableOutput = true;
         $geoIndex->loadConfig($this->config);
-        $geoIndex->createIndex('cities.geo.index');
+        $geoIndex->createIndex($this->indexName);
         $geoIndex->query('SELECT id, longitude, latitude FROM cities;');
         $geoIndex->run();
-    }
-
-    public function tearDown()
-    {
-        if (file_exists(__DIR__ . '/../_files/' . $this->indexName)) {
-            unlink(__DIR__ . '/../_files/' . $this->indexName);
-        }
     }
 }
