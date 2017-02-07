@@ -28,8 +28,6 @@ class TNTGeoSearchTest extends PHPUnit_Framework_TestCase
 
         $cities = $citiesIndex->findNearest($currentLocation, $distance, 2);
 
-        var_dump($cities);
-
         $this->assertEquals([9389, 9407], $cities['ids']);
         $this->assertEquals(2, $cities['hits']);
     }

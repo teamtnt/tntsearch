@@ -68,9 +68,13 @@ class TNTGeoSearch extends TNTSearch
         $stmtDoc->execute();
         $locations = new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
 
-        $locations = $locations->map(function ($location) {
+        $locations = $locations->map(function ($location) use ($distance) {
             $location['distance'] = acos($location['distance']) * $this->earthRadius;
-            return $location;
+
+            if ($location['distance'] <= $distance) {
+                return $location;
+            }
+
         });
 
         return $locations;
