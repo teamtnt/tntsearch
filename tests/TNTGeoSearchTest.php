@@ -1,6 +1,5 @@
 <?php
 
-use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
 use TeamTNT\TNTSearch\TNTGeoSearch;
 
 class TNTGeoSearchTest extends PHPUnit_Framework_TestCase
@@ -8,11 +7,11 @@ class TNTGeoSearchTest extends PHPUnit_Framework_TestCase
     protected $indexName = "cities-geo.index";
 
     protected $config = [
-        'storage'  => __DIR__ . '/_files/',
+        'storage' => __DIR__.'/_files/'
     ];
 
     /**
-     * If we're located in Munich, lets find all the cities around 50km
+     * If we're located in Munich, lets find 2 nearest cities around 50km
      */
     public function testFindNearest()
     {
@@ -24,8 +23,14 @@ class TNTGeoSearchTest extends PHPUnit_Framework_TestCase
         $distance = 50; //km
 
         $citiesIndex = new TNTGeoSearch();
-        $cities = $citiesIndex->findNearest($currentLocation, $distance);
+        $citiesIndex->loadConfig($this->config);
+        $citiesIndex->selectIndex($this->indexName);
 
-         $this->assertEquals([1,2,3], $cities['ids']);
+        $cities = $citiesIndex->findNearest($currentLocation, $distance, 2);
+
+        var_dump($cities);
+
+        $this->assertEquals([9389, 9407], $cities['ids']);
+        $this->assertEquals(2, $cities['hits']);
     }
 }
