@@ -82,6 +82,35 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         $this->assertEquals([11], $res['ids']);
     }
 
+    /**
+     * https://github.com/teamtnt/tntsearch/issues/60
+     */
+    public function testTotalDocumentCountOnIndexUpdate()
+    {
+        $tnt = new TNTSearch;
+
+        $tnt->loadConfig($this->config);
+
+        $indexer                = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput = true;
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+        $this->assertEquals(12, $tnt->totalDocumentsInCollection());
+
+        $index = $tnt->getIndex();
+
+        //first we test if the total number of documents will decrease
+        $index->delete(12);
+        $this->assertEquals(11, $tnt->totalDocumentsInCollection());
+
+        //now we try with a document that does not exist, the total number should increase for 1
+        $index->update(1234, ['id' => '1234', 'title' => 'updated title', 'article' => 'updated article']);
+        
+        $this->assertEquals(12, $tnt->totalDocumentsInCollection());
+    }
+
     public function testIndexUpdate()
     {
         $tnt = new TNTSearch;

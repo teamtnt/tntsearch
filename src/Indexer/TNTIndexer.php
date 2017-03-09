@@ -310,10 +310,14 @@ class TNTIndexer
             ['key' => ':documentId', 'value' => $documentId]
         ]);
 
-        $this->prepareAndExecuteStatement("DELETE FROM wordlist WHERE num_hits = 0");
+        $res = $this->prepareAndExecuteStatement("DELETE FROM wordlist WHERE num_hits = 0");
 
-        $total = $this->totalDocumentsInCollection() - 1;
-        $this->updateInfoTable('total_documents', $total);
+        $affected = $res->rowCount();
+
+        if ($affected) {
+            $total = $this->totalDocumentsInCollection() - 1;
+            $this->updateInfoTable('total_documents', $total);
+        }
     }
 
     public function updateInfoTable($key, $value)
