@@ -124,7 +124,7 @@ class TNTSearch
         return [
             'ids'            => array_keys($docs->toArray()),
             'hits'           => $totalHits,
-            'execution time' => round($stopTimer - $startTimer, 7) * 1000 ." ms"
+            'execution_time' => round($stopTimer - $startTimer, 7) * 1000 ." ms"
         ];
     }
 
@@ -215,7 +215,7 @@ class TNTSearch
         return [
             'ids'            => $docs->toArray(),
             'hits'           => $docs->count(),
-            'execution time' => round($stopTimer - $startTimer, 7) * 1000 ." ms"
+            'execution_time' => round($stopTimer - $startTimer, 7) * 1000 ." ms"
         ];
     }
 
