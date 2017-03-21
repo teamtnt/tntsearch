@@ -23,7 +23,7 @@ class TNTGeoSearch extends TNTSearch
             'ids'            => $res->pluck('doc_id'),
             'distances'      => $res->pluck('distance'),
             'hits'           => $res->count(),
-            'execution time' => round($stopTimer - $startTimer, 7) * 1000 ." ms"
+            'execution_time' => round($stopTimer - $startTimer, 7) * 1000 ." ms"
         ];
     }
 
