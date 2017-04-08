@@ -4,23 +4,23 @@
 [![Build Status](https://img.shields.io/travis/teamtnt/tntsearch/master.svg?style=flat-square)](https://travis-ci.org/teamtnt/tntsearch)
 [![Slack Status](https://img.shields.io/badge/slack-chat-E01563.svg?style=flat-square)](https://tntsearch.slack.com)
 
-#TNTSearch
+# TNTSearch
 
 A fully featured full text search engine written in PHP
 
 ![TNTSearch Banner](https://cloud.githubusercontent.com/assets/824840/17067635/edf2ae50-504c-11e6-9c63-a73955f55c29.jpg)
 
-##Demo
+## Demo
 
 To see TNTSearch in action take a look at [the demo page](http://tntsearch.tntstudio.us/)
 
-##Tutorials
+## Tutorials
 
 * [Solving the search problem with Laravel and TNTSearch](http://tnt.studio/blog/solving-the-search-problem-with-laravel-and-tntsearch)
 * [Searching for Bobby Fisher with Laravel 5](http://tnt.studio/blog/searching-for-bobby-fisher-with-laravel-5)
 * [Did you mean functionality with Laravel Scout](http://tnt.studio/blog/did-you-mean-functionality-with-laravel-scout)
 
-##Installation
+## Installation
 
 The easiest way to install TNTSearch is via [composer](http://getcomposer.org/):
 
@@ -28,7 +28,7 @@ The easiest way to install TNTSearch is via [composer](http://getcomposer.org/):
 composer require teamtnt/tntsearch
 ```
 
-##Requirements
+## Requirements
 
 Before you proceed make sure your server meets the following requirements:
 
@@ -37,7 +37,7 @@ Before you proceed make sure your server meets the following requirements:
 * SQLite PHP Extension
 * mbstring PHP Extension
 
-##Examples
+## Examples
 
 ### Creating an index
 
@@ -203,9 +203,9 @@ $candyShops = $candyShopIndex->findNearest($currentLocation, $distance, 10);
 
 * [TNTSearch Driver for Laravel Scout](https://github.com/teamtnt/laravel-scout-tntsearch-driver)
 
-##Support [![OpenCollective](https://opencollective.com/tntsearch/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/tntsearch/sponsors/badge.svg)](#sponsors)
+## Support [![OpenCollective](https://opencollective.com/tntsearch/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/tntsearch/sponsors/badge.svg)](#sponsors)
 
-###Backers
+### Backers
 
 Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/tntsearch#backer)]
 
