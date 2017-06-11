@@ -9,7 +9,7 @@ if (!function_exists('stringEndsWith')) {
 }
 
 if (!function_exists('fuzzyMatch')) {
-    function fuzzy_match($pattern, $str)
+    function fuzzyMatch($pattern, $str)
     {
         $j             = 0;
         $patternLength = strlen($pattern);
