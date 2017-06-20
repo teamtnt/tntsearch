@@ -10,6 +10,7 @@ use TeamTNT\TNTSearch\Connectors\FileSystemConnector;
 use TeamTNT\TNTSearch\Connectors\MySqlConnector;
 use TeamTNT\TNTSearch\Connectors\PostgresConnector;
 use TeamTNT\TNTSearch\Connectors\SQLiteConnector;
+use TeamTNT\TNTSearch\Connectors\SqlServerConnector;
 use TeamTNT\TNTSearch\FileReaders\TextFileReader;
 use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
 use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
@@ -181,6 +182,8 @@ class TNTIndexer
                 return new PostgresConnector;
             case 'sqlite':
                 return new SQLiteConnector;
+            case 'sqlsrv':
+                return new SqlServerConnector;
             case 'filesystem':
                 return new FileSystemConnector;
         }

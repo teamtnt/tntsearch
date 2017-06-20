@@ -20,6 +20,11 @@ To see TNTSearch in action take a look at [the demo page](http://tntsearch.tntst
 * [Searching for Bobby Fisher with Laravel 5](http://tnt.studio/blog/searching-for-bobby-fisher-with-laravel-5)
 * [Did you mean functionality with Laravel Scout](http://tnt.studio/blog/did-you-mean-functionality-with-laravel-scout)
 
+## Support us on Patreon
+
+- [Nenad Ticaric](https://www.patreon.com/nticaric)
+- [Sasa Tokic](https://www.patreon.com/stokic)
+
 ## Installation
 
 The easiest way to install TNTSearch is via [composer](http://getcomposer.org/):
