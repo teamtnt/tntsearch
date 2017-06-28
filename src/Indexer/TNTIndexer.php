@@ -531,7 +531,7 @@ class TNTIndexer
         $t        = "__".$keyword."__";
         $trigrams = "";
         for ($i = 0; $i < strlen($t) - 2; $i++) {
-            $trigrams .= substr($t, $i, 3)." ";
+            $trigrams .= mb_substr($t, $i, 3)." ";
         }
 
         return trim($trigrams);
