@@ -9,18 +9,17 @@ if (!function_exists('stringEndsWith')) {
 }
 
 if (!function_exists('fuzzyMatch')) {
-    function fuzzyMatch($pattern, $str)
+    function fuzzyMatch($pattern, $items)
     {
-        $j             = 0;
-        $patternLength = strlen($pattern);
-        $strLength     = strlen($str);
+        $fm = new TeamTNT\TNTSearch\TNTFuzzyMatch;
+        return $fm->fuzzyMatch($pattern, $items);
+    }
+}
 
-        for ($i = 0; $i < $strLength && $j < $patternLength; $i++) {
-            if ($pattern[$j] == $str[$i]) {
-                $j++;
-            }
-        }
-
-        return ($j == $patternLength);
+if (!function_exists('fuzzyMatchFromFile')) {
+    function fuzzyMatchFromFile($pattern, $path)
+    {
+        $fm = new TeamTNT\TNTSearch\TNTFuzzyMatch;
+        return $fm->fuzzyMatchFromFile($pattern, $path);
     }
 }
