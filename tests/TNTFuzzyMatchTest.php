@@ -2,7 +2,7 @@
 
 use TeamTNT\TNTSearch\TNTFuzzyMatch;
 
-class TNTGeoSearchTest extends PHPUnit_Framework_TestCase
+class TNTFuzzyMatchTest extends PHPUnit_Framework_TestCase
 {
     public function __construct()
     {
