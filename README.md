@@ -76,7 +76,7 @@ you might expect the following exception thrown:
 
 * [PDOException] SQLSTATE[HY000] [14] unable to open database file *
 
-Note: If your primary key is different that `id` set it like:
+Note: If your primary key is different than `id` set it like:
 
 ```php
 $indexer->setPrimaryKey('article_id');
