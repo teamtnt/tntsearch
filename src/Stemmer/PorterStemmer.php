@@ -43,6 +43,8 @@ class PorterStemmer implements Stemmer
      */
     public static function stem($word)
     {
+        $word = mb_strtolower($word);
+
         if (strlen($word) <= 2) {
             return $word;
         }
