@@ -9,6 +9,7 @@ class PorterStemmerTestTest extends PHPUnit_Framework_TestCase
     {
         $stemmer = new PorterStemmer;
         $this->assertEquals("test", $stemmer->stem("testing"));
+        $this->assertEquals("test", $stemmer->stem("Testing"));
         $this->assertEquals("sourc", $stemmer->stem("source"));
         $this->assertEquals("code", $stemmer->stem("code"));
         $this->assertEquals("is", $stemmer->stem("is"));
