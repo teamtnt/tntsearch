@@ -10,6 +10,18 @@ A fully featured full text search engine written in PHP
 
 ![TNTSearch Banner](https://cloud.githubusercontent.com/assets/824840/17067635/edf2ae50-504c-11e6-9c63-a73955f55c29.jpg)
 
+**View** [online demo](http://tntsearch.tntstudio.us/) &nbsp;|&nbsp; **Follow us** on
+[Twitter](https://twitter.com/tntstudiohr),
+or [Facebook](https://www.facebook.com/tntstudiohr) &nbsp;|&nbsp;
+**Visit our sponsors**:
+
+<p align="center">
+  <a href="https://m.do.co/c/ddfc227b7d18" target="_blank">
+    <img src="https://koistya.github.io/files/digital-ocean-393x64.png" width="196.5" height="32">
+  </a>
+</p>
+
+---
 ## Demo
 
 To see TNTSearch in action take a look at [the demo page](http://tntsearch.tntstudio.us/)
@@ -235,3 +247,6 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 [link-downloads]: https://packagist.org/packages/teamtnt/tntsearch
 [link-author]: https://github.com/nticaric
 [link-contributors]: ../../contributors
+
+---
+From Croatia with ♥ by TNT Studio ([@tntstudiohr](https://twitter.com/tntstudiohr), [blog](https://tnt.studio))
