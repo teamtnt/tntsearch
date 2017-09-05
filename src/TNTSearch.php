@@ -26,7 +26,12 @@ class TNTSearch
     public $fuzzy_distance       = 2;
     protected $dbh               = null;
 
-    public function loadConfig($config)
+	/**
+	 * @param array $config
+	 *
+	 * @see https://github.com/teamtnt/tntsearch#examples
+	 */
+    public function loadConfig(array $config)
     {
         $this->config            = $config;
         $this->config['storage'] = rtrim($this->config['storage'], '/').'/';
@@ -37,16 +42,27 @@ class TNTSearch
         $this->tokenizer = new Tokenizer;
     }
 
+	/**
+	 * @param PDO $dbh
+	 */
     public function setDatabaseHandle(PDO $dbh)
     {
         $this->dbh = $dbh;
     }
 
+	/**
+	 * @param TokenizerInterface $tokenizer
+	 */
     public function setTokenizer(TokenizerInterface $tokenizer)
     {
         $this->tokenizer = $tokenizer;
     }
 
+	/**
+	 * @param string $indexName
+	 *
+	 * @return TNTIndexer
+	 */
     public function createIndex($indexName)
     {
         $indexer = new TNTIndexer;
@@ -58,6 +74,11 @@ class TNTSearch
         return $indexer->createIndex($indexName);
     }
 
+	/**
+	 * @param string $indexName
+	 *
+	 * @throws IndexNotFoundException
+	 */
     public function selectIndex($indexName)
     {
         $pathToIndex = $this->config['storage'].$indexName;
@@ -69,6 +90,12 @@ class TNTSearch
         $this->setStemmer();
     }
 
+	/**
+	 * @param string $phrase
+	 * @param int    $numOfResults
+	 *
+	 * @return array
+	 */
     public function search($phrase, $numOfResults = 100)
     {
         $startTimer = microtime(true);
@@ -114,7 +141,7 @@ class TNTSearch
             if ($counter <= $numOfResults) {
                 return true;
             }
-
+			return false; // ?
         });
         $stopTimer = microtime(true);
 
@@ -128,6 +155,12 @@ class TNTSearch
         ];
     }
 
+	/**
+	 * @param string $phrase
+	 * @param int    $numOfResults
+	 *
+	 * @return array
+	 */
     public function searchBoolean($phrase, $numOfResults = 100)
     {
         $stack      = [];
@@ -204,6 +237,7 @@ class TNTSearch
             if ($counter <= $numOfResults) {
                 return $item;
             }
+	        return false; // ?
         });
 
         $stopTimer = microtime(true);
@@ -219,6 +253,13 @@ class TNTSearch
         ];
     }
 
+	/**
+	 * @param      $keyword
+	 * @param bool $noLimit
+	 * @param bool $isLastKeyword
+	 *
+	 * @return Collection
+	 */
     public function getAllDocumentsForKeyword($keyword, $noLimit = false, $isLastKeyword = false)
     {
         $word = $this->getWordlistByKeyword($keyword, $isLastKeyword);
@@ -232,6 +273,12 @@ class TNTSearch
         return $this->getAllDocumentsForStrictKeyword($word, $noLimit);
     }
 
+	/**
+	 * @param      $keyword
+	 * @param bool $noLimit
+	 *
+	 * @return Collection
+	 */
     public function getAllDocumentsForWhereKeywordNot($keyword, $noLimit = false)
     {
         $word = $this->getWordlistByKeyword($keyword);
@@ -249,6 +296,12 @@ class TNTSearch
         return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
     }
 
+	/**
+	 * @param      $keyword
+	 * @param bool $isLastWord
+	 *
+	 * @return int
+	 */
     public function totalMatchingDocuments($keyword, $isLastWord = false)
     {
         $occurance = $this->getWordlistByKeyword($keyword, $isLastWord);
@@ -259,6 +312,12 @@ class TNTSearch
         return 0;
     }
 
+	/**
+	 * @param      $keyword
+	 * @param bool $isLastWord
+	 *
+	 * @return array
+	 */
     public function getWordlistByKeyword($keyword, $isLastWord = false)
     {
         $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword LIMIT 1";
@@ -280,6 +339,11 @@ class TNTSearch
         return $res;
     }
 
+	/**
+	 * @param $keyword
+	 *
+	 * @return array
+	 */
     public function fuzzySearch($keyword)
     {
         $prefix         = substr($keyword, 0, $this->fuzzy_prefix_length);
@@ -322,6 +386,9 @@ class TNTSearch
         }
     }
 
+	/**
+	 * @return bool
+	 */
     public function isFileSystemIndex()
     {
         $query = "SELECT * FROM info WHERE key = 'driver'";
@@ -351,6 +418,14 @@ class TNTSearch
         return $this->tokenizer->tokenize($text);
     }
 
+	/**
+	 * @param        $text
+	 * @param        $needle
+	 * @param string $tag
+	 * @param array  $options
+	 *
+	 * @return string
+	 */
     public function highlight($text, $needle, $tag = 'em', $options = [])
     {
         $hl = new Highlighter;
@@ -363,6 +438,9 @@ class TNTSearch
         return $hl->extractRelevant($words, $fulltext, $rellength, $prevcount, $indicator);
     }
 
+	/**
+	 * @return TNTIndexer
+	 */
     public function getIndex()
     {
         $indexer           = new TNTIndexer;
@@ -372,6 +450,12 @@ class TNTSearch
         return $indexer;
     }
 
+	/**
+	 * @param $words
+	 * @param $noLimit
+	 *
+	 * @return Collection
+	 */
     private function getAllDocumentsForFuzzyKeyword($words, $noLimit)
     {
         $binding_params = implode(',', array_fill(0, count($words), '?'));
@@ -389,6 +473,12 @@ class TNTSearch
         return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
     }
 
+	/**
+	 * @param $word
+	 * @param $noLimit
+	 *
+	 * @return Collection
+	 */
     private function getAllDocumentsForStrictKeyword($word, $noLimit)
     {
         $query = "SELECT * FROM doclist WHERE term_id = :id ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
