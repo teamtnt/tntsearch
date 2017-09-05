@@ -118,7 +118,7 @@ class TNTIndexer
     }
 
     /**
-     * @param object<PDO> $index
+     * @param PDO $index
      */
     public function setIndex($index)
     {
