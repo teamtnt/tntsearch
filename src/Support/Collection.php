@@ -16,6 +16,11 @@ class Collection implements Countable, IteratorAggregate
         $this->items = $items;
     }
 
+	/**
+	 * @param callable $callback
+	 *
+	 * @return Collection
+	 */
     public function each(callable $callback)
     {
         foreach ($this->items as $key => $item) {
@@ -27,6 +32,11 @@ class Collection implements Countable, IteratorAggregate
         return $this;
     }
 
+	/**
+	 * @param callable|null $callback
+	 *
+	 * @return static
+	 */
     public function filter(callable $callback = null)
     {
         if ($callback) {
@@ -44,11 +54,19 @@ class Collection implements Countable, IteratorAggregate
         return new static(array_filter($this->items));
     }
 
+	/**
+	 * @return bool
+	 */
     public function isEmpty()
     {
         return empty($this->items);
     }
 
+	/**
+	 * @param callable $callback
+	 *
+	 * @return static
+	 */
     public function map(callable $callback)
     {
         $keys = array_keys($this->items);
@@ -58,6 +76,12 @@ class Collection implements Countable, IteratorAggregate
         return new static(array_combine($keys, $items));
     }
 
+	/**
+	 * @param callable $callback
+	 * @param null     $initial
+	 *
+	 * @return mixed
+	 */
     public function reduce(callable $callback, $initial = null)
     {
         return array_reduce($this->items, $callback, $initial);
@@ -68,26 +92,46 @@ class Collection implements Countable, IteratorAggregate
         return $this->items[$key];
     }
 
+	/**
+	 * @param      $value
+	 * @param null $key
+	 *
+	 * @return array
+	 */
     public function pluck($value, $key = null)
     {
         return array_column($this->items, $value, $key);
     }
 
+	/**
+	 * @param $glue
+	 *
+	 * @return string
+	 */
     public function implode($glue)
     {
         return implode($glue, $this->items);
     }
 
+	/**
+	 * @return int
+	 */
     public function count()
     {
         return count($this->items);
     }
 
+	/**
+	 * @return ArrayIterator
+	 */
     public function getIterator()
     {
         return new ArrayIterator($this->items);
     }
 
+	/**
+	 * @return array
+	 */
     public function toArray()
     {
         return $this->items;
