@@ -43,17 +43,17 @@ class TNTIndexer
         $this->filereader = new TextFileReader;
     }
 
-	/**
-	 * @param TokenizerInterface $tokenizer
-	 */
+    /**
+     * @param TokenizerInterface $tokenizer
+     */
     public function setTokenizer(TokenizerInterface $tokenizer)
     {
         $this->tokenizer = $tokenizer;
     }
 
-	/**
-	 * @param array $config
-	 */
+    /**
+     * @param array $config
+     */
     public function loadConfig(array $config)
     {
         $this->config            = $config;
@@ -64,9 +64,9 @@ class TNTIndexer
 
     }
 
-	/**
-	 * @return string
-	 */
+    /**
+     * @return string
+     */
     public function getStoragePath()
     {
         return $this->config['storage'];
@@ -77,9 +77,9 @@ class TNTIndexer
         return $this->stemmer;
     }
 
-	/**
-	 * @return string
-	 */
+    /**
+     * @return string
+     */
     public function getPrimaryKey()
     {
         if (isset($this->primaryKey)) {
@@ -88,9 +88,9 @@ class TNTIndexer
         return 'id';
     }
 
-	/**
-	 * @param string $primaryKey
-	 */
+    /**
+     * @param string $primaryKey
+     */
     public function setPrimaryKey($primaryKey)
     {
         $this->primaryKey = $primaryKey;
@@ -108,18 +108,18 @@ class TNTIndexer
         $this->setStemmer(new CroatianStemmer);
     }
 
-	/**
-	 * @param string $language  - one of: arabic, croatian, german, italian, porter, russian, ukrainian
-	 */
+    /**
+     * @param string $language  - one of: arabic, croatian, german, italian, porter, russian, ukrainian
+     */
     public function setLanguage($language = 'porter')
     {
         $class = 'TeamTNT\\TNTSearch\\Stemmer\\'.ucfirst(strtolower($language)).'Stemmer';
         $this->setStemmer(new $class);
     }
 
-	/**
-	 * @param string $index
-	 */
+    /**
+     * @param PDO $index
+     */
     public function setIndex($index)
     {
         $this->index = $index;
@@ -130,11 +130,11 @@ class TNTIndexer
         $this->filereader = $filereader;
     }
 
-	/**
-	 * @param string $indexName
-	 *
-	 * @return TNTIndexer
-	 */
+    /**
+     * @param string $indexName
+     *
+     * @return TNTIndexer
+     */
     public function createIndex($indexName)
     {
         $this->indexName = $indexName;
@@ -195,12 +195,12 @@ class TNTIndexer
         $this->index->commit();
     }
 
-	/**
-	 * @param array $config
-	 *
-	 * @return FileSystemConnector|MySqlConnector|PostgresConnector|SQLiteConnector|SqlServerConnector
-	 * @throws Exception
-	 */
+    /**
+     * @param array $config
+     *
+     * @return FileSystemConnector|MySqlConnector|PostgresConnector|SQLiteConnector|SqlServerConnector
+     * @throws Exception
+     */
     public function createConnector(array $config)
     {
         if (!isset($config['driver'])) {
@@ -222,9 +222,9 @@ class TNTIndexer
         throw new Exception("Unsupported driver [{$config['driver']}]");
     }
 
-	/**
-	 * @param PDO $dbh
-	 */
+    /**
+     * @param PDO $dbh
+     */
     public function setDatabaseHandle(PDO $dbh)
     {
         $this->dbh = $dbh;
@@ -394,11 +394,11 @@ class TNTIndexer
         $this->saveHitList($stems, $docId, $terms);
     }
 
-	/**
-	 * @param $stems
-	 *
-	 * @return array
-	 */
+    /**
+     * @param $stems
+     *
+     * @return array
+     */
     public function saveWordlist($stems)
     {
         $terms = [];
@@ -509,11 +509,11 @@ class TNTIndexer
         return $selectStmt->fetch(PDO::FETCH_ASSOC);
     }
 
-	/**
-	 * @param $word
-	 *
-	 * @return int
-	 */
+    /**
+     * @param $word
+     *
+     * @return int
+     */
     public function countWordInWordList($word)
     {
         $res = $this->getWordFromWordList($word);
@@ -524,11 +524,11 @@ class TNTIndexer
         return 0;
     }
 
-	/**
-	 * @param $word
-	 *
-	 * @return int
-	 */
+    /**
+     * @param $word
+     *
+     * @return int
+     */
     public function countDocHitsInWordList($word)
     {
         $res = $this->getWordFromWordList($word);
@@ -568,9 +568,9 @@ class TNTIndexer
         file_put_contents($filename, $dictionary, LOCK_EX);
     }
 
-	/**
-	 * @return int
-	 */
+    /**
+     * @return int
+     */
     public function totalDocumentsInCollection()
     {
         $query = "SELECT * FROM info WHERE key = 'total_documents'";
@@ -579,11 +579,11 @@ class TNTIndexer
         return $docs->fetch(PDO::FETCH_ASSOC)['value'];
     }
 
-	/**
-	 * @param $keyword
-	 *
-	 * @return string
-	 */
+    /**
+     * @param $keyword
+     *
+     * @return string
+     */
     public function buildTrigrams($keyword)
     {
         $t        = "__".$keyword."__";
