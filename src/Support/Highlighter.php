@@ -35,6 +35,9 @@ class Highlighter
             $sl_pattern = '#<a\s(?:.*?)>(%s)</a>#';
         }
 
+	    // Add Forgotten Unicode
+	    $pattern .= 'u';
+
         // Case sensitivity
         if (!($this->options['caseSensitive'])) {
             $pattern .= 'i';
