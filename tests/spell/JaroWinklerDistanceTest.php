@@ -22,10 +22,6 @@ class JaroWinklerDistanceTest extends PHPUnit_Framework_TestCase
 
         $d = $this->sd->jaro("JELLYFISH", "SMELLYFISH");
         $this->assertEquals(0.896296, $d, '', 0.001);
-
-        $d = $this->sd->getDistance("abcvwxyz", "cabvwxyz");
-        $this->assertEquals(0.96, $d, '', 0.001);
-
     }
 
     public function testGetDistance()
@@ -37,8 +33,6 @@ class JaroWinklerDistanceTest extends PHPUnit_Framework_TestCase
         $this->assertLessThan(0.962, $d);
         $d = $this->sd->getDistance("jones", "johnson");
         $this->assertTrue($d > 0.832 && $d < 0.833);
-        $d = $this->sd->getDistance("abcvwxyz", "cabvwxyz");
-        $this->assertTrue($d > 0.958 && $d < 0.959);
         $d = $this->sd->getDistance("dwayne", "duane");
         $this->assertTrue($d > 0.84 && $d < 0.841);
         $d = $this->sd->getDistance("dixon", "dicksonx");
