@@ -24,7 +24,7 @@ class TNTClassifierTest extends PHPUnit_Framework_TestCase
             $counter++;
             $guess = $classifier->predict($sms[$i]->message);
 
-            if ($guess == $sms[$i]->label) {
+            if ($guess['label'] == $sms[$i]->label) {
                 $guessCount++;
             }
 
@@ -42,6 +42,6 @@ class TNTClassifierTest extends PHPUnit_Framework_TestCase
         $classifier->learn("tokyo japan chinese", "j");
 
         $guess = $classifier->predict("chinese chinese chinese tokyo japan");
-        $this->assertEquals("c", $guess);
+        $this->assertEquals("c", $guess['label']);
     }
 }

@@ -3,8 +3,6 @@
 namespace TeamTNT\TNTSearch\Classifier;
 
 use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
-use TeamTNT\TNTSearch\Stemmer\NoStemmer;
-use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
 use TeamTNT\TNTSearch\Support\Tokenizer;
 
 class TNTClassifier
@@ -25,20 +23,25 @@ class TNTClassifier
     {
         $words = $this->tokenizer->tokenize($statement);
 
-        $best_likelihood = 0;
+        $best_likelihood = -INF;
         $best_type       = '';
         foreach ($this->types as $type) {
-            $likelihood = $this->pTotal($type); // calculate P(Type)
+            $likelihood = log($this->pTotal($type)); // calculate P(Type)
+            $p          = 0;
             foreach ($words as $word) {
                 $word = $this->stemmer->stem($word);
-                $likelihood *= $this->p($word, $type); // calculate P(word, Type)
+                $p += log($this->p($word, $type));
             }
+            $likelihood += $p; // calculate P(word, Type)
             if ($likelihood > $best_likelihood) {
                 $best_likelihood = $likelihood;
                 $best_type       = $type;
             }
         }
-        return $best_type;
+        return [
+            'likelihood' => $best_likelihood,
+            'label'      => $best_type
+        ];
     }
 
     public function learn($statement, $type)
