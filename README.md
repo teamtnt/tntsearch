@@ -216,6 +216,35 @@ $candyShopIndex->selectIndex('candyShops.index');
 $candyShops = $candyShopIndex->findNearest($currentLocation, $distance, 10);
 ```
 
+## Classifiction
+
+```php
+use TeamTNT\TNTSearch\Classifier\TNTClassifier;
+
+$classifier = new TNTClassifier();
+$classifier->learn("A great game", "Sports");
+$classifier->learn("The election was over", "Not sports");
+$classifier->learn("Very clean match", "Sports");
+$classifier->learn("A clean but forgettable game", "Sports");
+
+$guess = $classifier->predict("It was a close election");
+var_dump($guess['label']); //returns "Not sports"
+
+```
+
+### Saving the classifier
+
+```php
+$classifier->save('sports.cls');
+```
+
+### Loading the classifier
+
+```php
+$classifier = new TNTClassifier();
+$classifier->load('sports.cls');
+```
+
 ## Drivers
 
 * [TNTSearch Driver for Laravel Scout](https://github.com/teamtnt/laravel-scout-tntsearch-driver)

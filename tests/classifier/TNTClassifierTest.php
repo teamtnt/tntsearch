@@ -44,4 +44,16 @@ class TNTClassifierTest extends PHPUnit_Framework_TestCase
         $guess = $classifier->predict("chinese chinese chinese tokyo japan");
         $this->assertEquals("c", $guess['label']);
     }
+
+    public function testPredictClass2()
+    {
+        $classifier = new TNTClassifier();
+        $classifier->learn("A great game", "Sports");
+        $classifier->learn("The election was over", "Not sports");
+        $classifier->learn("Very clean match", "Sports");
+        $classifier->learn("A clean but forgettable game", "Sports");
+
+        $guess = $classifier->predict("It was a close election");
+        $this->assertEquals("Not sports", $guess['label']);
+    }
 }
