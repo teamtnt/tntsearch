@@ -97,4 +97,16 @@ class TNTClassifier
         $this->vc = count($words);
         return $this->vc;
     }
+
+    public function saveAs($path)
+    {
+        $s = serialize($this);
+        return file_put_contents($path, $s);
+    }
+
+    public function load($name)
+    {
+        $s = file_get_contents($name);
+        return unserialize($s);
+    }
 }
