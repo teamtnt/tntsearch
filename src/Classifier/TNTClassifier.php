@@ -74,12 +74,19 @@ class TNTClassifier
             $count = $this->words[$type][$word];
         }
 
-        return ($count + 1) / (array_sum($this->words[$type]) + $this->vocabularyCount());
+        if (!isset($this->arraySumOfWordType[$type])) {
+            $this->arraySumOfWordType[$type] = array_sum($this->words[$type]);
+        }
+
+        return ($count + 1) / ($this->arraySumOfWordType[$type] + $this->vocabularyCount());
     }
 
     public function pTotal($type)
     {
-        return ($this->documents[$type]) / (array_sum($this->documents));
+        if (!isset($this->arraySumOfDocuments)) {
+            $this->arraySumOfDocuments = array_sum($this->documents);
+        }
+        return ($this->documents[$type]) / $this->arraySumOfDocuments;
     }
 
     public function vocabularyCount()
@@ -98,7 +105,7 @@ class TNTClassifier
         return $this->vc;
     }
 
-    public function saveAs($path)
+    public function save($path)
     {
         $s = serialize($this);
         return file_put_contents($path, $s);
@@ -106,7 +113,17 @@ class TNTClassifier
 
     public function load($name)
     {
-        $s = file_get_contents($name);
-        return unserialize($s);
+        $s          = file_get_contents($name);
+        $classifier = unserialize($s);
+
+        unset($this->vc);
+        unset($this->arraySumOfDocuments);
+        unset($this->arraySumOfWordType);
+
+        $this->documents = $classifier->documents;
+        $this->words     = $classifier->words;
+        $this->types     = $classifier->types;
+        $this->tokenizer = $classifier->tokenizer;
+        $this->stemmer   = $classifier->stemmer;
     }
 }
