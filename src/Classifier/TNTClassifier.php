@@ -7,11 +7,13 @@ use TeamTNT\TNTSearch\Support\Tokenizer;
 
 class TNTClassifier
 {
-    public $documents = [];
-    public $words     = [];
-    public $types     = [];
-    public $tokenizer = null;
-    public $stemmer   = null;
+    public $documents              = [];
+    public $words                  = [];
+    public $types                  = [];
+    public $tokenizer              = null;
+    public $stemmer                = null;
+    protected $arraySumOfWordType  = null;
+    protected $arraySumOfDocuments = null;
 
     public function __construct()
     {
