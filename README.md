@@ -216,7 +216,7 @@ $candyShopIndex->selectIndex('candyShops.index');
 $candyShops = $candyShopIndex->findNearest($currentLocation, $distance, 10);
 ```
 
-## Classifiction
+## Classification
 
 ```php
 use TeamTNT\TNTSearch\Classifier\TNTClassifier;
