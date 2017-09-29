@@ -280,7 +280,7 @@ class PortugueseStemmer implements Stemmer
 
     private static function searchIfInR2($word, $suffixes, $r2Index)
     {
-        return self::search($suffixes, $r2Index);
+        return self::search($word, $suffixes, $r2Index);
     }
 
     private static function search($word, $suffixes, $offset = 0)
@@ -350,15 +350,15 @@ class PortugueseStemmer implements Stemmer
             }
 
             // if preceded by iv, delete if in R2 (and if further preceded by at, delete if in R2), otherwise,
-            if (($position2 = self::searchIfInR2($word, array('iv'))) !== false) {
+            if (($position2 = self::searchIfInR2($word, array('iv'), $r2Index)) !== false) {
                 $word = self::substr($word, 0, $position2);
 
-                if (($position3 = self::searchIfInR2($word, array('at'))) !== false) {
+                if (($position3 = self::searchIfInR2($word, array('at'), $r2Index)) !== false) {
                     $word = self::substr($word, 0, $position3);
                 }
 
                 // if preceded by os, ic or ad, delete if in R2
-            } elseif (($position4 = self::searchIfInR2($word, array('os', 'ic', 'ad'))) !== false) {
+            } elseif (($position4 = self::searchIfInR2($word, array('os', 'ic', 'ad'), $r2Index)) !== false) {
                 $word = self::substr($word, 0, $position4);
             }
 
@@ -374,7 +374,7 @@ class PortugueseStemmer implements Stemmer
             }
 
             // if preceded by ante, avel or ível, delete if in R2
-            if (($position2 = self::searchIfInR2($word, array('ante', 'avel', 'ível'))) != false) {
+            if (($position2 = self::searchIfInR2($word, array('ante', 'avel', 'ível'), $r2Index)) != false) {
                 $word = self::substr($word, 0, $position2);
             }
 
@@ -390,7 +390,7 @@ class PortugueseStemmer implements Stemmer
             }
 
             // if preceded by abil, ic or iv, delete if in R2
-            if (($position2 = self::searchIfInR2($word, array('abil', 'ic', 'iv'))) !== false) {
+            if (($position2 = self::searchIfInR2($word, array('abil', 'ic', 'iv'), $r2Index)) !== false) {
                 $word = self::substr($word, 0, $position2);
             }
 
@@ -406,7 +406,7 @@ class PortugueseStemmer implements Stemmer
             }
 
             // if preceded by at, delete if in R2
-            if (($position2 = self::searchIfInR2($word, array('at'))) !== false) {
+            if (($position2 = self::searchIfInR2($word, array('at'), $r2Index)) !== false) {
                 $word = self::substr($word, 0, $position2);
             }
 
