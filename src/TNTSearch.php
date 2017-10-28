@@ -387,7 +387,7 @@ class TNTSearch
      */
     public function isFileSystemIndex()
     {
-        $this->getValueFromInfoTable('filesystem') == 'filesystem';
+        return $this->getValueFromInfoTable('driver') == 'filesystem';
     }
 
     public function getValueFromInfoTable($value)
