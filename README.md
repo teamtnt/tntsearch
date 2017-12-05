@@ -111,8 +111,8 @@ $res = $tnt->search("This is a test search", 12);
 
 print_r($res); //returns an array of 12 document ids that best match your query
 
-//to display the results you need an additional query
-//SELECT * FROM articles WHERE id IN $res ORDER BY FIELD(id, $res);
+// to display the results you need an additional query against your application database
+// SELECT * FROM articles WHERE id IN $res ORDER BY FIELD(id, $res);
 ```
 
 The ORDER BY FIELD clause is important otherwise the database engine will not return
