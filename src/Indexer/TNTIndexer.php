@@ -26,6 +26,7 @@ class TNTIndexer
     protected $excludePrimaryKey  = true;
     public $stemmer               = null;
     public $tokenizer             = null;
+    public $stopWords             = [];
     public $filereader            = null;
     public $config                = [];
     protected $query              = "";
@@ -50,6 +51,11 @@ class TNTIndexer
     public function setTokenizer(TokenizerInterface $tokenizer)
     {
         $this->tokenizer = $tokenizer;
+    }
+
+    public function setStopWords(array $stopWords)
+    {
+        $this->stopWords = $stopWords;
     }
 
     /**
@@ -397,7 +403,7 @@ class TNTIndexer
         if ($this->decodeHTMLEntities) {
             $text = html_entity_decode($text);
         }
-        return $this->tokenizer->tokenize($text);
+        return $this->tokenizer->tokenize($text, $this->stopWords);
     }
 
     public function decodeHtmlEntities($value = true)
