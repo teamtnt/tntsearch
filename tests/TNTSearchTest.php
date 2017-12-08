@@ -9,11 +9,11 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
     protected $config = [
         'driver'   => 'sqlite',
-        'database' => __DIR__ . '/_files/articles.sqlite',
+        'database' => __DIR__.'/_files/articles.sqlite',
         'host'     => 'localhost',
         'username' => 'testUser',
         'password' => 'testPass',
-        'storage'  => __DIR__ . '/_files/',
+        'storage'  => __DIR__.'/_files/'
     ];
 
     public function testLoadConfig()
@@ -35,7 +35,7 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         $indexer = $tnt->createIndex($this->indexName);
 
         $this->assertInstanceOf('TeamTNT\TNTSearch\Indexer\TNTIndexer', $indexer);
-        $this->assertFileExists($indexer->getStoragePath() . $this->indexName);
+        $this->assertFileExists($indexer->getStoragePath().$this->indexName);
     }
 
     public function testSearchBoolean()
@@ -107,8 +107,35 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
         //now we try with a document that does not exist, the total number should increase for 1
         $index->update(1234, ['id' => '1234', 'title' => 'updated title', 'article' => 'updated article']);
-        
+
         $this->assertEquals(12, $tnt->totalDocumentsInCollection());
+    }
+
+    public function testRemovePrimaryKeyFromIndex()
+    {
+        $tnt = new TNTSearch;
+
+        $tnt->loadConfig($this->config);
+
+        $indexer                = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput = true;
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->includePrimaryKey();
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+        $res = $tnt->search(3);
+        $this->assertEquals([3], $res['ids']);
+
+        $indexer                = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput = true;
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+        $res = $tnt->search(3);
+        $this->assertEquals([], $res['ids']);
+
     }
 
     public function testIndexUpdate()
@@ -281,8 +308,8 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        if (file_exists(__DIR__ . "/" . $this->indexName)) {
-            unlink(__DIR__ . "/" . $this->indexName);
+        if (file_exists(__DIR__."/".$this->indexName)) {
+            unlink(__DIR__."/".$this->indexName);
         }
 
     }

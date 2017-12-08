@@ -23,6 +23,7 @@ class TNTIndexer
     protected $index              = null;
     protected $dbh                = null;
     protected $primaryKey         = null;
+    protected $excludePrimaryKey  = true;
     public $stemmer               = null;
     public $tokenizer             = null;
     public $filereader            = null;
@@ -94,6 +95,16 @@ class TNTIndexer
     public function setPrimaryKey($primaryKey)
     {
         $this->primaryKey = $primaryKey;
+    }
+
+    public function excludePrimaryKey()
+    {
+        $this->excludePrimaryKey = true;
+    }
+
+    public function includePrimaryKey()
+    {
+        $this->excludePrimaryKey = false;
     }
 
     public function setStemmer($stemmer)
@@ -311,10 +322,17 @@ class TNTIndexer
 
     public function processDocument($row)
     {
-        $stems = $row->map(function ($column, $name) {
-            return $this->stemText($column);
+        $documentId = $row->get($this->getPrimaryKey());
+
+        if ($this->excludePrimaryKey) {
+            $row->forget($this->getPrimaryKey());
+        }
+
+        $stems = $row->map(function ($columnContent, $columnName) use ($row) {
+            return $this->stemText($columnContent);
         });
-        $this->saveToIndex($stems, $row->get($this->getPrimaryKey()));
+
+        $this->saveToIndex($stems, $documentId);
     }
 
     public function insert($document)

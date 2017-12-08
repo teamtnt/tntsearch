@@ -94,6 +94,14 @@ Note: If your primary key is different than `id` set it like:
 $indexer->setPrimaryKey('article_id');
 ```
 
+### Making the primary key searchable
+
+By default the primary key is not searchable, if you wanna make it searchable simply run:
+
+```php
+$indexer->includePrimaryKey();
+```
+
 ### Searching
 
 Searching for a phrase or keyword is trivial
