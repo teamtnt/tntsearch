@@ -37,6 +37,7 @@ class TNTIndexer
     public $inMemory              = true;
     public $steps                 = 1000;
     public $indexName             = "";
+    public $statementsPrepared    = false;
 
     public function __construct()
     {
@@ -145,6 +146,16 @@ class TNTIndexer
     public function setFileReader($filereader)
     {
         $this->filereader = $filereader;
+    }
+
+    public function prepareStatementsForIndex()
+    {
+        if (!$this->statementsPrepared) {
+            $this->insertWordlistStmt = $this->index->prepare("INSERT INTO wordlist (term, num_hits, num_docs) VALUES (:keyword, :hits, :docs)");
+            $this->selectWordlistStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
+            $this->updateWordlistStmt = $this->index->prepare("UPDATE wordlist SET num_docs = num_docs + :docs, num_hits = num_hits + :hits WHERE term = :keyword");
+            $this->statementsPrepared = true;
+        }
     }
 
     /**
@@ -413,6 +424,7 @@ class TNTIndexer
 
     public function saveToIndex($stems, $docId)
     {
+        $this->prepareStatementsForIndex();
         $terms = $this->saveWordlist($stems);
         $this->saveDoclist($terms, $docId);
         $this->saveHitList($stems, $docId, $terms);
@@ -441,16 +453,12 @@ class TNTIndexer
             }
         });
 
-        $insertStmt = $this->index->prepare("INSERT INTO wordlist (term, num_hits, num_docs) VALUES (:keyword, :hits, :docs)");
-        $selectStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
-        $updateStmt = $this->index->prepare("UPDATE wordlist SET num_docs = num_docs + :docs, num_hits = num_hits + :hits WHERE term = :keyword");
-
         foreach ($terms as $key => $term) {
             try {
-                $insertStmt->bindParam(":keyword", $key);
-                $insertStmt->bindParam(":hits", $term['hits']);
-                $insertStmt->bindParam(":docs", $term['docs']);
-                $insertStmt->execute();
+                $this->insertWordlistStmt->bindParam(":keyword", $key);
+                $this->insertWordlistStmt->bindParam(":hits", $term['hits']);
+                $this->insertWordlistStmt->bindParam(":docs", $term['docs']);
+                $this->insertWordlistStmt->execute();
 
                 $terms[$key]['id'] = $this->index->lastInsertId();
                 if ($this->inMemory) {
@@ -458,20 +466,20 @@ class TNTIndexer
                 }
             } catch (\Exception $e) {
                 if ($e->getCode() == 23000) {
-                    $updateStmt->bindValue(':docs', $term['docs']);
-                    $updateStmt->bindValue(':hits', $term['hits']);
-                    $updateStmt->bindValue(':keyword', $key);
-                    $updateStmt->execute();
+                    $this->updateWordlistStmt->bindValue(':docs', $term['docs']);
+                    $this->updateWordlistStmt->bindValue(':hits', $term['hits']);
+                    $this->updateWordlistStmt->bindValue(':keyword', $key);
+                    $this->updateWordlistStmt->execute();
                     if (!$this->inMemory) {
-                        $selectStmt->bindValue(':keyword', $key);
-                        $selectStmt->execute();
-                        $res               = $selectStmt->fetch(PDO::FETCH_ASSOC);
+                        $this->selectWordlistStmt->bindValue(':keyword', $key);
+                        $this->selectWordlistStmt->execute();
+                        $res               = $this->selectWordlistStmt->fetch(PDO::FETCH_ASSOC);
                         $terms[$key]['id'] = $res['id'];
                     } else {
                         $terms[$key]['id'] = $this->inMemoryTerms[$key];
                     }
                 } else {
-                    echo $e->getMessage()."\n";
+                    echo "Error while saving wordlist: ".$e->getMessage()."\n";
                 }
             }
         }
