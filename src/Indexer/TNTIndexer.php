@@ -481,6 +481,11 @@ class TNTIndexer
                 } else {
                     echo "Error while saving wordlist: ".$e->getMessage()."\n";
                 }
+
+                // Statements must be refreshed, because in this state they have error attached to them.
+                $this->statementsPrepared = false;
+                $this->prepareStatementsForIndex();
+
             }
         }
         return $terms;
