@@ -9,6 +9,11 @@ class Highlighter
         'wholeWord'     => true,
         'caseSensitive' => false,
         'stripLinks'    => false,
+        'tagOptions' => [
+            // 'class' => 'search-term',             // Example
+            // 'title' => 'You searched for this.',  // Example
+            // 'data-toggle' => 'tooltip',           // Example
+        ]
     ];
 
 	/**
@@ -23,7 +28,14 @@ class Highlighter
     {
         $this->options = array_merge($this->options, $options);
 
-        $highlight = '<' . $tag . '>\1</' . $tag . '>';
+        $tagAttributes = ' ';
+        if (count($this->options['tagOptions'])) {
+            foreach ($this->options['tagOptions'] as $attr => $value) {
+                $tagAttributes .= $attr . '="' . $value . '" ';
+            }
+        }
+
+        $highlight = '<' . $tag . trim($tagAttributes) .'>\1</' . $tag . '>';
         $needle    = preg_split('/\PL+/u', $needle, -1, PREG_SPLIT_NO_EMPTY);
 
         // Select pattern to use
