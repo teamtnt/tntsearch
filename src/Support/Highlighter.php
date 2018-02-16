@@ -35,7 +35,7 @@ class Highlighter
             }
         }
 
-        $highlight = '<' . $tag . $tagAttributes .'>\1</' . $tag . '>';
+        $highlight = '<' . $tag . trim($tagAttributes) .'>\1</' . $tag . '>';
         $needle    = preg_split('/\PL+/u', $needle, -1, PREG_SPLIT_NO_EMPTY);
 
         // Select pattern to use
