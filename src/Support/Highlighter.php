@@ -28,14 +28,15 @@ class Highlighter
     {
         $this->options = array_merge($this->options, $options);
 
-        $tagAttributes = ' ';
+        $tagAttributes = '';
         if (count($this->options['tagOptions'])) {
             foreach ($this->options['tagOptions'] as $attr => $value) {
                 $tagAttributes .= $attr . '="' . $value . '" ';
             }
+            $tagAttributes = ' ' . trim($tagAttributes);
         }
 
-        $highlight = '<' . $tag . trim($tagAttributes) .'>\1</' . $tag . '>';
+        $highlight = '<' . $tag . $tagAttributes .'>\1</' . $tag . '>';
         $needle    = preg_split('/\PL+/u', $needle, -1, PREG_SPLIT_NO_EMPTY);
 
         // Select pattern to use
