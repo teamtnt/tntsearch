@@ -206,8 +206,8 @@ class TNTIndexer
 
         $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'term_id_index' ON doclist ('term_id' COLLATE BINARY);");
 
-        $connector = $this->createConnector($this->config);
         if (!$this->dbh) {
+            $connector = $this->createConnector($this->config);
             $this->dbh = $connector->connect($this->config);
         }
         return $this;
