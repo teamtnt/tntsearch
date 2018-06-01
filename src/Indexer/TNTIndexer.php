@@ -323,7 +323,9 @@ class TNTIndexer
                     'content' => $this->filereader->read($object)
                 ];
                 $this->processDocument(new Collection($file));
-                $this->index->exec("INSERT INTO filemap ( 'id', 'path') values ( $counter, '$object')");
+                $statement = $this->index->prepare("INSERT INTO filemap ( 'id', 'path') values ( $counter, :object)");
+                $statement->bindParam(':object', $object);
+                $statement->execute();
                 $this->info("Processed $counter $object");
             }
         }
