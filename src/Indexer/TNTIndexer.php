@@ -322,7 +322,16 @@ class TNTIndexer
                     'name'    => $name,
                     'content' => $this->filereader->read($object)
                 ];
-                $this->processDocument(new Collection($file));
+                $fileCollection = new Collection($file);
+
+                if (is_callable($this->filereader->fileFilterCallback)) {
+                    $fileCollection = $fileCollection->filter($this->filereader->fileFilterCallback);
+                }
+                if (is_callable($this->filereader->fileMapCallback)) {
+                    $fileCollection = $fileCollection->map($this->filereader->fileMapCallback);
+                }
+
+                $this->processDocument($fileCollection);
                 $statement = $this->index->prepare("INSERT INTO filemap ( 'id', 'path') values ( $counter, :object)");
                 $statement->bindParam(':object', $object);
                 $statement->execute();
