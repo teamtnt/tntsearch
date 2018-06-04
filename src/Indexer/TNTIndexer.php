@@ -315,7 +315,16 @@ class TNTIndexer
 
         foreach ($objects as $name => $object) {
             $name = str_replace($path.'/', '', $name);
-            if (stringEndsWith($name, $this->config['extension']) && !in_array($name, $exclude)) {
+
+            if (is_callable($this->config['extension'])) {
+                $includeFile = $this->config['extension']($object);
+            } elseif (is_array($this->config['extension'])) {
+                $includeFile = in_array($object->getExtension(), $this->config['extension']);
+            } else {
+                $includeFile = stringEndsWith($name, $this->config['extension']);
+            }
+
+            if ($includeFile && !in_array($name, $exclude)) {
                 $counter++;
                 $file = [
                     'id'      => $counter,
