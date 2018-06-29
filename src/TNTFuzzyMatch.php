@@ -52,6 +52,9 @@ class TNTFuzzyMatch
 
     public function hasCommonSubsequence($pattern, $str)
     {
+        $pattern = mb_strtolower($pattern);
+        $str     = mb_strtolower($str);
+
         $j             = 0;
         $patternLength = strlen($pattern);
         $strLength     = strlen($str);
@@ -101,13 +104,17 @@ class TNTFuzzyMatch
         $paternVector = $this->wordToVector($pattern);
 
         $sorted = [];
-        foreach ($res as $word) {
-            $word                   = trim($word);
+        foreach ($res as $caseSensitiveWord) {
+            $word                   = mb_strtolower(trim($caseSensitiveWord));
             $wordVector             = $this->wordToVector($word);
             $normalizedPaternVector = $this->makeVectorSameLength($wordVector, $paternVector);
 
-            $angle         = $this->angleBetweenVectors($wordVector, $normalizedPaternVector);
-            $sorted[$word] = $angle;
+            $angle = $this->angleBetweenVectors($wordVector, $normalizedPaternVector);
+
+            if (strpos($word, $pattern) !== false) {
+                $angle += 0.2;
+            }
+            $sorted[$caseSensitiveWord] = $angle;
         }
 
         arsort($sorted);
