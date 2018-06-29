@@ -94,6 +94,8 @@ class TNTFuzzyMatch
         if ($lines) {
             while (!feof($lines)) {
                 $line = fgets($lines, 4096);
+                $line = str_replace("\r", "", $line);
+                $line = str_replace("\n", "", $line);
                 if ($this->hasCommonSubsequence($pattern, $line)) {
                     $res[] = $line;
                 }
@@ -118,7 +120,6 @@ class TNTFuzzyMatch
         }
 
         arsort($sorted);
-
         return $sorted;
     }
 
@@ -140,7 +141,12 @@ class TNTFuzzyMatch
             $wordVector             = $this->wordToVector($word);
             $normalizedPaternVector = $this->makeVectorSameLength($wordVector, $paternVector);
 
-            $angle         = $this->angleBetweenVectors($wordVector, $normalizedPaternVector);
+            $angle = $this->angleBetweenVectors($wordVector, $normalizedPaternVector);
+
+            if (strpos($word, $pattern) !== false) {
+                $angle += 0.2;
+            }
+
             $sorted[$word] = $angle;
         }
 

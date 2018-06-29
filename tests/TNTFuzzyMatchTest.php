@@ -72,39 +72,43 @@ class TNTFuzzyMatchTest extends PHPUnit_Framework_TestCase
     {
         $res = $this->fm->fuzzyMatchFromFile('search', __DIR__.'/_files/english_wordlist_2k.txt');
 
-        $this->assertEquals([
-            'search'   => 1,
-            'research' => 0.86602345529065
-        ], $res);
+        $equal = bccomp($res['search'], 1.2, 2);
+        $this->assertEquals(0, $equal);
+
+        $equal = bccomp($res['research'], 1.06, 2);
+        $this->assertEquals(0, $equal);
     }
 
     public function testFuzzyMatchFromFileFunction()
     {
         $res = fuzzyMatchFromFile('search', __DIR__.'/_files/english_wordlist_2k.txt');
 
-        $this->assertEquals([
-            'search'   => 1,
-            'research' => 0.86602345529065
-        ], $res);
+        $equal = bccomp($res['search'], 1.2, 2);
+        $this->assertEquals(0, $equal);
+
+        $equal = bccomp($res['research'], 1.06, 2);
+        $this->assertEquals(0, $equal);
     }
 
     public function testFuzzyMatch()
     {
         $res = $this->fm->fuzzyMatch('search', ['search', 'research', 'something']);
 
-        $this->assertEquals([
-            'search'   => 1,
-            'research' => 0.86602345529065
-        ], $res);
+        $equal = bccomp($res['search'], 1.2, 2);
+        $this->assertEquals(0, $equal);
+
+        $equal = bccomp($res['research'], 1.06, 2);
+        $this->assertEquals(0, $equal);
     }
 
     public function testFuzzyMatchFunction()
     {
         $res = fuzzyMatch('search', ['search', 'research', 'something']);
 
-        $this->assertEquals([
-            'search'   => 1,
-            'research' => 0.86602345529065
-        ], $res);
+        $equal = bccomp($res['search'], 1.2, 2);
+        $this->assertEquals(0, $equal);
+
+        $equal = bccomp($res['research'], 1.06, 2);
+        $this->assertEquals(0, $equal);
     }
 }
