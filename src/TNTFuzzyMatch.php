@@ -93,9 +93,7 @@ class TNTFuzzyMatch
         $lines = fopen($path, "r");
         if ($lines) {
             while (!feof($lines)) {
-                $line = fgets($lines, 4096);
-                $line = str_replace("\r", "", $line);
-                $line = str_replace("\n", "", $line);
+                $line = rtrim(fgets($lines, 4096));
                 if ($this->hasCommonSubsequence($pattern, $line)) {
                     $res[] = $line;
                 }
