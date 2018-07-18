@@ -322,6 +322,10 @@ class TNTSearch
      */
     public function getWordlistByKeyword($keyword, $isLastWord = false)
     {
+        if ($this->fuzziness) {
+            return $this->fuzzySearch($keyword);
+        }
+
         $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword LIMIT 1";
         $stmtWord       = $this->index->prepare($searchWordlist);
 
@@ -335,9 +339,6 @@ class TNTSearch
         $stmtWord->execute();
         $res = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($this->fuzziness && !isset($res[0])) {
-            return $this->fuzzySearch($keyword);
-        }
         return $res;
     }
 
@@ -357,10 +358,22 @@ class TNTSearch
 
         $resultSet = [];
         foreach ($matches as $match) {
-            if (levenshtein($match['term'], $keyword) <= $this->fuzzy_distance) {
-                $resultSet[] = $match;
+            $distance = levenshtein($match['term'], $keyword);
+            if ($distance <= $this->fuzzy_distance) {
+                $match['distance'] = $distance;
+                $resultSet[]       = $match;
             }
         }
+
+        // Sort the data by distance, and than by num_hits
+        $distance = [];
+        $hits     = [];
+        foreach ($resultSet as $key => $row) {
+            $distance[$key] = $row['distance'];
+            $hits[$key]     = $row['num_hits'];
+        }
+        array_multisort($distance, SORT_ASC, $hits, SORT_DESC, $resultSet);
+
         return $resultSet;
     }
 
