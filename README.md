@@ -26,10 +26,6 @@ The package has bunch of helper functions like jaro-winkler and cosine similarit
 
 Unlike many other engines, the index can be easily updated without doing a reindex or using deltas. 
 
-You can learn more about it on [github](https://github.com/teamtnt/tntsearch)
-
-We also created a blazingly fast [demo page](http://tntsearch.tntstudio.us/) that shows the capabilities of the engine.
-
 **View** [online demo](http://tntsearch.tntstudio.us/) &nbsp;|&nbsp; **Follow us** on
 [Twitter](https://twitter.com/tntstudiohr),
 or [Facebook](https://www.facebook.com/tntstudiohr) &nbsp;|&nbsp;
