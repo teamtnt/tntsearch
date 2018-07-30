@@ -4,11 +4,31 @@
 [![Build Status](https://img.shields.io/travis/teamtnt/tntsearch/master.svg?style=flat-square)](https://travis-ci.org/teamtnt/tntsearch)
 [![Slack Status](https://img.shields.io/badge/slack-chat-E01563.svg?style=flat-square)](https://tntsearch.slack.com)
 
+![TNTSearch Banner](https://cloud.githubusercontent.com/assets/824840/17067635/edf2ae50-504c-11e6-9c63-a73955f55c29.jpg)
+
 # TNTSearch
 
-A fully featured full text search engine written in PHP
+TNTSearch is a fully featured full text search engine written entirely in PHP. It's simple configuration allows you to add an amazing search experience to your site in just minutes.
+It has also a build in geo-search and a text classifier. Other features are
 
-![TNTSearch Banner](https://cloud.githubusercontent.com/assets/824840/17067635/edf2ae50-504c-11e6-9c63-a73955f55c29.jpg)
+* fuzzy search
+* as you type functionality
+* geo-search
+* text-classification
+* stemming
+* custom tokenizers
+* bm25 ranking algorithm
+* boolean search
+* result highlighting
+ 
+We created also some demo pages that show tolerant retrieval with n-grams in action.
+The package has bunch of helper functions like jaro-winkler and cosine similarity for distance calculations. It supports stemming for English, Croatian, Arabic, Italian, Russian, Portuguese and Ukrainian. If the built in stemmers aren't enough, the engine lets you easily plugin any compatible snowball stemmer. Some forks of the package even support Chinese.
+
+Unlike many other engines, the index can be easily updated without doing a reindex or using deltas. 
+
+You can learn more about it on [github](https://github.com/teamtnt/tntsearch)
+
+We also created a blazingly fast [demo page](http://tntsearch.tntstudio.us/) that shows the capabilities of the engine.
 
 **View** [online demo](http://tntsearch.tntstudio.us/) &nbsp;|&nbsp; **Follow us** on
 [Twitter](https://twitter.com/tntstudiohr),
@@ -32,10 +52,9 @@ To see TNTSearch in action take a look at [the demo page](http://tntsearch.tntst
 * [Searching for Bobby Fisher with Laravel 5](http://tnt.studio/blog/searching-for-bobby-fisher-with-laravel-5)
 * [Did you mean functionality with Laravel Scout](http://tnt.studio/blog/did-you-mean-functionality-with-laravel-scout)
 
-## Support us on Patreon
+## Support us on Open Collective
 
-- [Nenad Ticaric](https://www.patreon.com/nticaric)
-- [Sasa Tokic](https://www.patreon.com/stokic)
+- [TNTSearch](https://opencollective.com/tntsearch)
 
 ## Installation
 
