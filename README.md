@@ -40,7 +40,9 @@ or [Facebook](https://www.facebook.com/tntstudiohr) &nbsp;|&nbsp;
 ---
 ## Demo
 
-To see TNTSearch in action take a look at [the demo page](http://tntsearch.tntstudio.us/)
+* [TV Shows Search](http://tntsearch.tntstudio.us/)
+* [PHPUnit Documentatin Search] (http://phpunit.tntstudio.us)
+* [City Search with n-grams](http://cities.tnt.studio/)
 
 ## Tutorials
 
