@@ -486,7 +486,18 @@ class TNTSearch
             $ids[] = $word['id'];
         }
         $stmtDoc->execute($ids);
-        return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
+        $docs = $stmtDoc->fetchAll(PDO::FETCH_ASSOC);
+
+        $final_array = [];
+        foreach ($words as  $word) {
+            foreach ($docs as $doc) {
+                if ($doc['term_id'] == $word['id']) {
+                    $final_array[] = $doc;
+                }
+            }
+        }
+
+        return (new Collection($final_array));
     }
 
     /**
