@@ -475,29 +475,27 @@ class TNTSearch
     private function getAllDocumentsForFuzzyKeyword($words, $noLimit)
     {
         $binding_params = implode(',', array_fill(0, count($words), '?'));
-        $query          = "SELECT * FROM doclist WHERE term_id in ($binding_params) ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
-        if ($noLimit) {
-            $query = "SELECT * FROM doclist WHERE term_id in ($binding_params) ORDER BY hit_count DESC";
+        $query          = "SELECT * FROM doclist WHERE term_id in ($binding_params) ORDER BY CASE term_id";
+        $order_counter  =   1;
+
+        foreach ($words as $word) {
+            $query .= " WHEN " . $word['id'] . " THEN " . $order_counter++;
         }
+
+        $query .= " END";
+
+        if (!$noLimit)
+            $query .= " LIMIT {$this->maxDocs}";
+
         $stmtDoc = $this->index->prepare($query);
 
         $ids = null;
         foreach ($words as $word) {
             $ids[] = $word['id'];
         }
+
         $stmtDoc->execute($ids);
-        $docs = $stmtDoc->fetchAll(PDO::FETCH_ASSOC);
-
-        $final_array = [];
-        foreach ($words as  $word) {
-            foreach ($docs as $doc) {
-                if ($doc['term_id'] == $word['id']) {
-                    $final_array[] = $doc;
-                }
-            }
-        }
-
-        return (new Collection($final_array));
+        return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
     }
 
     /**
