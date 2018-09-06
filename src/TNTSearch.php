@@ -116,10 +116,10 @@ class TNTSearch
         foreach ($keywords as $index => $term) {
             $isLastKeyword = ($keywords->count() - 1) == $index;
             $df            = $this->totalMatchingDocuments($term, $isLastKeyword);
+            $idf           = log($count / $df);
             foreach ($this->getAllDocumentsForKeyword($term, false, $isLastKeyword) as $document) {
                 $docID = $document['doc_id'];
                 $tf    = $document['hit_count'];
-                $idf   = log($count / $df);
                 $num   = ($tfWeight + 1) * $tf;
                 $denom = $tfWeight
                      * ((1 - $dlWeight) + $dlWeight)
