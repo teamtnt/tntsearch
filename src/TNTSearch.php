@@ -116,7 +116,7 @@ class TNTSearch
         foreach ($keywords as $index => $term) {
             $isLastKeyword = ($keywords->count() - 1) == $index;
             $df            = $this->totalMatchingDocuments($term, $isLastKeyword);
-            $idf           = log($count / $df);
+            $idf           = log($count / max(1, $df));
             foreach ($this->getAllDocumentsForKeyword($term, false, $isLastKeyword) as $document) {
                 $docID = $document['doc_id'];
                 $tf    = $document['hit_count'];
