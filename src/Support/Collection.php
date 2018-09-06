@@ -8,7 +8,6 @@ use IteratorAggregate;
 
 class Collection implements Countable, IteratorAggregate
 {
-
     protected $items = [];
 
     public function __construct($items = [])
@@ -124,6 +123,26 @@ class Collection implements Countable, IteratorAggregate
     public function count()
     {
         return count($this->items);
+    }
+
+    /**
+     * @param int $offset
+     * @param int $length
+     *
+     * @return static
+     */
+    public function slice($offset, $length = null)
+    {
+        return new static(array_slice($this->items, $offset, $length, true));
+    }
+
+    /**
+     * @param int $limit
+     * @return static
+     */
+    public function take($limit)
+    {
+        return $this->slice(0, abs($limit));
     }
 
     /**

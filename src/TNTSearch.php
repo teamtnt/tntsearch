@@ -134,17 +134,10 @@ class TNTSearch
 
         $docs = new Collection($docScores);
 
-        $counter   = 0;
         $totalHits = $docs->count();
         $docs      = $docs->map(function ($doc, $key) {
             return $key;
-        })->filter(function ($item) use (&$counter, $numOfResults) {
-            $counter++;
-            if ($counter <= $numOfResults) {
-                return true;
-            }
-            return false; // ?
-        });
+        })->take($numOfResults);
         $stopTimer = microtime(true);
 
         if ($this->isFileSystemIndex()) {
@@ -233,14 +226,7 @@ class TNTSearch
             $docs = new Collection;
         }
 
-        $counter = 0;
-        $docs    = $docs->filter(function ($item) use (&$counter, $numOfResults) {
-            $counter++;
-            if ($counter <= $numOfResults) {
-                return $item;
-            }
-            return false; // ?
-        });
+        $docs = $docs->take($numOfResults);
 
         $stopTimer = microtime(true);
 
