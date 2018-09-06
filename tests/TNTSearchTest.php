@@ -13,7 +13,8 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         'host'     => 'localhost',
         'username' => 'testUser',
         'password' => 'testPass',
-        'storage'  => __DIR__.'/_files/'
+        'storage'  => __DIR__.'/_files/',
+        'stemmer'  => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class,
     ];
 
     public function testLoadConfig()
@@ -26,6 +27,7 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('username', $tnt->config);
         $this->assertArrayHasKey('password', $tnt->config);
         $this->assertArrayHasKey('storage', $tnt->config);
+        $this->assertArrayHasKey('stemmer', $tnt->config);
     }
 
     public function testCreateIndex()
@@ -306,11 +308,36 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         $tnt->selectIndex('IndexThatDoesNotExist');
     }
 
+    public function testStemmerIsSetOnNewIndexesBasedOnConfig()
+    {
+        $config = $this->config;
+        $config['stemmer'] = \TeamTNT\TNTSearch\Stemmer\GermanStemmer::class;
+
+        $tnt = new TNTSearch();
+        $tnt->loadConfig($config);
+        $tnt->createIndex($this->indexName);
+        $tnt->selectIndex($this->indexName);
+
+        $this->assertInstanceOf(\TeamTNT\TNTSearch\Stemmer\GermanStemmer::class, $tnt->getStemmer());
+    }
+
+    public function testDefaultStemmerIsSetOnNewIndexesIfNoneConfigured()
+    {
+        $config = $this->config;
+        unset($config['stemmer']);
+
+        $tnt = new TNTSearch();
+        $tnt->loadConfig($config);
+        $tnt->createIndex($this->indexName);
+        $tnt->selectIndex($this->indexName);
+
+        $this->assertInstanceOf(\TeamTNT\TNTSearch\Stemmer\PorterStemmer::class, $tnt->getStemmer());
+    }
+
     public function tearDown()
     {
         if (file_exists(__DIR__."/".$this->indexName)) {
             unlink(__DIR__."/".$this->indexName);
         }
-
     }
 }

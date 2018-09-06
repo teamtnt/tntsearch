@@ -379,7 +379,7 @@ class TNTSearch
         if ($stemmer) {
             $this->stemmer = new $stemmer;
         } else {
-            $this->stemmer = new PorterStemmer;
+            $this->stemmer = isset($this->config['stemmer']) ? new $this->config['stemmer'] : new PorterStemmer;
         }
     }
 
