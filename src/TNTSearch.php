@@ -116,10 +116,10 @@ class TNTSearch
         foreach ($keywords as $index => $term) {
             $isLastKeyword = ($keywords->count() - 1) == $index;
             $df            = $this->totalMatchingDocuments($term, $isLastKeyword);
+            $idf           = log($count / max(1, $df));
             foreach ($this->getAllDocumentsForKeyword($term, false, $isLastKeyword) as $document) {
                 $docID = $document['doc_id'];
                 $tf    = $document['hit_count'];
-                $idf   = log($count / $df);
                 $num   = ($tfWeight + 1) * $tf;
                 $denom = $tfWeight
                      * ((1 - $dlWeight) + $dlWeight)
@@ -134,17 +134,10 @@ class TNTSearch
 
         $docs = new Collection($docScores);
 
-        $counter   = 0;
         $totalHits = $docs->count();
         $docs      = $docs->map(function ($doc, $key) {
             return $key;
-        })->filter(function ($item) use (&$counter, $numOfResults) {
-            $counter++;
-            if ($counter <= $numOfResults) {
-                return true;
-            }
-            return false; // ?
-        });
+        })->take($numOfResults);
         $stopTimer = microtime(true);
 
         if ($this->isFileSystemIndex()) {
@@ -233,14 +226,7 @@ class TNTSearch
             $docs = new Collection;
         }
 
-        $counter = 0;
-        $docs    = $docs->filter(function ($item) use (&$counter, $numOfResults) {
-            $counter++;
-            if ($counter <= $numOfResults) {
-                return $item;
-            }
-            return false; // ?
-        });
+        $docs = $docs->take($numOfResults);
 
         $stopTimer = microtime(true);
 
@@ -393,7 +379,7 @@ class TNTSearch
         if ($stemmer) {
             $this->stemmer = new $stemmer;
         } else {
-            $this->stemmer = new PorterStemmer;
+            $this->stemmer = isset($this->config['stemmer']) ? new $this->config['stemmer'] : new PorterStemmer;
         }
     }
 
