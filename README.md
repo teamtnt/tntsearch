@@ -89,8 +89,8 @@ $tnt->loadConfig([
     'database'  => 'dbname',
     'username'  => 'user',
     'password'  => 'pass',
-    'storage'   => '/var/www/tntsearch/examples/'
-    'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class,//optional
+    'storage'   => '/var/www/tntsearch/examples/',
+    'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class//optional
 ]);
 
 $indexer = $tnt->createIndex('name.index');
