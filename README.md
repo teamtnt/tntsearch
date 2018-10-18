@@ -90,6 +90,7 @@ $tnt->loadConfig([
     'username'  => 'user',
     'password'  => 'pass',
     'storage'   => '/var/www/tntsearch/examples/'
+    'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class,//optional
 ]);
 
 $indexer = $tnt->createIndex('name.index');
