@@ -38,46 +38,46 @@ class UkrainianStemmer implements Stemmer
 
         $stem = $word;
         
-        do {
-            if (!preg_match(self::$RVRE, $word, $p)) {
-                break;
-            }
-            $start = $p[1];
-            $RV    = $p[2];
-            if (!$RV) {
-                break;
-            }
-            
-            // Step 1
-            if (!self::s($RV, self::$PERFECTIVEGROUND, '')) {
-                self::s($RV, self::$REFLEXIVE, '');
-                
-                if (self::s($RV, self::$ADJECTIVE, '')) {
-                    self::s($RV, self::$PARTICIPLE, '');
-                } else {
-                    if (!self::s($RV, self::$VERB, '')) {
-                        self::s($RV, self::$NOUN, '');
-                    }
+//        do {
+        if (!preg_match(self::$RVRE, $word, $p)) {
+            return $stem;
+        }
+        $start = $p[1];
+        $RV    = $p[2];
+        if (!$RV) {
+            return $stem;
+        }
+
+        // Step 1
+        if (!self::s($RV, self::$PERFECTIVEGROUND, '')) {
+            self::s($RV, self::$REFLEXIVE, '');
+
+            if (self::s($RV, self::$ADJECTIVE, '')) {
+                self::s($RV, self::$PARTICIPLE, '');
+            } else {
+                if (!self::s($RV, self::$VERB, '')) {
+                    self::s($RV, self::$NOUN, '');
                 }
             }
-            
-            // Step 2
-            self::s($RV, '/[и|i]$/u', '');
-            
-            // Step 3
-            if (self::m($RV, self::$DERIVATIONAL)) {
-                self::s($RV, '/сть?$/u', '');
-            }
-            
-            // Step 4
-            if (!self::s($RV, '/ь$/u', '')) {
-                self::s($RV, '/ейше?/u', '');
-                self::s($RV, '/нн$/u', 'н');
-            }
-            
-            $stem = $start . $RV;
-        } while (FALSE);
-        
+        }
+
+        // Step 2
+        self::s($RV, '/[и|i]$/u', '');
+
+        // Step 3
+        if (self::m($RV, self::$DERIVATIONAL)) {
+            self::s($RV, '/сть?$/u', '');
+        }
+
+        // Step 4
+        if (!self::s($RV, '/ь$/u', '')) {
+            self::s($RV, '/ейше?/u', '');
+            self::s($RV, '/нн$/u', 'н');
+        }
+
+        $stem = $start . $RV;
+//        } while (FALSE);  // its very slowly
+
         return $stem;
     }
 }

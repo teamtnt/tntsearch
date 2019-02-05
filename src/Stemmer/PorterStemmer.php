@@ -52,9 +52,9 @@ class PorterStemmer implements Stemmer
         $word = self::step2($word);
         $word = self::step3($word);
         $word = self::step4($word);
-        $word = self::step5($word);
+//        $word = self::step5($word); // Variable is redundantly
 
-        return $word;
+        return self::step5($word);
     }
 
     /**
@@ -72,10 +72,12 @@ class PorterStemmer implements Stemmer
 
     /**
      * @param string $word
+     *
+     * @return string
      */
     private static function doPartA($word)
     {
-        if (substr($word, -1) == 's') {
+        if (substr($word, -1) === 's') {
 
             self::replace($word, 'sses', 'ss')
             || self::replace($word, 'ies', 'i')
@@ -85,15 +87,29 @@ class PorterStemmer implements Stemmer
         return $word;
     }
 
+    /**
+     * @param string $word
+     *
+     * @return string
+     */
     private static function doPartB($word)
     {
-        if (substr($word, -2, 1) != 'e' || !self::replace($word, 'eed', 'ee', 0)) {
+//        if (substr($word, -2, 1) != 'e' || !self::replace($word, 'eed', 'ee', 0)) {
+        if (!self::replace($word, 'eed', 'ee', 0) || $word[strlen($word) - 2] === 'e') {
             // First rule
             $v = self::$regex_vowel;
 
             // ing and ed
-            if (preg_match("#$v+#", substr($word, 0, -3)) && self::replace($word, 'ing', '')
-                || preg_match("#$v+#", substr($word, 0, -2)) && self::replace($word, 'ed', '')) {
+            if (
+                (
+                    preg_match("#$v+#", substr($word, 0, -3))
+                    && self::replace($word, 'ing', '')
+                )
+                ||
+                (
+                    preg_match("#$v+#", substr($word, 0, -2))
+                    && self::replace($word, 'ed', '')
+                )) {
                 // Note use of && and OR, for precedence reasons
 
                 // If one of above two test successful
@@ -103,13 +119,13 @@ class PorterStemmer implements Stemmer
 
                     // Double consonant ending
                     if (self::doubleConsonant($word)
-                        && substr($word, -2) != 'll'
-                        && substr($word, -2) != 'ss'
-                        && substr($word, -2) != 'zz') {
+                        && substr($word, -2) !== 'll'
+                        && substr($word, -2) !== 'ss'
+                        && substr($word, -2) !== 'zz') {
 
                         $word = substr($word, 0, -1);
 
-                    } else if (self::m($word) == 1 && self::cvc($word)) {
+                    } else if (self::m($word) === 1 && self::cvc($word)) {
                         $word .= 'e';
                     }
                 }
@@ -122,12 +138,13 @@ class PorterStemmer implements Stemmer
      * Step 1c
      *
      * @param string $word Word to stem
+     * @return string
      */
     private static function step1c($word)
     {
         $v = self::$regex_vowel;
 
-        if (substr($word, -1) == 'y' && preg_match("#$v+#", substr($word, 0, -1))) {
+        if (substr($word, -1) === 'y' && preg_match("#$v+#", substr($word, 0, -1))) {
             self::replace($word, 'y', 'i');
         }
 
@@ -138,10 +155,11 @@ class PorterStemmer implements Stemmer
      * Step 2
      *
      * @param string $word Word to stem
+     * @return string
      */
     private static function step2($word)
     {
-        switch (substr($word, -2, 1)) {
+        switch ($word[strlen($word) - 2]) {
             case 'a':
                 self::replace($word, 'ational', 'ate', 0)
                 || self::replace($word, 'tional', 'tion', 0);
@@ -195,10 +213,11 @@ class PorterStemmer implements Stemmer
      * Step 3
      *
      * @param string $word String to stem
+     * @return string
      */
     private static function step3($word)
     {
-        switch (substr($word, -2, 1)) {
+        switch ($word[strlen($word) - 2]) {
             case 'a':
                 self::replace($word, 'ical', 'ic', 0);
                 break;
@@ -232,10 +251,11 @@ class PorterStemmer implements Stemmer
      * Step 4
      *
      * @param string $word Word to stem
+     * @return string
      */
     private static function step4($word)
     {
-        switch (substr($word, -2, 1)) {
+        switch ($word[strlen($word) - 2]) {
             case 'a':
                 self::replace($word, 'al', '', 1);
                 break;
@@ -266,7 +286,7 @@ class PorterStemmer implements Stemmer
                 break;
 
             case 'o':
-                if (substr($word, -4) == 'tion' || substr($word, -4) == 'sion') {
+                if (substr($word, -4) === 'tion' || substr($word, -4) === 'sion') {
                     self::replace($word, 'ion', '', 1);
                 } else {
                     self::replace($word, 'ou', '', 1);
@@ -302,15 +322,16 @@ class PorterStemmer implements Stemmer
      * Step 5
      *
      * @param string $word Word to stem
+     * @return string
      */
     private static function step5($word)
     {
         // Part a
-        if (substr($word, -1) == 'e') {
+        if (substr($word, -1) === 'e') {
             if (self::m(substr($word, 0, -1)) > 1) {
                 self::replace($word, 'e', '');
 
-            } else if (self::m(substr($word, 0, -1)) == 1) {
+            } else if (self::m(substr($word, 0, -1)) === 1) {
 
                 if (!self::cvc(substr($word, 0, -1))) {
                     self::replace($word, 'e', '');
@@ -319,7 +340,7 @@ class PorterStemmer implements Stemmer
         }
 
         // Part b
-        if (self::m($word) > 1 && self::doubleConsonant($word) && substr($word, -1) == 'l') {
+        if (self::m($word) > 1 && self::doubleConsonant($word) && substr($word, -1) === 'l') {
             $word = substr($word, 0, -1);
         }
 
@@ -342,9 +363,9 @@ class PorterStemmer implements Stemmer
     {
         $len = 0 - strlen($check);
 
-        if (substr($str, $len) == $check) {
+        if (substr($str, $len) === $check) {
             $substr = substr($str, 0, $len);
-            if (is_null($m) || self::m($substr) > $m) {
+            if (null === $m || self::m($substr) > $m) {
                 $str = $substr . $repl;
             }
 
@@ -393,7 +414,7 @@ class PorterStemmer implements Stemmer
     {
         $c = self::$regex_consonant;
 
-        return preg_match("#$c{2}$#", $str, $matches) && $matches[0]{0} == $matches[0]{1};
+        return preg_match("#$c{2}$#", $str, $matches) && $matches[0]{0} === $matches[0]{1};
     }
 
     /**
@@ -411,7 +432,7 @@ class PorterStemmer implements Stemmer
 
         $return = false;
 
-        if ($matchFound && strlen($matches[1]) == 3) {
+        if ($matchFound && strlen($matches[1]) === 3) {
             $return = true;
             if (in_array($matches[1]{2}, ['w', 'x', 'y'])) {
                 $return = false;

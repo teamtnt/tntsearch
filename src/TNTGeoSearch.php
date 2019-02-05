@@ -30,7 +30,7 @@ class TNTGeoSearch extends TNTSearch
     public function buildQuery($currentLocation, $distance, $limit)
     {
 
-        $query = "
+        $query = '
             SELECT doc_id, longitude, latitude,
             :CUR_sin_lat * sin_lat + :CUR_cos_lat * cos_lat * (cos_lng * :CUR_cos_lng + sin_lng * :CUR_sin_lng) AS distance
             FROM locations AS l
@@ -45,7 +45,7 @@ class TNTGeoSearch extends TNTSearch
                 BETWEEN p.longpoint - (p.radius / (p.distance_unit * :CUR_cos_lat))
                     AND p.longpoint + (p.radius / (p.distance_unit * :CUR_cos_lat))
             ORDER BY distance DESC
-            LIMIT :limit";
+            LIMIT :limit';
 
         $stmtDoc = $this->index->prepare($query);
 
@@ -75,6 +75,7 @@ class TNTGeoSearch extends TNTSearch
                 return $location;
             }
 
+            // return missing here ?
         });
 
         return $locations;

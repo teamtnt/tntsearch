@@ -71,7 +71,7 @@ class PortugueseStemmer implements Stemmer
         0x0066=>0x0046, 0x00FD=>0x00DD, 0x0063=>0x0043, 0x021B=>0x021A, 0x00EA=>0x00CA,
         0x03B9=>0x0399, 0x017A=>0x0179, 0x00EF=>0x00CF, 0x01B0=>0x01AF, 0x0065=>0x0045,
         0x03BB=>0x039B, 0x03B8=>0x0398, 0x03BC=>0x039C, 0x045C=>0x040C, 0x043F=>0x041F,
-        0x044C=>0x042C, 0x00FE=>0x00DE, 0x00F0=>0x00D0, 0x1EF3=>0x1EF2, 0x0068=>0x0048,
+        0x044C=>0x042C, /*0x00FE=>0x00DE, 0x00F0=>0x00D0,*/ 0x1EF3=>0x1EF2, 0x0068=>0x0048, // duplicate
         0x00EB=>0x00CB, 0x0111=>0x0110, 0x0433=>0x0413, 0x012F=>0x012E, 0x00E6=>0x00C6,
         0x0078=>0x0058, 0x0161=>0x0160, 0x016F=>0x016E, 0x03B1=>0x0391, 0x0457=>0x0407,
         0x0173=>0x0172, 0x00FF=>0x0178, 0x006F=>0x004F, 0x043B=>0x041B, 0x03B5=>0x0395,
@@ -83,11 +83,11 @@ class PortugueseStemmer implements Stemmer
         0x0137=>0x0136, 0x012B=>0x012A, 0x03AF=>0x038A, 0x044B=>0x042B, 0x006C=>0x004C,
         0x03B7=>0x0397, 0x0125=>0x0124, 0x0219=>0x0218, 0x00FB=>0x00DB, 0x011F=>0x011E,
         0x043E=>0x041E, 0x1E41=>0x1E40, 0x03BD=>0x039D, 0x0107=>0x0106, 0x03CB=>0x03AB,
-        0x0446=>0x0426, 0x00FE=>0x00DE, 0x00E7=>0x00C7, 0x03CA=>0x03AA, 0x0441=>0x0421,
+        0x0446=>0x0426, /*0x00FE=>0x00DE,*/ 0x00E7=>0x00C7, 0x03CA=>0x03AA, 0x0441=>0x0421,
         0x0432=>0x0412, 0x010F=>0x010E, 0x00F8=>0x00D8, 0x0077=>0x0057, 0x011B=>0x011A,
         0x0074=>0x0054, 0x006A=>0x004A, 0x045B=>0x040B, 0x0456=>0x0406, 0x0103=>0x0102,
-        0x03BB=>0x039B, 0x00F1=>0x00D1, 0x043D=>0x041D, 0x03CC=>0x038C, 0x00E9=>0x00C9,
-        0x00F0=>0x00D0, 0x0457=>0x0407, 0x0123=>0x0122,
+        /*0x03BB=>0x039B,*/ 0x00F1=>0x00D1, 0x043D=>0x041D, 0x03CC=>0x038C, 0x00E9=>0x00C9,
+        /*0x00F0=>0x00D0, 0x0457=>0x0407,*/ 0x0123=>0x0122,
     );
 
     private static $vowels = array('a', 'e', 'i', 'o', 'u', 'á', 'é', 'í', 'ó', 'ú', 'â', 'ê', 'ô');
@@ -118,11 +118,11 @@ class PortugueseStemmer implements Stemmer
 
         self::step1($word, $r1Index, $r2Index, $rvIndex);
 
-        if ($initialWord == $word) {
+        if ($initialWord === $word) {
             self::step2($word, $rvIndex);
         }
 
-        if ($initialWord != $word) {
+        if ($initialWord !== $word) {
             self::step3($word, $rvIndex);
         } else {
             self::step4($word, $rvIndex);
@@ -180,7 +180,7 @@ class PortugueseStemmer implements Stemmer
         for ($i = 0; $i < $length; $i++) {
             $letter = self::substr($in, $i, 1);
 
-            if (in_array($letter, static::$vowels)) {
+            if (in_array($letter, static::$vowels, true)) {
                 $vowels[] = $i;
             }
         }
@@ -190,9 +190,9 @@ class PortugueseStemmer implements Stemmer
             $after = $position + 1;
             $letter = self::substr($in, $after, 1);
 
-            if (!in_array($letter, static::$vowels)) {
+            if (!in_array($letter, static::$vowels, true)) {
                 $index = $after + 1;
-                $value = self::substr($in, ($after+1));
+                $value = self::substr($in, $after + 1);
                 break;
             }
         }
@@ -220,11 +220,11 @@ class PortugueseStemmer implements Stemmer
         $second = self::substr($word, 1, 1);
 
         // If the second letter is a consonant, RV is the region after the next following vowel,
-        if (!in_array($second, static::$vowels)) {
+        if (!in_array($second, static::$vowels, true)) {
             for ($i = 2; $i < $length; $i++) {
                 $letter = self::substr($word, $i, 1);
 
-                if (in_array($letter, static::$vowels)) {
+                if (in_array($letter, static::$vowels, true)) {
                     $rv = self::substr($word, ($i + 1));
                     $rvIndex = $i + 1;
 
@@ -234,12 +234,12 @@ class PortugueseStemmer implements Stemmer
         }
 
         // or if the first two letters are vowels, RV is the region after the next consonant,
-        if ((in_array($first, static::$vowels)) && (in_array($second, static::$vowels))) {
+        if (in_array($first, static::$vowels, true) && in_array($second, static::$vowels, true)) {
             for ($i = 2; $i < $length; $i++) {
                 $letter = self::substr($word, $i, 1);
 
-                if (!in_array($letter, static::$vowels)) {
-                    $rv = self::substr($word, ($i + 1));
+                if (!in_array($letter, static::$vowels, true)) {
+                    $rv = self::substr($word, $i + 1);
                     $rvIndex = $i + 1;
 
                     return true;
@@ -248,7 +248,7 @@ class PortugueseStemmer implements Stemmer
         }
 
         // and otherwise (consonant-vowel case) RV is the region after the third letter.
-        if ((!in_array($first, static::$vowels)) && (in_array($second, static::$vowels))) {
+        if (!in_array($first, static::$vowels, true) && in_array($second, static::$vowels, true)) {
             $rv = self::substr($word, 3);
             $rvIndex = 3;
 
@@ -374,7 +374,7 @@ class PortugueseStemmer implements Stemmer
             }
 
             // if preceded by ante, avel or ível, delete if in R2
-            if (($position2 = self::searchIfInR2($word, array('ante', 'avel', 'ível'), $r2Index)) != false) {
+            if (($position2 = self::searchIfInR2($word, array('ante', 'avel', 'ível'), $r2Index)) !== false) {
                 $word = self::substr($word, 0, $position2);
             }
 
@@ -419,7 +419,7 @@ class PortugueseStemmer implements Stemmer
                 $before = $position - 1;
                 $letter = self::substr($word, $before, 1);
 
-                if ($letter == 'e') {
+                if ($letter === 'e') {
                     $word = preg_replace('#(iras|ira)$#u', 'ir', $word);
                 }
             }
@@ -455,7 +455,7 @@ class PortugueseStemmer implements Stemmer
         if (self::searchIfInRv($word, array('i'), $rvIndex) !== false) {
             $letter = self::substr($word, -2, 1);
 
-            if ($letter == 'c') {
+            if ($letter === 'c') {
                 $word = self::substr($word, 0, -1);
             }
 
@@ -496,7 +496,8 @@ class PortugueseStemmer implements Stemmer
             }
 
             return true;
-        } elseif (self::search($word, array('ç')) !== false) {
+        }
+        if (self::search($word, array('ç')) !== false) {
             $word = preg_replace('#(ç)$#u', 'c', $word);
 
             return true;
@@ -519,17 +520,20 @@ class PortugueseStemmer implements Stemmer
      */
     private static function check($str)
     {
-        for ($i=0; $i<strlen($str); $i++) {
-            if (ord($str[$i]) < 0x80) continue; # 0bbbbbbb
-            elseif ((ord($str[$i]) & 0xE0) == 0xC0) $n=1; # 110bbbbb
-            elseif ((ord($str[$i]) & 0xF0) == 0xE0) $n=2; # 1110bbbb
-            elseif ((ord($str[$i]) & 0xF8) == 0xF0) $n=3; # 11110bbb
-            elseif ((ord($str[$i]) & 0xFC) == 0xF8) $n=4; # 111110bb
-            elseif ((ord($str[$i]) & 0xFE) == 0xFC) $n=5; # 1111110b
-            else return false; # Does not match any model
+        $strLen = strlen($str);
+        for ($i=0; $i < $strLen; $i++) {
+            $ord = ord($str[$i]);
+            if ($ord < 0x80) { continue; } # 0bbbbbbb
+            if (($ord & 0xE0) === 0xC0) { $n=1; } # 110bbbbb
+            else if (($ord & 0xF0) === 0xE0) { $n=2; } # 1110bbbb
+            else if (($ord & 0xF8) === 0xF0) { $n=3; } # 11110bbb
+            else if (($ord & 0xFC) === 0xF8) { $n=4; } # 111110bb
+            else if (($ord & 0xFE) === 0xFC) { $n=5; } # 1111110b
+            else { return false; } # Does not match any model
             for ($j=0; $j<$n; $j++) { # n bytes matching 10bbbbbb follow ?
-                if ((++$i == strlen($str)) || ((ord($str[$i]) & 0xC0) != 0x80))
+                if ((++$i === strlen($str)) || ((ord($str[$i]) & 0xC0) !== 0x80)) {
                     return false;
+                }
             }
         }
         return true;
@@ -561,13 +565,13 @@ class PortugueseStemmer implements Stemmer
     private static function substr($str,$start,$length=null)
     {
         $ar = array();
-        preg_match_all("/./u", $str, $ar);
+        preg_match_all('/./u', $str, $ar);
 
-        if($length != null) {
-            return join("",array_slice($ar[0],$start,$length));
-        } else {
-            return join("",array_slice($ar[0],$start));
+        if($length !== null) {
+            return implode('',array_slice($ar[0],$start,$length));
         }
+
+        return implode('',array_slice($ar[0],$start));
     }
 
     /**
@@ -582,7 +586,7 @@ class PortugueseStemmer implements Stemmer
             $s = '!'.preg_quote($s,'!').'!u';
         }else{
             foreach ($s as $k => $v) {
-                $s[$k] = '!'.preg_quote($v).'!u';
+                $s[$k] = '!'.preg_quote($v, '!').'!u';
             }
         }
         return preg_replace($s,$r,$str);
@@ -624,22 +628,23 @@ class PortugueseStemmer implements Stemmer
      */
     private static function utf8_to_unicode( &$str )
     {
-        $unicode = array();
-        $values = array();
+        $unicode = [];
+        $values = [];
         $looking_for = 1;
 
-        for ($i = 0; $i < strlen( $str ); $i++ ) {
+        $strLen = strlen( $str );
+        for ($i = 0; $i < $strLen; $i++ ) {
             $this_value = ord( $str[ $i ] );
-            if ( $this_value < 128 ) $unicode[] = $this_value;
+            if ( $this_value < 128 ) { $unicode[] = $this_value; }
             else {
-                if ( count( $values ) == 0 ) $looking_for = ( $this_value < 224 ) ? 2 : 3;
+                if ( count( $values ) === 0 ) { $looking_for = ( $this_value < 224 ) ? 2 : 3; }
                 $values[] = $this_value;
-                if ( count( $values ) == $looking_for ) {
-                    $number = ( $looking_for == 3 ) ?
+                if ( count( $values ) === $looking_for ) {
+                    $number = ( $looking_for === 3 ) ?
                         ( ( $values[0] % 16 ) * 4096 ) + ( ( $values[1] % 64 ) * 64 ) + ( $values[2] % 64 ):
                         ( ( $values[0] % 32 ) * 64 ) + ( $values[1] % 64 );
                     $unicode[] = $number;
-                    $values = array();
+                    $values = [];
                     $looking_for = 1;
                 }
             }
@@ -684,29 +689,31 @@ class PortugueseStemmer implements Stemmer
      */
     private static function strrpos($haystack, $needle, $offset=0)
     {
-        if(!defined('UTF8_NOMBSTRING') && function_exists('mb_strrpos'))
+        if(!defined('UTF8_NOMBSTRING') && function_exists('mb_strrpos')) {
             return mb_strrpos($haystack, $needle, $offset, 'utf-8');
+        }
 
         if (!$offset) {
             $ar = self::explode($needle, $haystack);
             $count = count($ar);
             if ( $count > 1 ) {
-                return self::strlen($haystack) - self::strlen($ar[($count-1)]) - self::strlen($needle);
-            }
-            return false;
-        } else {
-            if ( !is_int($offset) ) {
-                trigger_error('Offset must be an integer', E_USER_WARNING);
-                return false;
+                return self::strlen($haystack) - self::strlen($ar[$count - 1]) - self::strlen($needle);
             }
 
-            $str = self::substr($haystack, $offset);
-
-            if ( false !== ($pos = self::strrpos($str, $needle))){
-                return $pos + $offset;
-            }
             return false;
         }
+
+        if ( !is_int($offset) ) {
+            trigger_error('Offset must be an integer', E_USER_WARNING);
+            return false;
+        }
+
+        $str = self::substr($haystack, $offset);
+
+        if ( false !== ($pos = self::strrpos($str, $needle))){
+            return $pos + $offset;
+        }
+        return false;
     }
 
     /**
@@ -717,7 +724,7 @@ class PortugueseStemmer implements Stemmer
      */
     private static function explode($sep, $str)
     {
-        if ( $sep == '' ) {
+        if ( $sep === '' ) {
             trigger_error('Empty delimiter',E_USER_WARNING);
             return FALSE;
         }

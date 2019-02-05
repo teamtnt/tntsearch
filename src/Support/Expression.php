@@ -17,14 +17,14 @@ class Expression
             if ($this->isOperand($token)) {
                 $postfix[] = $token;
             } else {
-                if ($token == ")") {
-                    while (($top = array_pop($stack)) != "(") {
+                if ($token === ')') {
+                    while (($top = array_pop($stack)) !== '(') {
                         $postfix[] = $top;
                     }
 
                 } else {
                     while (
-                        count($stack) && !(end($stack) == "(") &&
+                        count($stack) && !(end($stack) === '(') &&
                         ($this->priority(end($stack)) >= $this->priority($token))
                     ) {
                         $postfix[] = array_pop($stack);
@@ -43,14 +43,19 @@ class Expression
     public function isOperand($str)
     {
 
-        if (
-            ($str == "|") || ($str == "&") || ($str == "~") ||
-            ($str == "(") || ($str == ")")
+        return !(
+            ($str === '|') || ($str === '&') || ($str === '~') ||
+            ($str === '(') || ($str === ')')
+        );
+
+        /*if (
+            ($str === '|') || ($str === '&') || ($str === '~') ||
+            ($str === '(') || ($str === ')')
         ) {
             return false;
         }
 
-        return true;
+        return true;*/
 
     }
 
@@ -64,19 +69,19 @@ class Expression
 
         $priority = 0;
 
-        if ($operator == ("&")) {
+        if ($operator === ('&')) {
             $priority = 2;
         }
 
-        if ($operator == "~") {
+        if ($operator === '~') {
             $priority = 3;
         }
 
-        if ($operator == "|") {
+        if ($operator === '|') {
             $priority = 1;
         }
 
-        if ($operator == "(" || $operator == ")") {
+        if ($operator === '(' || $operator === ')') {
             $priority = 4;
         }
 
@@ -93,7 +98,7 @@ class Expression
         $string = mb_strtolower($string);
         
         $tokens = [];
-        $token  = "";
+        $token  = '';
         foreach (str_split($string) as $char) {
 
             if ($this->isOperator($char)) {
@@ -102,7 +107,7 @@ class Expression
                 }
 
                 $tokens[] = $char;
-                $token    = "";
+                $token    = '';
             } else {
                 $token .= $char;
             }

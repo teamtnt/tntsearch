@@ -59,7 +59,7 @@ class Highlighter
 
         $needle = (array) $needle;
         foreach ($needle as $needle_s) {
-            $needle_s = preg_quote($needle_s);
+            $needle_s = preg_quote($needle_s, '#');
 
             // Escape needle with optional whole word check
             if ($this->options['wholeWord']) {
@@ -133,7 +133,7 @@ class Highlighter
         if (count($locations) > 2) {
             // skip the first as we check 1 behind
             for ($i = 1; $i < $loccount; $i++) {
-                if ($i == $loccount - 1) {
+                if ($i === $loccount - 1) {
                     // at the end
                     $diff = $locations[$i] - $locations[$i - 1];
                 } else {
@@ -175,19 +175,19 @@ class Highlighter
         $startpos  = $this->_determineSnipLocation($locations, $prevcount);
         // if we are going to snip too much...
         if ($textlength - $startpos < $rellength) {
-            $startpos = $startpos - ($textlength - $startpos) / 2;
+            $startpos -= ($textlength - $startpos) / 2;
         }
 
         $reltext = substr($fulltext, $startpos, $rellength);
 
         // check to ensure we dont snip the last word if thats the match
         if ($startpos + $rellength < $textlength) {
-            $reltext = substr($reltext, 0, strrpos($reltext, " ")) . $indicator; // remove last word
+            $reltext = substr($reltext, 0, strrpos($reltext, ' ')) . $indicator; // remove last word
         }
 
         // If we trimmed from the front add ...
-        if ($startpos != 0) {
-            $reltext = $indicator . substr($reltext, strpos($reltext, " ") + 1); // remove first word
+        if ($startpos !== 0) {
+            $reltext = $indicator . substr($reltext, strpos($reltext, ' ') + 1); // remove first word
         }
 
         return $reltext;

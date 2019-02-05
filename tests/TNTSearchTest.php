@@ -7,15 +7,22 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 {
     protected $indexName = "testIndex";
 
-    protected $config = [
-        'driver'   => 'sqlite',
-        'database' => __DIR__.'/_files/articles.sqlite',
-        'host'     => 'localhost',
-        'username' => 'testUser',
-        'password' => 'testPass',
-        'storage'  => __DIR__.'/_files/',
-        'stemmer'  => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class,
-    ];
+    protected $config = [];
+
+    public function __construct($name = null, array $data = [], $dataName = '')
+    {
+        parent::__construct($name, $data, $dataName);
+
+        $this->config = [
+            'driver'   => 'sqlite',
+            'database' => __DIR__.'/_files/articles.sqlite',
+            'host'     => 'localhost',
+            'username' => 'testUser',
+            'password' => 'testPass',
+            'storage'  => __DIR__.'/_files/',
+            'stemmer'  => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class,
+        ];
+    }
 
     public function testLoadConfig()
     {

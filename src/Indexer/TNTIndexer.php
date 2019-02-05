@@ -29,14 +29,14 @@ class TNTIndexer
     public $stopWords             = [];
     public $filereader            = null;
     public $config                = [];
-    protected $query              = "";
+    protected $query              = '';
     protected $wordlist           = [];
     protected $inMemoryTerms      = [];
     protected $decodeHTMLEntities = false;
     public $disableOutput         = false;
     public $inMemory              = true;
     public $steps                 = 1000;
-    public $indexName             = "";
+    public $indexName             = '';
     public $statementsPrepared    = false;
 
     public function __construct()
@@ -67,7 +67,7 @@ class TNTIndexer
         $this->config            = $config;
         $this->config['storage'] = rtrim($this->config['storage'], '/').'/';
         if (!isset($this->config['driver'])) {
-            $this->config['driver'] = "";
+            $this->config['driver'] = '';
         }
 
     }
@@ -151,9 +151,9 @@ class TNTIndexer
     public function prepareStatementsForIndex()
     {
         if (!$this->statementsPrepared) {
-            $this->insertWordlistStmt = $this->index->prepare("INSERT INTO wordlist (term, num_hits, num_docs) VALUES (:keyword, :hits, :docs)");
-            $this->selectWordlistStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
-            $this->updateWordlistStmt = $this->index->prepare("UPDATE wordlist SET num_docs = num_docs + :docs, num_hits = num_hits + :hits WHERE term = :keyword");
+            $this->insertWordlistStmt = $this->index->prepare('INSERT INTO wordlist (term, num_hits, num_docs) VALUES (:keyword, :hits, :docs)');
+            $this->selectWordlistStmt = $this->index->prepare('SELECT * FROM wordlist WHERE term like :keyword LIMIT 1');
+            $this->updateWordlistStmt = $this->index->prepare('UPDATE wordlist SET num_docs = num_docs + :docs, num_hits = num_hits + :hits WHERE term = :keyword');
             $this->statementsPrepared = true;
         }
     }
@@ -174,33 +174,33 @@ class TNTIndexer
         $this->index = new PDO('sqlite:'.$this->config['storage'].$indexName);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $this->index->exec("CREATE TABLE IF NOT EXISTS wordlist (
+        $this->index->exec('CREATE TABLE IF NOT EXISTS wordlist (
                     id INTEGER PRIMARY KEY,
                     term TEXT UNIQUE COLLATE nocase,
                     num_hits INTEGER,
-                    num_docs INTEGER)");
+                    num_docs INTEGER)');
 
         $this->index->exec("CREATE UNIQUE INDEX 'main'.'index' ON wordlist ('term');");
 
-        $this->index->exec("CREATE TABLE IF NOT EXISTS doclist (
+        $this->index->exec('CREATE TABLE IF NOT EXISTS doclist (
                     term_id INTEGER,
                     doc_id INTEGER,
-                    hit_count INTEGER)");
+                    hit_count INTEGER)');
 
-        $this->index->exec("CREATE TABLE IF NOT EXISTS fields (
+        $this->index->exec('CREATE TABLE IF NOT EXISTS fields (
                     id INTEGER PRIMARY KEY,
-                    name TEXT)");
+                    name TEXT)');
 
-        $this->index->exec("CREATE TABLE IF NOT EXISTS hitlist (
+        $this->index->exec('CREATE TABLE IF NOT EXISTS hitlist (
                     term_id INTEGER,
                     doc_id INTEGER,
                     field_id INTEGER,
                     position INTEGER,
-                    hit_count INTEGER)");
+                    hit_count INTEGER)');
 
-        $this->index->exec("CREATE TABLE IF NOT EXISTS info (
+        $this->index->exec('CREATE TABLE IF NOT EXISTS info (
                     key TEXT,
-                    value INTEGER)");
+                    value INTEGER)');
 
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', 0)");
 
@@ -256,7 +256,7 @@ class TNTIndexer
     public function setDatabaseHandle(PDO $dbh)
     {
         $this->dbh = $dbh;
-        if ($this->dbh->getAttribute(PDO::ATTR_DRIVER_NAME) == 'mysql') {
+        if ($this->dbh->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql') {
             $this->dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
         }
     }
@@ -268,10 +268,11 @@ class TNTIndexer
 
     public function run()
     {
-        if ($this->config['driver'] == "filesystem") {
+        if ($this->config['driver'] === 'filesystem') {
             return $this->readDocumentsFromFileSystem();
         }
 
+        /** @var \PDOStatement $result */
         $result = $this->dbh->query($this->query);
 
         $counter = 0;
@@ -281,20 +282,20 @@ class TNTIndexer
 
             $this->processDocument(new Collection($row));
 
-            if ($counter % $this->steps == 0) {
+            if ($counter % $this->steps === 0) {
                 $this->info("Processed $counter rows");
             }
-            if ($counter % 10000 == 0) {
+            if ($counter % 10000 === 0) {
                 $this->index->commit();
                 $this->index->beginTransaction();
-                $this->info("Commited");
+                $this->info('Commited');
             }
         }
         $this->index->commit();
 
         $this->updateInfoTable('total_documents', $counter);
 
-        $this->info("Total rows $counter");
+        $this->info('Total rows ' . $counter);
     }
 
     public function readDocumentsFromFileSystem()
@@ -304,9 +305,9 @@ class TNTIndexer
             $exclude = $this->config['exclude'];
         }
 
-        $this->index->exec("CREATE TABLE IF NOT EXISTS filemap (
+        $this->index->exec('CREATE TABLE IF NOT EXISTS filemap (
                     id INTEGER PRIMARY KEY,
-                    path TEXT)");
+                    path TEXT)');
         $path = realpath($this->config['location']);
 
         $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
@@ -319,12 +320,12 @@ class TNTIndexer
             if (is_callable($this->config['extension'])) {
                 $includeFile = $this->config['extension']($object);
             } elseif (is_array($this->config['extension'])) {
-                $includeFile = in_array($object->getExtension(), $this->config['extension']);
+                $includeFile = \in_array($object->getExtension(), $this->config['extension'], true);
             } else {
                 $includeFile = stringEndsWith($name, $this->config['extension']);
             }
 
-            if ($includeFile && !in_array($name, $exclude)) {
+            if ($includeFile && !\in_array($name, $exclude, true)) {
                 $counter++;
                 $file = [
                     'id'      => $counter,
@@ -391,19 +392,20 @@ class TNTIndexer
             ['key' => ':documentId', 'value' => $documentId]
         ])->fetchAll(PDO::FETCH_ASSOC);
 
-        $updateStmt = $this->index->prepare("UPDATE wordlist SET num_docs = num_docs - 1, num_hits = num_hits - :hits WHERE id = :term_id");
+        /** @var \PDOStatement $updateStmt */
+        $updateStmt = $this->index->prepare('UPDATE wordlist SET num_docs = num_docs - 1, num_hits = num_hits - :hits WHERE id = :term_id');
 
         foreach ($rows as $document) {
-            $updateStmt->bindParam(":hits", $document['hit_count']);
-            $updateStmt->bindParam(":term_id", $document['term_id']);
+            $updateStmt->bindParam(':hits', $document['hit_count']);
+            $updateStmt->bindParam(':term_id', $document['term_id']);
             $updateStmt->execute();
         }
 
-        $this->prepareAndExecuteStatement("DELETE FROM doclist WHERE doc_id = :documentId;", [
+        $this->prepareAndExecuteStatement('DELETE FROM doclist WHERE doc_id = :documentId;', [
             ['key' => ':documentId', 'value' => $documentId]
         ]);
 
-        $res = $this->prepareAndExecuteStatement("DELETE FROM wordlist WHERE num_hits = 0");
+        $res = $this->prepareAndExecuteStatement('DELETE FROM wordlist WHERE num_hits = 0');
 
         $affected = $res->rowCount();
 
@@ -415,7 +417,7 @@ class TNTIndexer
 
     public function updateInfoTable($key, $value)
     {
-        $this->index->exec("UPDATE info SET value = $value WHERE key = '$key'");
+        $this->index->exec("UPDATE info SET value = '$value' WHERE key = '$key'");
     }
 
     public function stemText($text)
@@ -475,9 +477,9 @@ class TNTIndexer
 
         foreach ($terms as $key => $term) {
             try {
-                $this->insertWordlistStmt->bindParam(":keyword", $key);
-                $this->insertWordlistStmt->bindParam(":hits", $term['hits']);
-                $this->insertWordlistStmt->bindParam(":docs", $term['docs']);
+                $this->insertWordlistStmt->bindParam(':keyword', $key);
+                $this->insertWordlistStmt->bindParam(':hits', $term['hits']);
+                $this->insertWordlistStmt->bindParam(':docs', $term['docs']);
                 $this->insertWordlistStmt->execute();
 
                 $terms[$key]['id'] = $this->index->lastInsertId();
@@ -499,7 +501,7 @@ class TNTIndexer
                         $terms[$key]['id'] = $this->inMemoryTerms[$key];
                     }
                 } else {
-                    echo "Error while saving wordlist: ".$e->getMessage()."\n";
+                    echo 'Error while saving wordlist: ' . $e->getMessage() . "\n";
                 }
 
                 // Statements must be refreshed, because in this state they have error attached to them.
@@ -513,7 +515,8 @@ class TNTIndexer
 
     public function saveDoclist($terms, $docId)
     {
-        $insert = "INSERT INTO doclist (term_id, doc_id, hit_count) VALUES (:id, :doc, :hits)";
+        $insert = 'INSERT INTO doclist (term_id, doc_id, hit_count) VALUES (:id, :doc, :hits)';
+        /** @var \PDOStatement $stmt */
         $stmt   = $this->index->prepare($insert);
 
         foreach ($terms as $key => $term) {
@@ -535,14 +538,15 @@ class TNTIndexer
         $fieldCounter = 0;
         $fields       = [];
 
-        $insert = "INSERT INTO hitlist (term_id, doc_id, field_id, position, hit_count)
-                   VALUES (:term_id, :doc_id, :field_id, :position, :hit_count)";
+        $insert = 'INSERT INTO hitlist (term_id, doc_id, field_id, position, hit_count)
+                   VALUES (:term_id, :doc_id, :field_id, :position, :hit_count)';
         $stmt = $this->index->prepare($insert);
 
         foreach ($stems as $field => $terms) {
             $fields[$fieldCounter] = $field;
             $positionCounter       = 0;
             $termCounts            = array_count_values($terms);
+            /** @var \PDOStatement $stmt */
             foreach ($terms as $term) {
                 if (isset($termsList[$term])) {
                     $stmt->bindValue(':term_id', $termsList[$term]['id']);
@@ -560,7 +564,8 @@ class TNTIndexer
 
     public function getWordFromWordList($word)
     {
-        $selectStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
+        /** @var \PDOStatement $selectStmt */
+        $selectStmt = $this->index->prepare('SELECT * FROM wordlist WHERE term like :keyword LIMIT 1');
         $selectStmt->bindValue(':keyword', $word);
         $selectStmt->execute();
         return $selectStmt->fetch(PDO::FETCH_ASSOC);
@@ -598,20 +603,20 @@ class TNTIndexer
 
     public function buildDictionary($filename, $count = -1, $hits = true, $docs = false)
     {
-        $selectStmt = $this->index->prepare("SELECT * FROM wordlist ORDER BY num_hits DESC;");
+        $selectStmt = $this->index->prepare('SELECT * FROM wordlist ORDER BY num_hits DESC;');
         $selectStmt->execute();
 
-        $dictionary = "";
+        $dictionary = '';
         $counter    = 0;
 
         while ($row = $selectStmt->fetch(PDO::FETCH_ASSOC)) {
             $dictionary .= $row['term'];
             if ($hits) {
-                $dictionary .= "\t".$row['num_hits'];
+                $dictionary .= "\t" . $row['num_hits'];
             }
 
             if ($docs) {
-                $dictionary .= "\t".$row['num_docs'];
+                $dictionary .= "\t" . $row['num_docs'];
             }
 
             $counter++;
@@ -643,10 +648,10 @@ class TNTIndexer
      */
     public function buildTrigrams($keyword)
     {
-        $t        = "__".$keyword."__";
-        $trigrams = "";
+        $t        = '__'.$keyword.'__';
+        $trigrams = '';
         for ($i = 0; $i < strlen($t) - 2; $i++) {
-            $trigrams .= mb_substr($t, $i, 3)." ";
+            $trigrams .= mb_substr($t, $i, 3).' ';
         }
 
         return trim($trigrams);
@@ -654,6 +659,7 @@ class TNTIndexer
 
     public function prepareAndExecuteStatement($query, $params = [])
     {
+        /** @var \PDOStatement $statemnt */
         $statemnt = $this->index->prepare($query);
         foreach ($params as $param) {
             $statemnt->bindParam($param['key'], $param['value']);

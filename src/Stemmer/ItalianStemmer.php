@@ -74,9 +74,19 @@ class ItalianStemmer implements Stemmer
 
     public function __construct()
     {
-        usort(self::$suffissi_step0, create_function('$a,$b', 'return mb_strlen($a)>mb_strlen($b) ? -1 : 1;'));
-        usort(self::$suffissi_step1_a, create_function('$a,$b', 'return mb_strlen($a)>mb_strlen($b) ? -1 : 1;'));
-        usort(self::$suffissi_step2, create_function('$a,$b', 'return mb_strlen($a)>mb_strlen($b) ? -1 : 1;'));
+//        usort(self::$suffissi_step0, create_function('$a,$b', 'return mb_strlen($a)>mb_strlen($b) ? -1 : 1;'));
+//        usort(self::$suffissi_step1_a, create_function('$a,$b', 'return mb_strlen($a)>mb_strlen($b) ? -1 : 1;'));
+//        usort(self::$suffissi_step2, create_function('$a,$b', 'return mb_strlen($a)>mb_strlen($b) ? -1 : 1;'));
+
+        usort(self::$suffissi_step0, function ($a, $b) {
+            return mb_strlen($a)>mb_strlen($b) ? -1 : 1;
+        });
+        usort(self::$suffissi_step1_a, function ($a, $b) {
+            return mb_strlen($a)>mb_strlen($b) ? -1 : 1;
+        });
+        usort(self::$suffissi_step2, function ($a, $b) {
+            return mb_strlen($a)>mb_strlen($b) ? -1 : 1;
+        });
     }
 
     /**
@@ -122,9 +132,9 @@ class ItalianStemmer implements Stemmer
         $step2 = self::step2($step0, $step1);
         $step3a = self::step3a($step2);
         $step3b = self::step3b($step3a);
-        $step4 = self::step4($step3b);
+//        $step4 = self::step4($step3b); // variable is redundant
 
-        return $step4;
+        return self::step4($step3b);
     }
 
     private static function trim($str)
@@ -149,7 +159,7 @@ class ItalianStemmer implements Stemmer
 
     private static function IUBetweenVowToUpper($str)
     {
-        $pattern = '/([aeiouàèìòù])([iu])([aeiouàèìòù])/';
+        $pattern = '/([aeiouàèìòù])([iu])([aeiouàèìòù])/u';
 
         return preg_replace_callback($pattern, function ($matches) {
             return strtoupper($matches[0]);
@@ -170,18 +180,19 @@ class ItalianStemmer implements Stemmer
             return '';
         } //$str;
 
-        if (in_array($str[1], self::$consonanti)) {
+        if (in_array($str[1], self::$consonanti, true)) {
             $str = mb_substr($str, 2);
             $str = strpbrk($str, implode(self::$vocali));
 
             return mb_substr($str, 1); //secondo me devo mettere 1
-        } elseif (in_array($str[0], self::$vocali) && in_array($str[1], self::$vocali)) {
+        } elseif (in_array($str[0], self::$vocali, true) && /* equivalent */in_array($str[1], self::$vocali, true)) {
             $str = strpbrk($str, implode(self::$consonanti));
 
             return mb_substr($str, 1);
-        } elseif (in_array($str[0], self::$consonanti) && in_array($str[1], self::$vocali)) {
+        } elseif (in_array($str[0], self::$consonanti, true) && /* equivalent */in_array($str[1], self::$vocali, true)) { // fixme: the second condition is never satisfied
             return mb_substr($str, 3);
         }
+        // fixme: maybe need <return '';> ?
     }
 
     private static function returnR1($str)
@@ -313,18 +324,20 @@ class ItalianStemmer implements Stemmer
             if (!empty($ret_str1 = self::deleteStuff(['iv'], $ret_str, mb_strlen($ret_str), 'r2'))) {
                 if (!empty($ret_str2 = self::deleteStuff(['at'], $ret_str1, mb_strlen($ret_str1), 'r2'))) {
                     return $ret_str2;
-                } else {
-                    return $ret_str1;
-                }
-            } elseif (!empty(
-                $ret_str1 = self::deleteStuff(['os', 'ic', 'abil'], $ret_str, mb_strlen($ret_str), 'r2')
-            )) {
+                } /*else {*/ // redundantly
+
                 return $ret_str1;
-            } else {
-                return $ret_str;
+//                }
             }
+            $ret_str1 = self::deleteStuff(['os', 'ic', 'abil'], $ret_str, mb_strlen($ret_str), 'r2');
+            if (!empty($ret_str1)) {
+                return $ret_str1;
+            } /*else {*/ // redundantly
+                return $ret_str;
+//            }
         }
 
+        // todo: Very difficult to understand. Need refactoring. (From the author)
         // Delete if in R2
         if (count($ret_str = self::deleteStuff(self::$suffissi_step1_a, $str, $str_len, 'r2', true))) {
             return $ret_str;
@@ -363,9 +376,9 @@ class ItalianStemmer implements Stemmer
         if (count($ret_str = self::deleteStuff(self::$suffissi_step1_h, $str, $str_len, 'r2'))) {
             if (count($ret_str1 = self::deleteStuff(['abil', 'ic', 'iv'], $ret_str, mb_strlen($ret_str), 'r2'))) {
                 return $ret_str1;
-            } else {
+            } /*else {*/ // redundantly
                 return $ret_str;
-            }
+//            }
         }
 
         // Delete if in R2, if preceded by 'at', delete if in R2 (and if further preceded by 'ic', delete if in R2)
@@ -373,12 +386,12 @@ class ItalianStemmer implements Stemmer
             if (count($ret_str1 = self::deleteStuff(['at'], $ret_str, mb_strlen($ret_str), 'r2'))) {
                 if (count($ret_str2 = self::deleteStuff(['ic'], $ret_str1, mb_strlen($ret_str1), 'r2'))) {
                     return $ret_str2;
-                } else {
+                } /*else {*/ // redundantly
                     return $ret_str1;
-                }
-            } else {
+//                }
+            } /*else {*/ // redundantly
                 return $ret_str;
-            }
+//            }
         }
 
         return $str;
@@ -389,7 +402,7 @@ class ItalianStemmer implements Stemmer
         //Step 2: Verb suffixes
         //Do step 2 if no ending was removed by step 1
 
-        if ($str != $str_step1) {
+        if ($str !== $str_step1) {
             return $str_step1;
         }
 
@@ -415,9 +428,9 @@ class ItalianStemmer implements Stemmer
         if (count($ret_str = self::deleteStuff($vocale_finale, $str, $str_len, 'rv'))) {
             if (count($ret_str1 = self::deleteStuff(['i'], $ret_str, mb_strlen($ret_str), 'rv'))) {
                 return $ret_str1;
-            } else {
+            } /*else {*/ // redundantly
                 return $ret_str;
-            }
+//            }
         }
 
         return $str;

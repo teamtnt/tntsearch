@@ -11,6 +11,7 @@ class TNTClassifier
     public $words                  = [];
     public $types                  = [];
     public $tokenizer              = null;
+    /** @var Stemmer */
     public $stemmer                = null;
     protected $arraySumOfWordType  = null;
     protected $arraySumOfDocuments = null;
@@ -48,7 +49,7 @@ class TNTClassifier
 
     public function learn($statement, $type)
     {
-        if (!in_array($type, $this->types)) {
+        if (!in_array($type, $this->types, true)) {
             $this->types[] = $type;
         }
 
@@ -88,7 +89,7 @@ class TNTClassifier
         if (!isset($this->arraySumOfDocuments)) {
             $this->arraySumOfDocuments = array_sum($this->documents);
         }
-        return ($this->documents[$type]) / $this->arraySumOfDocuments;
+        return $this->documents[$type] / $this->arraySumOfDocuments;
     }
 
     public function vocabularyCount()
@@ -118,9 +119,11 @@ class TNTClassifier
         $s          = file_get_contents($name);
         $classifier = unserialize($s);
 
-        unset($this->vc);
-        unset($this->arraySumOfDocuments);
-        unset($this->arraySumOfWordType);
+        unset(
+            $this->vc,
+            $this->arraySumOfDocuments,
+            $this->arraySumOfWordType
+        );
 
         $this->documents = $classifier->documents;
         $this->words     = $classifier->words;

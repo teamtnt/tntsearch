@@ -58,7 +58,7 @@ class GermanStemmer implements Stemmer
     {
         $word = mb_strtolower($word);
         //check for invalid characters
-        preg_match("#.#u", $word);
+        preg_match('#.#u', $word);
         if (preg_last_error() !== 0) {
             throw new \InvalidArgumentException("Word '$word' seems to be errornous. Error code from preg_last_error(): " . preg_last_error());
         }
@@ -230,8 +230,8 @@ class GermanStemmer implements Stemmer
         // R1 is the region after the first non-vowel following a vowel, or is the null region at the end of the word if there is no such non-vowel.
         $pattern = "#(?P<rest>.*?{$vowelGroup}{$nonVowelGroup})(?P<r>.*)#u";
         if (preg_match($pattern, $word, $match)) {
-            $rest = $match["rest"];
-            $r1   = $match["r"];
+            $rest = $match['rest'];
+            $r1   = $match['r'];
             // [...], but then R1 is adjusted so that the region before it contains at least 3 letters.
             $cutOff = 3 - mb_strlen($rest);
             if ($cutOff > 0) {
@@ -242,7 +242,7 @@ class GermanStemmer implements Stemmer
 
         //R2 is the region after the first non-vowel following a vowel in R1, or is the null region at the end of the word if there is no such non-vowel.
         if (preg_match($pattern, self::$R1, $match)) {
-            self::$R2 = $match["r"];
+            self::$R2 = $match['r'];
         }
     }
 }

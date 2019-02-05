@@ -4,3 +4,4 @@ examples
 .DS_Store
 composer.lock
 coverage
+tests/_files/testIndex
