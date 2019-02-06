@@ -87,15 +87,9 @@ class PorterStemmer implements Stemmer
         return $word;
     }
 
-    /**
-     * @param string $word
-     *
-     * @return string
-     */
     private static function doPartB($word)
     {
-//        if (substr($word, -2, 1) != 'e' || !self::replace($word, 'eed', 'ee', 0)) {
-        if (!self::replace($word, 'eed', 'ee', 0) || $word[strlen($word) - 2] === 'e') {
+        if (substr($word, -2, 1) !== 'e' || !self::replace($word, 'eed', 'ee', 0)) {
             // First rule
             $v = self::$regex_vowel;
 
@@ -117,11 +111,13 @@ class PorterStemmer implements Stemmer
                     && !self::replace($word, 'bl', 'ble')
                     && !self::replace($word, 'iz', 'ize')) {
 
+                    $substr = substr($word, -2);
                     // Double consonant ending
-                    if (self::doubleConsonant($word)
-                        && substr($word, -2) !== 'll'
-                        && substr($word, -2) !== 'ss'
-                        && substr($word, -2) !== 'zz') {
+                    if ($substr !== 'll'
+                        && $substr !== 'ss'
+                        && $substr !== 'zz'
+                        && self::doubleConsonant($word)
+                    ) {
 
                         $word = substr($word, 0, -1);
 
@@ -286,7 +282,8 @@ class PorterStemmer implements Stemmer
                 break;
 
             case 'o':
-                if (substr($word, -4) === 'tion' || substr($word, -4) === 'sion') {
+                $substr = substr($word, -4);
+                if ($substr === 'tion' || $substr === 'sion') {
                     self::replace($word, 'ion', '', 1);
                 } else {
                     self::replace($word, 'ou', '', 1);
