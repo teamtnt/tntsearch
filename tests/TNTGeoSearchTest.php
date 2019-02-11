@@ -31,4 +31,11 @@ class TNTGeoSearchTest extends PHPUnit\Framework\TestCase
         $this->assertEquals([9389, 9407], $cities['ids']);
         $this->assertEquals(2, $cities['hits']);
     }
+
+    public function tearDown(): void
+    {
+        if (file_exists(__DIR__.'/../_files/'.$this->indexName)) {
+            unlink(__DIR__.'/../_files/'.$this->indexName);
+        }
+    }
 }

@@ -29,11 +29,4 @@ class TNTGeoIndexerTest extends PHPUnit\Framework\TestCase
 
         $this->assertTrue(file_exists($indexPath));
     }
-
-    public function tearDown()
-    {
-        if (file_exists(__DIR__.'/../_files/'.$this->indexName)) {
-            unlink(__DIR__.'/../_files/'.$this->indexName);
-        }
-    }
 }

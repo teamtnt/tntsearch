@@ -5,3 +5,4 @@ examples
 composer.lock
 coverage
 tests/_files/*.index
+.phpunit.result.cache

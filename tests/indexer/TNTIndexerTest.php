@@ -129,7 +129,7 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
 
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         if (file_exists(__DIR__.'/../_files/'.$this->indexName)) {
             unlink(__DIR__.'/../_files/'.$this->indexName);

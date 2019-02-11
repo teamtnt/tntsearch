@@ -297,12 +297,10 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertContains(15, $res['ids']);
     }
 
-    /**
-     * @expectedException     TeamTNT\TNTSearch\Exceptions\IndexNotFoundException
-     * @expectedExceptionCode 1
-     */
     public function testIndexDoesNotExistException()
     {
+        $this->expectException(IndexNotFoundException::class);
+        $this->expectExceptionCode(1);
         $tnt = new TNTSearch;
         $tnt->loadConfig($this->config);
         $tnt->selectIndex('IndexThatDoesNotExist');
@@ -334,7 +332,7 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertInstanceOf(\TeamTNT\TNTSearch\Stemmer\PorterStemmer::class, $tnt->getStemmer());
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         if (file_exists(__DIR__."/".$this->indexName)) {
             unlink(__DIR__."/".$this->indexName);
