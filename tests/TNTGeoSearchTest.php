@@ -2,7 +2,7 @@
 
 use TeamTNT\TNTSearch\TNTGeoSearch;
 
-class TNTGeoSearchTest extends PHPUnit_Framework_TestCase
+class TNTGeoSearchTest extends PHPUnit\Framework\TestCase
 {
     protected $indexName = "cities-geo.index";
 

@@ -2,7 +2,7 @@
 
 use TeamTNT\TNTSearch\Stemmer\GermanStemmer;
 
-class GermanStemmerTestTest extends PHPUnit_Framework_TestCase
+class GermanStemmerTestTest extends PHPUnit\Framework\TestCase
 {
 
     public function testStem()

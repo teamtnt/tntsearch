@@ -2,7 +2,7 @@
 
 use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
 
-class PorterStemmerTestTest extends PHPUnit_Framework_TestCase
+class PorterStemmerTestTest extends PHPUnit\Framework\TestCase
 {
 
     public function testStem()
@@ -17,8 +17,8 @@ class PorterStemmerTestTest extends PHPUnit_Framework_TestCase
 
     public function testAgainstDictionary()
     {
-        $vocabulary = explode("\n", file_get_contents(__DIR__ ."/porter/input.txt"));
-        $expected = explode("\n", file_get_contents(__DIR__ ."/porter/output.txt"));
+        $vocabulary = explode("\n", file_get_contents(__DIR__."/porter/input.txt"));
+        $expected   = explode("\n", file_get_contents(__DIR__."/porter/output.txt"));
 
         $stemmer = new PorterStemmer;
 

@@ -2,11 +2,12 @@
 
 use TeamTNT\TNTSearch\Spell\JaroWinklerDistance;
 
-class JaroWinklerDistanceTest extends PHPUnit_Framework_TestCase
+class JaroWinklerDistanceTest extends PHPUnit\Framework\TestCase
 {
     public function __construct()
     {
         $this->sd = new JaroWinklerDistance;
+        parent::__construct();
     }
 
     public function testJaro()

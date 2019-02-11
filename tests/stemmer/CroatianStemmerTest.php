@@ -2,7 +2,7 @@
 
 use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
 
-class CroatianStemmerTest extends PHPUnit_Framework_TestCase
+class CroatianStemmerTest extends PHPUnit\Framework\TestCase
 {
     public function testIstakniSlogotvornoR()
     {

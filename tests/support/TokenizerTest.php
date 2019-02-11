@@ -2,7 +2,7 @@
 
 use TeamTNT\TNTSearch\Support\Tokenizer;
 
-class TokenizerTest extends PHPUnit_Framework_TestCase
+class TokenizerTest extends PHPUnit\Framework\TestCase
 {
     public function testTokenize()
     {

@@ -2,11 +2,12 @@
 
 use TeamTNT\TNTSearch\TNTFuzzyMatch;
 
-class TNTFuzzyMatchTest extends PHPUnit_Framework_TestCase
+class TNTFuzzyMatchTest extends PHPUnit\Framework\TestCase
 {
     public function __construct()
     {
         $this->fm = new TNTFuzzyMatch;
+        parent::__construct();
     }
 
     public function testNorm()

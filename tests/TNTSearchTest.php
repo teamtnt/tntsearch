@@ -3,7 +3,7 @@
 use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
 use TeamTNT\TNTSearch\TNTSearch;
 
-class TNTSearchTest extends PHPUnit_Framework_TestCase
+class TNTSearchTest extends PHPUnit\Framework\TestCase
 {
     protected $indexName = "testIndex";
 
@@ -14,7 +14,7 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
         'username' => 'testUser',
         'password' => 'testPass',
         'storage'  => __DIR__.'/_files/',
-        'stemmer'  => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class,
+        'stemmer'  => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class
     ];
 
     public function testLoadConfig()
@@ -310,7 +310,7 @@ class TNTSearchTest extends PHPUnit_Framework_TestCase
 
     public function testStemmerIsSetOnNewIndexesBasedOnConfig()
     {
-        $config = $this->config;
+        $config            = $this->config;
         $config['stemmer'] = \TeamTNT\TNTSearch\Stemmer\GermanStemmer::class;
 
         $tnt = new TNTSearch();

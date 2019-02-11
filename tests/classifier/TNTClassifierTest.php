@@ -2,7 +2,7 @@
 
 use TeamTNT\TNTSearch\Classifier\TNTClassifier;
 
-class TNTClassifierTest extends PHPUnit_Framework_TestCase
+class TNTClassifierTest extends PHPUnit\Framework\TestCase
 {
     public function testPredictSpamHam()
     {

@@ -4,7 +4,7 @@ use TeamTNT\TNTSearch\Indexer\TNTIndexer;
 use TeamTNT\TNTSearch\Support\TokenizerInterface;
 use TeamTNT\TNTSearch\TNTSearch;
 
-class TNTIndexerTest extends PHPUnit_Framework_TestCase
+class TNTIndexerTest extends PHPUnit\Framework\TestCase
 {
     protected $indexName = "testIndex";
     protected $config    = [
