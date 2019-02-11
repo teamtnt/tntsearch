@@ -52,6 +52,8 @@ class TNTIndexer
     public function setTokenizer(TokenizerInterface $tokenizer)
     {
         $this->tokenizer = $tokenizer;
+        $class           = get_class($tokenizer);
+        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'tokenizer', '$class')");
     }
 
     public function setStopWords(array $stopWords)
@@ -66,8 +68,13 @@ class TNTIndexer
     {
         $this->config            = $config;
         $this->config['storage'] = rtrim($this->config['storage'], '/').'/';
+
         if (!isset($this->config['driver'])) {
             $this->config['driver'] = "";
+        }
+
+        if (isset($this->config['tokenizer'])) {
+            $this->tokenizer = new $this->config['tokenizer'];
         }
 
     }

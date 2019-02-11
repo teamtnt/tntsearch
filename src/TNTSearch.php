@@ -51,14 +51,6 @@ class TNTSearch
     }
 
     /**
-     * @param TokenizerInterface $tokenizer
-     */
-    public function setTokenizer(TokenizerInterface $tokenizer)
-    {
-        $this->tokenizer = $tokenizer;
-    }
-
-    /**
      * @param string $indexName
      * @param boolean $disableOutput
      *
@@ -90,6 +82,7 @@ class TNTSearch
         $this->index = new PDO('sqlite:'.$pathToIndex);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->setStemmer();
+        $this->setTokenizer();
     }
 
     /**
@@ -382,6 +375,16 @@ class TNTSearch
         }
     }
 
+    public function setTokenizer()
+    {
+        $tokenizer = $this->getValueFromInfoTable('tokenizer');
+        if ($tokenizer) {
+            $this->tokenizer = new $tokenizer;
+        } else {
+            $this->tokenizer = isset($this->config['tokenizer']) ? new $this->config['tokenizer'] : new Tokenizer;
+        }
+    }
+
     /**
      * @return bool
      */
@@ -448,6 +451,7 @@ class TNTSearch
         $indexer->inMemory = false;
         $indexer->setIndex($this->index);
         $indexer->setStemmer($this->stemmer);
+        $indexer->setTokenizer($this->tokenizer);
         return $indexer;
     }
 
@@ -461,16 +465,17 @@ class TNTSearch
     {
         $binding_params = implode(',', array_fill(0, count($words), '?'));
         $query          = "SELECT * FROM doclist WHERE term_id in ($binding_params) ORDER BY CASE term_id";
-        $order_counter  =   1;
+        $order_counter  = 1;
 
         foreach ($words as $word) {
-            $query .= " WHEN " . $word['id'] . " THEN " . $order_counter++;
+            $query .= " WHEN ".$word['id']." THEN ".$order_counter++;
         }
 
         $query .= " END";
 
-        if (!$noLimit)
+        if (!$noLimit) {
             $query .= " LIMIT {$this->maxDocs}";
+        }
 
         $stmtDoc = $this->index->prepare($query);
 

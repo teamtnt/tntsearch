@@ -8,12 +8,14 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
 {
     protected $indexName = "testIndex";
     protected $config    = [
-        'driver'   => 'sqlite',
-        'database' => __DIR__.'/../_files/articles.sqlite',
-        'host'     => 'localhost',
-        'username' => 'testUser',
-        'password' => 'testPass',
-        'storage'  => __DIR__.'/../_files/'
+        'driver'    => 'sqlite',
+        'database'  => __DIR__.'/../_files/articles.sqlite',
+        'host'      => 'localhost',
+        'username'  => 'testUser',
+        'password'  => 'testPass',
+        'storage'   => __DIR__.'/../_files/',
+        'tokenizer' => TeamTNT\TNTSearch\Support\ProductTokenizer::class
+
     ];
 
     public function testSearch()
@@ -138,10 +140,16 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
 
     public function testSetTokenizer()
     {
-        $someTokenizer = new SomeTokenizer;
 
-        $indexer = new TNTIndexer;
-        $indexer->setTokenizer($someTokenizer);
+        $tnt = new TNTSearch;
+
+        $tnt->loadConfig($this->config);
+
+        $indexer = $tnt->createIndex($this->indexName);
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->setTokenizer(new SomeTokenizer);
+        $indexer->disableOutput = true;
+        $indexer->run();
 
         $this->assertInstanceOf(TokenizerInterface::class, $indexer->tokenizer);
 
