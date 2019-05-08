@@ -3,6 +3,7 @@
 namespace TeamTNT\TNTSearch;
 
 use PDO;
+use TeamTNT\TNTSearch\Indexer\TNTGeoIndexer;
 use TeamTNT\TNTSearch\Support\Collection;
 
 class TNTGeoSearch extends TNTSearch
@@ -78,5 +79,13 @@ class TNTGeoSearch extends TNTSearch
         });
 
         return $locations;
+    }
+
+    public function getIndex()
+    {
+        $indexer           = new TNTGeoIndexer;
+        $indexer->inMemory = false;
+        $indexer->setIndex($this->index);
+        return $indexer;
     }
 }
