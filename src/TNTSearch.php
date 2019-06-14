@@ -101,25 +101,35 @@ class TNTSearch
             return $this->stemmer->stem($keyword);
         });
 
-        $tfWeight  = 1;
-        $dlWeight  = 0.5;
+        $tfWeight  = 1.2;
+        $dlWeight  = 0.75;
         $docScores = [];
         $count     = $this->totalDocumentsInCollection();
+        $avgFlen   = $this->getAverageFieldLength();
+        $docTerms  = array();
 
         foreach ($keywords as $index => $term) {
             $isLastKeyword = ($keywords->count() - 1) == $index;
             $df            = $this->totalMatchingDocuments($term, $isLastKeyword);
-            $idf           = log($count / max(1, $df));
-            foreach ($this->getAllDocumentsForKeyword($term, false, $isLastKeyword) as $document) {
-                $docID = $document['doc_id'];
-                $tf    = $document['hit_count'];
+            $idf           = log(1 + ($count - $df + 0.5) / ($df + 0.5));
+            foreach ($this->getAllHitsForKeyword($term, true, $isLastKeyword) as $hit) {
+                $docID = $hit['doc_id'];
+                $tf    = $hit['hit_count'];
+                $dlen  = $hit['field_len'];
+                $fnorm = 1/sqrt($hit['field_len']);
                 $num   = ($tfWeight + 1) * $tf;
+                $avgDlen = $avgFlen[$hit['field_id']];
                 $denom = $tfWeight
-                     * ((1 - $dlWeight) + $dlWeight)
+                     * ((1 - $dlWeight) + $dlWeight * $dlen / $avgDlen)
                      + $tf;
-                $score             = $idf * ($num / $denom);
+                $score             = $fnorm * $idf * ($num / $denom);
                 $docScores[$docID] = isset($docScores[$docID]) ?
                 $docScores[$docID] + $score : $score;
+
+                if (!isset($docTerms[$docID])) {
+                    $docTerms[$docID] = array();
+                }
+                $docTerms[$docID][$term] = 1;
             }
         }
 
@@ -128,7 +138,9 @@ class TNTSearch
         $docs = new Collection($docScores);
 
         $totalHits = $docs->count();
-        $docs      = $docs->map(function ($doc, $key) {
+        $docs      = $docs->filter(function ($score, $docID) use ($docTerms, $keywords) {
+            return (count($docTerms[$docID]) == $keywords->count());
+        })->map(function ($doc, $key) {
             return $key;
         })->take($numOfResults);
         $stopTimer = microtime(true);
@@ -252,6 +264,24 @@ class TNTSearch
         }
 
         return $this->getAllDocumentsForStrictKeyword($word, $noLimit);
+    }
+
+    /**
+     * @param      $keyword
+     * @param bool $noLimit
+     * @param bool $isLastKeyword
+     *
+     * @return Collection
+     */
+    public function getAllHitsForKeyword($keyword, $noLimit = false, $isLastKeyword = false)
+    {
+        $word = $this->getWordlistByKeyword($keyword, $isLastKeyword);
+        if (!isset($word[0])) {
+            return new Collection([]);
+        }
+        // TODO: Fuzzy
+
+        return $this->getAllHitsForStrictKeyword($word, $noLimit);
     }
 
     /**
@@ -505,5 +535,43 @@ class TNTSearch
         $stmtDoc->bindValue(':id', $word[0]['id']);
         $stmtDoc->execute();
         return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    /**
+     * @param $word
+     * @param $noLimit
+     *
+     * @return Collection
+     */
+    private function getAllHitsForStrictKeyword($word, $noLimit)
+    {
+        $query = "SELECT * FROM hitlist WHERE term_id = :id ORDER BY hit_count DESC";
+        // TODO: limit?
+        $stmtDoc = $this->index->prepare($query);
+
+        $stmtDoc->bindValue(':id', $word[0]['id']);
+        $stmtDoc->execute();
+        return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    /**
+     * @return $avgFieldLen
+     */
+    private function getAverageFieldLength()
+    {
+        $query = "SELECT MAX(field_id) FROM docinfo";
+        $stmtDoc = $this->index->prepare($query);
+        $stmtDoc->execute();
+        $noFields = $stmtDoc->fetch(PDO::FETCH_NUM)[0] + 1;
+
+        $avgFlen = array();
+        for ($field = 0; $field < $noFields; $field++) {
+            $query = "SELECT AVG(num_terms) FROM docinfo WHERE field_id = :field_id";
+            $stmtDoc = $this->index->prepare($query);
+            $stmtDoc->bindValue(':field_id', $field);
+            $stmtDoc->execute();
+            $avgFlen[$field] = $stmtDoc->fetch(PDO::FETCH_NUM)[0];
+        }
+        return $avgFlen;
     }
 }

@@ -202,8 +202,14 @@ class TNTIndexer
                     term_id INTEGER,
                     doc_id INTEGER,
                     field_id INTEGER,
+                    field_len INTEGER,
                     position INTEGER,
                     hit_count INTEGER)");
+
+        $this->index->exec("CREATE TABLE IF NOT EXISTS docinfo (
+                    doc_id INTEGER,
+                    field_id INTEGER,
+                    num_terms INTEGER)");
 
         $this->index->exec("CREATE TABLE IF NOT EXISTS info (
                     key TEXT,
@@ -455,6 +461,7 @@ class TNTIndexer
         $terms = $this->saveWordlist($stems);
         $this->saveDoclist($terms, $docId);
         $this->saveHitList($stems, $docId, $terms);
+        $this->saveDocInfo($stems, $docId);
     }
 
     /**
@@ -538,29 +545,42 @@ class TNTIndexer
 
     public function saveHitList($stems, $docId, $termsList)
     {
-        return;
         $fieldCounter = 0;
         $fields       = [];
 
-        $insert = "INSERT INTO hitlist (term_id, doc_id, field_id, position, hit_count)
-                   VALUES (:term_id, :doc_id, :field_id, :position, :hit_count)";
+        $insert = "INSERT INTO hitlist (term_id, doc_id, field_id, field_len, hit_count)
+                   VALUES (:term_id, :doc_id, :field_id, :field_len, :hit_count)";
         $stmt = $this->index->prepare($insert);
 
         foreach ($stems as $field => $terms) {
             $fields[$fieldCounter] = $field;
             $positionCounter       = 0;
             $termCounts            = array_count_values($terms);
-            foreach ($terms as $term) {
-                if (isset($termsList[$term])) {
-                    $stmt->bindValue(':term_id', $termsList[$term]['id']);
-                    $stmt->bindValue(':doc_id', $docId);
-                    $stmt->bindValue(':field_id', $fieldCounter);
-                    $stmt->bindValue(':position', $positionCounter);
-                    $stmt->bindValue(':hit_count', $termCounts[$term]);
-                    $stmt->execute();
-                }
-                $positionCounter++;
+            $field_len             = count($terms);
+            foreach ($termCounts as $term => $hitCount) {
+                $stmt->bindValue(':term_id', $termsList[$term]['id']);
+                $stmt->bindValue(':doc_id', $docId);
+                $stmt->bindValue(':field_id', $fieldCounter);
+                $stmt->bindValue(':field_len', $field_len);
+                $stmt->bindValue(':hit_count', $termCounts[$term]);
+                $stmt->execute();
             }
+            $fieldCounter++;
+        }
+    }
+
+    public function saveDocInfo($stems, $docId)
+    {
+        $fieldCounter = 0;
+        foreach ($stems as $field => $terms) {
+            $numTerms = count($terms);
+
+            $insert = "INSERT INTO docinfo (doc_id, field_id, num_terms) VALUES (:doc, :field_id, :num_terms)";
+            $stmt = $this->index->prepare($insert);
+            $stmt->bindValue(':doc', $docId);
+            $stmt->bindValue(':field_id', $fieldCounter);
+            $stmt->bindValue(':num_terms', $numTerms);
+            $stmt->execute();
             $fieldCounter++;
         }
     }
