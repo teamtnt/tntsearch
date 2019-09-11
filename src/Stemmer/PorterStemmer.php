@@ -345,7 +345,7 @@ class PorterStemmer implements Stemmer
         if (substr($str, $len) == $check) {
             $substr = substr($str, 0, $len);
             if (is_null($m) || self::m($substr) > $m) {
-                $str = $substr . $repl;
+                $str = $substr.$repl;
             }
 
             return true;
@@ -393,7 +393,7 @@ class PorterStemmer implements Stemmer
     {
         $c = self::$regex_consonant;
 
-        return preg_match("#$c{2}$#", $str, $matches) && $matches[0]{0} == $matches[0]{1};
+        return preg_match("#$c{2}$#", $str, $matches) && $matches[0][0] == $matches[0][1];
     }
 
     /**
