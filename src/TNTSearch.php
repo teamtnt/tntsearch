@@ -398,7 +398,11 @@ class TNTSearch
         $query = "SELECT * FROM info WHERE key = '$value'";
         $docs  = $this->index->query($query);
 
-        return $docs->fetch(PDO::FETCH_ASSOC)['value'];
+        if ($ret = $docs->fetch(PDO::FETCH_ASSOC)) {
+            return $ret['value'];
+        }
+
+        return null;
     }
 
     public function filesystemMapIdsToPaths($docs)
