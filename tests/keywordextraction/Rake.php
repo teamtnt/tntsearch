@@ -38,6 +38,16 @@ class RakeTest extends PHPUnit\Framework\TestCase
         $this->assertEquals(7.666666666666666, $actual["minimal supporting set"], '', 0.0001);
     }
 
+    public function testExtractKeywords3()
+    {
+        $text = "";
+
+        $actual = $this->rake->extractKeywords($text, false);
+
+        print_r($actual);
+        die();
+    }
+
     public function testTokenize()
     {
         $expected = ["a", "scoop", "of", "ice", "cream"];
