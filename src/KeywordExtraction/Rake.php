@@ -4,9 +4,8 @@ namespace TeamTNT\TNTSearch\KeywordExtraction;
 
 class Rake
 {
-    public function __construct()
+    public function __construct($language = "english")
     {
-        $language        = "english";
         $stopwords       = file_get_contents(__DIR__."/../Stopwords/".$language.".json");
         $this->stopwords = json_decode($stopwords);
     }
@@ -123,7 +122,8 @@ class Rake
 
     public function tokenize($str)
     {
-        $str = strtolower($str);
+        $str = mb_strtolower($str);
+
         $arr = [];
         // for the character classes
         // see http://php.net/manual/en/regexp.reference.unicode.php
