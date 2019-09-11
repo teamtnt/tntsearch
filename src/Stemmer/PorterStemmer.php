@@ -413,7 +413,7 @@ class PorterStemmer implements Stemmer
 
         if ($matchFound && strlen($matches[1]) == 3) {
             $return = true;
-            if (in_array($matches[1]{2}, ['w', 'x', 'y'])) {
+            if (in_array($matches[1][2], ['w', 'x', 'y'])) {
                 $return = false;
             }
         }
