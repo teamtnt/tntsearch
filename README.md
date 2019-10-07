@@ -318,7 +318,7 @@ Our address is: TNT Studio, Sv. Mateja 19, 10010 Zagreb, Croatia.
 
 We'll publish all received games [here][link-ps4ware]
 
-[link-ps4ware]: ../../ps4ware
+[link-ps4ware]: https://github.com/teamtnt/tntsearch/blob/master/PS4Ware.md
 
 ## Support [![OpenCollective](https://opencollective.com/tntsearch/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/tntsearch/sponsors/badge.svg)](#sponsors)
 
