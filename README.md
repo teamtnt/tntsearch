@@ -316,7 +316,9 @@ You're free to use this package, but if it makes it to your production environme
 
 Our address is: TNT Studio, Sv. Mateja 19, 10010 Zagreb, Croatia.
 
-We'll publish all received games on our company website.
+We'll publish all received games [here][link-ps4ware]
+
+[link-ps4ware]: ../../ps4ware
 
 ## Support [![OpenCollective](https://opencollective.com/tntsearch/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/tntsearch/sponsors/badge.svg)](#sponsors)
 
