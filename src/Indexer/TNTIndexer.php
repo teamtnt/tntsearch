@@ -340,10 +340,12 @@ class TNTIndexer
                 ];
                 $fileCollection = new Collection($file);
 
-                if (is_callable($this->filereader->fileFilterCallback)) {
+                if (property_exists($this->filereader, 'fileFilterCallback')
+                    && is_callable($this->filereader->fileFilterCallback)) {
                     $fileCollection = $fileCollection->filter($this->filereader->fileFilterCallback);
                 }
-                if (is_callable($this->filereader->fileMapCallback)) {
+                if (property_exists($this->filereader, 'fileMapCallback')
+                    && is_callable($this->filereader->fileMapCallback)) {
                     $fileCollection = $fileCollection->map($this->filereader->fileMapCallback);
                 }
 
