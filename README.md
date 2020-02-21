@@ -8,21 +8,22 @@
 
 # TNTSearch
 
-TNTSearch is a fully featured full text search engine written entirely in PHP. It's simple configuration allows you to add an amazing search experience to your site in just minutes.
-It has also a build in geo-search and a text classifier. Other features are
+TNTSearch is a full-featured full text search (FTS) engine written entirely in PHP. A simple configuration allows you to add an amazing search experience in just minutes. Features include:
 
-* fuzzy search
-* as you type functionality
-* geo-search
-* text-classification
-* stemming
-* custom tokenizers
-* bm25 ranking algorithm
-* boolean search
-* result highlighting
- 
-We created also some demo pages that show tolerant retrieval with n-grams in action.
-The package has bunch of helper functions like jaro-winkler and cosine similarity for distance calculations. It supports stemming for English, Croatian, Arabic, Italian, Russian, Portuguese and Ukrainian. If the built in stemmers aren't enough, the engine lets you easily plugin any compatible snowball stemmer. Some forks of the package even support Chinese.
+* Fuzzy search
+* Search as you type
+* Geo-search
+* Text classification
+* Stemming
+* Custom tokenizers
+* Bm25 ranking algorithm
+* Boolean search
+* Result highlighting
+* Dynamic index updates (no need to reindex each time)
+* Easily deployable via Packagist.org
+
+We also created some demo pages that show tolerant retrieval with n-grams in action.
+The package has a bunch of helper functions like Jaro-Winkler and Cosine similarity for distance calculations. It supports stemming for English, Croatian, Arabic, Italian, Russian, Portuguese and Ukrainian. If the built-in stemmers aren't enough, the engine lets you easily plugin any compatible snowball stemmer. Some forks of the package even support Chinese. And please contribute other languages!
 
 Unlike many other engines, the index can be easily updated without doing a reindex or using deltas. 
 
@@ -64,7 +65,7 @@ composer require teamtnt/tntsearch
 
 ## Requirements
 
-Before you proceed make sure your server meets the following requirements:
+Before you proceed, make sure your server meets the following requirements:
 
 * PHP >= 7.1
 * PDO PHP Extension
@@ -75,7 +76,7 @@ Before you proceed make sure your server meets the following requirements:
 
 ### Creating an index
 
-In order to be able to make full text search queries you have to create an index.
+In order to be able to make full text search queries, you have to create an index.
 
 Usage:
 ```php
@@ -114,7 +115,7 @@ $indexer->setPrimaryKey('article_id');
 
 ### Making the primary key searchable
 
-By default the primary key is not searchable, if you wanna make it searchable simply run:
+By default the primary key is not searchable. If you wanna make it searchable, simply run:
 
 ```php
 $indexer->includePrimaryKey();
@@ -141,8 +142,8 @@ print_r($res); //returns an array of 12 document ids that best match your query
 // SELECT * FROM articles WHERE id IN $res ORDER BY FIELD(id, $res);
 ```
 
-The ORDER BY FIELD clause is important otherwise the database engine will not return
-the results in required order
+The ORDER BY FIELD clause is important, otherwise the database engine will not return
+the results in the required order.
 
 ### Boolean Search
 
@@ -172,7 +173,7 @@ The fuzziness can be tweaked by setting the following member variables:
 ```php
 public $fuzzy_prefix_length  = 2;
 public $fuzzy_max_expansions = 50;
-public $fuzzy_distance       = 2 //represents the levenshtein distance;
+public $fuzzy_distance       = 2 //represents the Levenshtein distance;
 ```
 
 ```php
@@ -184,14 +185,14 @@ $tnt->loadConfig($config);
 $tnt->selectIndex("name.index");
 $tnt->fuzziness = true;
 
-//when the fuzziness flag is set to true the keyword juleit will return
-//documents that match the word juliet, the default levenshtein distance is 2
+//when the fuzziness flag is set to true, the keyword juleit will return
+//documents that match the word juliet, the default Levenshtein distance is 2
 $res = $tnt->search("juleit");
 
 ```
 ## Updating the index
 
-Once you created an index you don't need to reindex it each time you make some changes 
+Once you created an index, you don't need to reindex it each time you make some changes 
 to your document collection. TNTSearch supports dynamic index updates.
 
 ```php
@@ -312,7 +313,7 @@ $classifier->load('sports.cls');
 
 ## PS4Ware
 
-You're free to use this package, but if it makes it to your production environment we would highly appreciate you sending us a PS4 game of your choise. This way you support us to further develop and add new features to this package.
+You're free to use this package, but if it makes it to your production environment, we would highly appreciate you sending us a PS4 game of your choice. This way you support us to further develop and add new features.
 
 Our address is: TNT Studio, Sv. Mateja 19, 10010 Zagreb, Croatia.
 
