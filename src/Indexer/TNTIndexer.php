@@ -212,6 +212,7 @@ class TNTIndexer
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', 0)");
 
         $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'term_id_index' ON doclist ('term_id' COLLATE BINARY);");
+        $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'doc_id_index' ON doclist ('doc_id');");
 
         if (!$this->dbh) {
             $connector = $this->createConnector($this->config);
