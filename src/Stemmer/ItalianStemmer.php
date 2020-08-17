@@ -74,9 +74,9 @@ class ItalianStemmer implements Stemmer
 
     public function __construct()
     {
-        usort(self::$suffissi_step0, create_function('$a,$b', 'return mb_strlen($a)>mb_strlen($b) ? -1 : 1;'));
-        usort(self::$suffissi_step1_a, create_function('$a,$b', 'return mb_strlen($a)>mb_strlen($b) ? -1 : 1;'));
-        usort(self::$suffissi_step2, create_function('$a,$b', 'return mb_strlen($a)>mb_strlen($b) ? -1 : 1;'));
+        usort(self::$suffissi_step0, function($a,$b) { return mb_strlen($a)>mb_strlen($b) ? -1 : 1; });
+        usort(self::$suffissi_step1_a, function($a,$b) { return mb_strlen($a)>mb_strlen($b) ? -1 : 1;});
+        usort(self::$suffissi_step2, function($a,$b) { return mb_strlen($a)>mb_strlen($b) ? -1 : 1;});
     }
 
     /**
@@ -326,13 +326,13 @@ class ItalianStemmer implements Stemmer
         }
 
         // Delete if in R2
-        if (count($ret_str = self::deleteStuff(self::$suffissi_step1_a, $str, $str_len, 'r2', true))) {
+        if (!empty($ret_str = self::deleteStuff(self::$suffissi_step1_a, $str, $str_len, 'r2', true))) {
             return $ret_str;
         }
 
         // Delete if in R2, if preceded by 'ic', delete if in R2
-        if (count($ret_str = self::deleteStuff(self::$suffissi_step1_b, $str, $str_len, 'r2'))) {
-            if (count($ret_str1 = self::deleteStuff(['ic'], $ret_str, mb_strlen($ret_str), 'r2'))) {
+        if (!empty($ret_str = self::deleteStuff(self::$suffissi_step1_b, $str, $str_len, 'r2'))) {
+            if (!empty($ret_str1 = self::deleteStuff(['ic'], $ret_str, mb_strlen($ret_str), 'r2'))) {
                 return $ret_str1;
             } else {
                 return $ret_str;
@@ -340,28 +340,28 @@ class ItalianStemmer implements Stemmer
         }
 
         // Replace with 'log' if in R2
-        if (count($ret_str = self::deleteStuff(self::$suffissi_step1_c, $str, $str_len, 'r2'))) {
+        if (!empty($ret_str = self::deleteStuff(self::$suffissi_step1_c, $str, $str_len, 'r2'))) {
             return $ret_str.'log';
         }
 
         // Replace with 'u' if in R2
-        if (count($ret_str = self::deleteStuff(self::$suffissi_step1_d, $str, $str_len, 'r2'))) {
+        if (!empty($ret_str = self::deleteStuff(self::$suffissi_step1_d, $str, $str_len, 'r2'))) {
             return $ret_str.'u';
         }
 
         // Replace with 'ente' if in R2
-        if (count($ret_str = self::deleteStuff(self::$suffissi_step1_e, $str, $str_len, 'r2'))) {
+        if (!empty($ret_str = self::deleteStuff(self::$suffissi_step1_e, $str, $str_len, 'r2'))) {
             return $ret_str.'ente';
         }
 
         // Delete if in RV
-        if (count($ret_str = self::deleteStuff(self::$suffissi_step1_f, $str, $str_len, 'rv'))) {
+        if (!empty($ret_str = self::deleteStuff(self::$suffissi_step1_f, $str, $str_len, 'rv'))) {
             return $ret_str;
         }
 
         // Delete if in R2, if preceded by 'abil', 'ic' or 'iv', delete if in R2
-        if (count($ret_str = self::deleteStuff(self::$suffissi_step1_h, $str, $str_len, 'r2'))) {
-            if (count($ret_str1 = self::deleteStuff(['abil', 'ic', 'iv'], $ret_str, mb_strlen($ret_str), 'r2'))) {
+        if (!empty($ret_str = self::deleteStuff(self::$suffissi_step1_h, $str, $str_len, 'r2'))) {
+            if (!empty($ret_str1 = self::deleteStuff(['abil', 'ic', 'iv'], $ret_str, mb_strlen($ret_str), 'r2'))) {
                 return $ret_str1;
             } else {
                 return $ret_str;
@@ -369,9 +369,9 @@ class ItalianStemmer implements Stemmer
         }
 
         // Delete if in R2, if preceded by 'at', delete if in R2 (and if further preceded by 'ic', delete if in R2)
-        if (count($ret_str = self::deleteStuff(self::$suffissi_step1_i, $str, $str_len, 'r2'))) {
-            if (count($ret_str1 = self::deleteStuff(['at'], $ret_str, mb_strlen($ret_str), 'r2'))) {
-                if (count($ret_str2 = self::deleteStuff(['ic'], $ret_str1, mb_strlen($ret_str1), 'r2'))) {
+        if (!empty($ret_str = self::deleteStuff(self::$suffissi_step1_i, $str, $str_len, 'r2'))) {
+            if (!empty($ret_str1 = self::deleteStuff(['at'], $ret_str, mb_strlen($ret_str), 'r2'))) {
+                if (!empty($ret_str2 = self::deleteStuff(['ic'], $ret_str1, mb_strlen($ret_str1), 'r2'))) {
                     return $ret_str2;
                 } else {
                     return $ret_str1;
@@ -395,7 +395,7 @@ class ItalianStemmer implements Stemmer
 
         $str_len = mb_strlen($str);
 
-        if (count($ret_str = self::deleteStuff(self::$suffissi_step2, $str, $str_len, 'rv'))) {
+        if (!empty($ret_str = self::deleteStuff(self::$suffissi_step2, $str, $str_len, 'rv'))) {
             return $ret_str;
         }
 
@@ -412,8 +412,8 @@ class ItalianStemmer implements Stemmer
 
         $str_len = mb_strlen($str);
 
-        if (count($ret_str = self::deleteStuff($vocale_finale, $str, $str_len, 'rv'))) {
-            if (count($ret_str1 = self::deleteStuff(['i'], $ret_str, mb_strlen($ret_str), 'rv'))) {
+        if (!empty($ret_str = self::deleteStuff($vocale_finale, $str, $str_len, 'rv'))) {
+            if (!empty($ret_str1 = self::deleteStuff(['i'], $ret_str, mb_strlen($ret_str), 'rv'))) {
                 return $ret_str1;
             } else {
                 return $ret_str;
