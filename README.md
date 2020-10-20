@@ -232,7 +232,7 @@ class SomeTokenizer implements TokenizerInterface {
 
 The only difference here from the original is that the regex contains a dash `[^\p{L}\p{N}-]`
 
-After you have the tokenizer ready, your `TNTIndexer` and `TNTSearch` class should consume it.
+After you have the tokenizer ready, you should pass it to `TNTIndexer` via `setTokenizer` method.
 
 ``` php
 $someTokenizer = new SomeTokenizer;
@@ -241,13 +241,28 @@ $indexer = new TNTIndexer;
 $indexer->setTokenizer($someTokenizer);
 ```
 
-And in the `TNTSearch` class you do the same
+Another way would be to pass the tokenizer via config:
 
-``` php
-$someTokenizer = new SomeTokenizer;
+```php
+use TeamTNT\TNTSearch\TNTSearch;
 
 $tnt = new TNTSearch;
-$tnt->setTokenizer($someTokenizer);
+
+$tnt->loadConfig([
+    'driver'    => 'mysql',
+    'host'      => 'localhost',
+    'database'  => 'dbname',
+    'username'  => 'user',
+    'password'  => 'pass',
+    'storage'   => '/var/www/tntsearch/examples/',
+    'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class//optional,
+    'tokenizer' => \TeamTNT\TNTSearch\Support\ProductTokenizer::class
+]);
+
+$indexer = $tnt->createIndex('name.index');
+$indexer->query('SELECT id, article FROM articles;');
+$indexer->run();
+
 ```
 
 ## Geo Search
