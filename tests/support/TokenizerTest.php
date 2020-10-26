@@ -22,6 +22,7 @@ class TokenizerTest extends PHPUnit\Framework\TestCase
         $res  = $tokenizer->tokenize($text);
         $this->assertContains("test", $res);
         $this->assertContains("email", $res);
+        $this->assertContains("test@email", $res);
         $this->assertContains("contains", $res);
         $this->assertContains("123", $res);
 
