@@ -87,7 +87,7 @@ class Expression
     public function lex($string)
     {
         $bad  = [' or ', ' -', ' '];
-        $good = [ '|'  , '~', '&'];
+        $good = ['|', '~', '&'];
 
         $string = str_replace($bad, $good, $string);
         $string = mb_strtolower($string);
