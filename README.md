@@ -4,7 +4,7 @@
 [![Build Status](https://img.shields.io/travis/teamtnt/tntsearch/master.svg?style=flat-square)](https://travis-ci.org/teamtnt/tntsearch)
 [![Slack Status](https://img.shields.io/badge/slack-chat-E01563.svg?style=flat-square)](https://tntsearch.slack.com)
 
-![TNTSearch Banner](https://cloud.githubusercontent.com/assets/824840/17067635/edf2ae50-504c-11e6-9c63-a73955f55c29.jpg)
+![TNTSearch Banner](https://banners.beyondco.de/TNT%20Search.png?theme=dark&packageName=teamtnt%2Ftntsearch&pattern=brickWall&style=style_2&description=Easiest+full+text+search+solution+for+your+PHP+projects%21+&md=1&fontSize=100px&images=search&widths=400&heights=400)
 
 # TNTSearch
 
