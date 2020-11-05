@@ -34,7 +34,7 @@ or [Facebook](https://www.facebook.com/tntstudiohr) &nbsp;|&nbsp;
 
 <p align="center">
   <a href="https://m.do.co/c/ddfc227b7d18" target="_blank">
-    <img src="https://koistya.github.io/files/digital-ocean-393x64.png" width="196.5" height="32">
+    <img src="https://images.prismic.io/www-static/49aa0a09-06d2-4bba-ad20-4bcbe56ac507_logo.png?auto=compress,format" width="196.5" height="32">
   </a>
 </p>
 
