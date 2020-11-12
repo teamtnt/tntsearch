@@ -61,7 +61,7 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
         $count = $index->countWordInWordList('document');
 
         $this->assertTrue($count == 3, 'Word document should be 3');
-        $this->assertEquals('TeamTNT\TNTSearch\Stemmer\PorterStemmer', get_class($tnt->getStemmer()));
+        $this->assertEquals('TeamTNT\TNTSearch\Stemmer\NoStemmer', get_class($tnt->getStemmer()));
     }
 
     public function testIfCroatianStemmerIsSet()

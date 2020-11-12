@@ -329,7 +329,7 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $tnt->createIndex($this->indexName);
         $tnt->selectIndex($this->indexName);
 
-        $this->assertInstanceOf(\TeamTNT\TNTSearch\Stemmer\PorterStemmer::class, $tnt->getStemmer());
+        $this->assertInstanceOf(\TeamTNT\TNTSearch\Stemmer\NoStemmer::class, $tnt->getStemmer());
     }
 
     public function tearDown(): void
