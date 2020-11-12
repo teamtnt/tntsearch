@@ -15,7 +15,6 @@ class ExpressionTest extends PHPUnit\Framework\TestCase
         $this->assertEquals(['great', 'awsome', '|'], $exp->toPostfix("great or awsome"));
         $this->assertEquals(['great', 'awsome', '&'], $exp->toPostfix("great awsome"));
         $this->assertEquals(['email', 'test', '&', 'com', '&'], $exp->toPostfix("email test com"));
-        $this->assertEquals(['email', 'test', '&', 'com', '&'], $exp->toPostfix("email@test.com"));
         $this->assertEquals(['first', 'last', '&', 'something', 'else', '&', '|'], $exp->toPostfix("(first last) or (something else)"));
     }
 }
