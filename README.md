@@ -234,7 +234,7 @@ class SomeTokenizer extends AbstractTokenizer implements TokenizerInterface
 }
 ```
 
-This pattern will split words using spaces, commas and periods.
+This tokenizer will split words using spaces, commas and periods.
 
 After you have the tokenizer ready, you should pass it to `TNTIndexer` via `setTokenizer` method.
 
