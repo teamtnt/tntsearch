@@ -181,7 +181,7 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
 
 class SomeTokenizer extends AbstractTokenizer implements TokenizerInterface
 {
-    static protected $pattern = '/[\s,\.]+/'
+    static protected $pattern = '/[\s,\.]+/';
 
     public function tokenize($text, $stopwords = [])
     {
