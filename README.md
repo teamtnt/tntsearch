@@ -216,21 +216,25 @@ $index->delete(12);
 ```
 
 ## Custom Tokenizer
-First, create your own Tokenizer class that implements TokenizerInterface:
+First, create your own Tokenizer class. It should extend AbstractTokenizer class, define 
+word split $pattern value and must implement TokenizerInterface:
 
 ``` php
 
+use TeamTNT\TNTSearch\Support\AbstractTokenizer;
 use TeamTNT\TNTSearch\Support\TokenizerInterface;
 
-class SomeTokenizer implements TokenizerInterface {
+class SomeTokenizer extends AbstractTokenizer implements TokenizerInterface
+{
+    static protected $pattern = '/[\s,\.]+/';
 
     public function tokenize($text) {
-        return preg_split("/[^\p{L}\p{N}-]+/u", strtolower($text), -1, PREG_SPLIT_NO_EMPTY);
+        return preg_split($this->getPattern(), strtolower($text), -1, PREG_SPLIT_NO_EMPTY);
     }
 }
 ```
 
-The only difference here from the original is that the regex contains a dash `[^\p{L}\p{N}-]`
+This pattern will split words using spaces, commas and periods.
 
 After you have the tokenizer ready, you should pass it to `TNTIndexer` via `setTokenizer` method.
 
@@ -256,7 +260,7 @@ $tnt->loadConfig([
     'password'  => 'pass',
     'storage'   => '/var/www/tntsearch/examples/',
     'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class//optional,
-    'tokenizer' => \TeamTNT\TNTSearch\Support\ProductTokenizer::class
+    'tokenizer' => \TeamTNT\TNTSearch\Support\SomeTokenizer::class
 ]);
 
 $indexer = $tnt->createIndex('name.index');
