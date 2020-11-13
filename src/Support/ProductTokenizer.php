@@ -3,7 +3,7 @@ namespace TeamTNT\TNTSearch\Support;
 
 class ProductTokenizer extends AbstractTokenizer implements TokenizerInterface
 {
-    static protected $pattern = '/[\s,]+/';
+    static protected $pattern = '/[\s,\.]+/';
 
     public function tokenize($text, $stopwords = [])
     {

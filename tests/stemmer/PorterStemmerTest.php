@@ -2,7 +2,7 @@
 
 use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
 
-class PorterStemmerTestTest extends PHPUnit\Framework\TestCase
+class PorterStemmerTest extends PHPUnit\Framework\TestCase
 {
 
     public function testStem()

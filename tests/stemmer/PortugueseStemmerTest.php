@@ -2,7 +2,7 @@
 
 use TeamTNT\TNTSearch\Stemmer\PortugueseStemmer;
 
-class PortugueseStemmerTestTest extends PHPUnit\Framework\TestCase
+class PortugueseStemmerTest extends PHPUnit\Framework\TestCase
 {
 
     public function testStem()
