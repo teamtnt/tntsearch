@@ -16,6 +16,17 @@ class Highlighter
         ]
     ];
 
+    protected $tokenizer;
+
+    public function __construct(TokenizerInterface $tokenizer = null)
+    {
+        if (!empty($tokenizer)) {
+            $this->tokenizer = $tokenizer;
+        } else {
+            $this->tokenizer = new Tokenizer;
+        }
+    }
+
 	/**
 	 * @param        $text
 	 * @param        $needle
@@ -37,7 +48,7 @@ class Highlighter
         }
 
         $highlight = '<' . $tag . $tagAttributes .'>\1</' . $tag . '>';
-        $needle    = preg_split('/\PL+/u', $needle, -1, PREG_SPLIT_NO_EMPTY);
+        $needle    = preg_split($this->tokenizer->getPattern(), $needle, -1, PREG_SPLIT_NO_EMPTY);
 
         // Select pattern to use
         if ($this->options['simple']) {
@@ -165,7 +176,7 @@ class Highlighter
 	 */
     public function extractRelevant($words, $fulltext, $rellength = 300, $prevcount = 50, $indicator = '...')
     {
-        $words      = preg_split('/\PL+/u', $words, -1, PREG_SPLIT_NO_EMPTY);
+        $words      = preg_split($this->tokenizer->getPattern(), $words, -1, PREG_SPLIT_NO_EMPTY);
         $textlength = strlen($fulltext);
         if ($textlength <= $rellength) {
             return $fulltext;

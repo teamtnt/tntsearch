@@ -436,13 +436,13 @@ class TNTSearch
      */
     public function highlight($text, $needle, $tag = 'em', $options = [])
     {
-        $hl = new Highlighter;
+        $hl = new Highlighter($this->tokenizer);
         return $hl->highlight($text, $needle, $tag, $options);
     }
 
     public function snippet($words, $fulltext, $rellength = 300, $prevcount = 50, $indicator = '...')
     {
-        $hl = new Highlighter;
+        $hl = new Highlighter($this->tokenizer);
         return $hl->extractRelevant($words, $fulltext, $rellength, $prevcount, $indicator);
     }
 
