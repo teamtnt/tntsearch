@@ -71,6 +71,10 @@ class TNTIndexer
         if (!isset($this->config['driver'])) {
             $this->config['driver'] = "";
         }
+    
+        if (!isset($this->config['wal'])) {
+            $this->config['wal'] = true;
+        }
     }
 
     /**
@@ -174,7 +178,9 @@ class TNTIndexer
         $this->index = new PDO('sqlite:'.$this->config['storage'].$indexName);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $this->index->exec("PRAGMA journal_mode=wal;");
+        if($this->config['wal']) {
+            $this->index->exec("PRAGMA journal_mode=wal;");
+        }
 
         $this->index->exec("CREATE TABLE IF NOT EXISTS wordlist (
                     id INTEGER PRIMARY KEY,
