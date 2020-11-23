@@ -301,7 +301,7 @@ class TNTSearch
      *
      * @return array
      */
-    public function getWordlistByKeyword($keyword, $isLastWord = false, $noLimit=false)
+    public function getWordlistByKeyword($keyword, $isLastWord = false, $noLimit = false)
     {
         $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword LIMIT 1";
         $stmtWord       = $this->index->prepare($searchWordlist);
