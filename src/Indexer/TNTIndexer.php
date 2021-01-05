@@ -306,7 +306,7 @@ class TNTIndexer
             if ($counter % 10000 == 0) {
                 $this->index->commit();
                 $this->index->beginTransaction();
-                $this->info("Commited");
+                $this->info("Committed");
             }
         }
         $this->index->commit();
