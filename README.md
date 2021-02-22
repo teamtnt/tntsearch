@@ -330,6 +330,12 @@ $classifier->load('sports.cls');
 
 * [TNTSearch Driver for Laravel Scout](https://github.com/teamtnt/laravel-scout-tntsearch-driver)
 
+## Premium products
+
+If you find TNT Search to be one of your valuable assets take a look at one of our premium products
+
+[<img src="https://i.imgur.com/TTrzh6w.png" width="420px" />](https://analytics.tnt.studio)
+
 ## PS4Ware
 
 You're free to use this package, but if it makes it to your production environment, we would highly appreciate you sending us a PS4 game of your choice. This way you support us to further develop and add new features.
