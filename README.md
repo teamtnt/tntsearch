@@ -332,7 +332,7 @@ $classifier->load('sports.cls');
 
 ## Premium products
 
-If you find TNT Search to be one of your valuable assets take a look at one of our premium products
+If you find TNT Search to be one of your valuable assets, take a look at one of our premium products
 
 [<img src="https://i.imgur.com/TTrzh6w.png" width="420px" />](https://analytics.tnt.studio)
 
