@@ -59,13 +59,13 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertEquals([3, 4, 1, 2], $res['ids']);
         $this->assertEquals(4, $res['hits']);
 
-        $res = $tnt->searchBoolean('juliet -well');
+        $res = $tnt->searchBoolean('juliet ~well');
         $this->assertEquals([5, 6, 7, 8, 10], $res['ids']);
 
-        $res = $tnt->searchBoolean('juliet -romeo');
+        $res = $tnt->searchBoolean('juliet ~romeo');
         $this->assertEquals([10], $res['ids']);
 
-        $res = $tnt->searchBoolean('hamlet -king');
+        $res = $tnt->searchBoolean('hamlet ~king');
         $this->assertEquals([2], $res['ids']);
 
         $res = $tnt->searchBoolean('hamlet superman');
@@ -77,10 +77,10 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $res = $tnt->searchBoolean('hamlet');
         $this->assertEquals([1, 2], $res['ids']);
 
-        $res = $tnt->searchBoolean('eldred -bar');
+        $res = $tnt->searchBoolean('eldred ~bar');
         $this->assertEquals([11], $res['ids']);
 
-        $res = $tnt->searchBoolean('Eldred -bar');
+        $res = $tnt->searchBoolean('Eldred ~bar');
         $this->assertEquals([11], $res['ids']);
     }
 
