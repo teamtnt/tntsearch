@@ -6,11 +6,11 @@
         "teamtnt",
         "tntsearch",
         "search",
-        "fulltext", 
+        "fulltext",
         "geosearch",
         "text classification",
         "bm25",
-        "stemming",       
+        "stemming",
         "fuzzy search"
     ],
     "homepage": "https://github.com/teamtnt/tntsearch",
@@ -29,7 +29,7 @@
     },
     "require-dev": {
         "phpunit/phpunit": "7.*",
-        "symfony/var-dumper": "^5.2"
+        "symfony/var-dumper": "^4|^5.2"
     },
     "autoload": {
         "psr-4": {
