@@ -11,6 +11,6 @@ class BigramTokenizerTest extends PHPUnit\Framework\TestCase
         $text = "Quick Foxes";
         $res  = $tokenizer->tokenize($text);
 
-        $this->assertEquals(["Qu", "ui", "ic", "ck", "Fo", "ox", "xe", "es"], $res);
+        $this->assertEquals(["qu", "ui", "ic", "ck", "fo", "ox", "xe", "es"], $res);
     }
 }

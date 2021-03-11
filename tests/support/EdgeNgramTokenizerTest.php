@@ -11,6 +11,6 @@ class EdgeNgramTokenizerTest extends PHPUnit\Framework\TestCase
         $text = "Quick Foxes";
         $res  = $tokenizer->tokenize($text);
 
-        $this->assertEquals(["Qu", "Qui", "Quic", "Quick", "Fo", "Fox", "Foxe", "Foxes"], $res);
+        $this->assertEquals(["qu", "qui", "quic", "quick", "fo", "fox", "foxe", "foxes"], $res);
     }
 }

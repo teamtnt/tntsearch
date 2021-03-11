@@ -11,6 +11,6 @@ class TrigramTokenizerTest extends PHPUnit\Framework\TestCase
         $text = "Quick Foxes";
         $res  = $tokenizer->tokenize($text);
 
-        $this->assertEquals(["Qui", "uic", "ick", "Fox", "oxe", "xes"], $res);
+        $this->assertEquals(["qui", "uic", "ick", "fox", "oxe", "xes"], $res);
     }
 }

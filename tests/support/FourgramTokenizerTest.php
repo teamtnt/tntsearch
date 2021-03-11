@@ -11,6 +11,6 @@ class FourgramTokenizerTest extends PHPUnit\Framework\TestCase
         $text = "Quick Foxes";
         $res  = $tokenizer->tokenize($text);
 
-        $this->assertEquals(["Quic", "uick", "Foxe", "oxes"], $res);
+        $this->assertEquals(["quic", "uick", "foxe", "oxes"], $res);
     }
 }

@@ -11,6 +11,6 @@ class FivegramTokenizerTest extends PHPUnit\Framework\TestCase
         $text = "Quick Foxes";
         $res  = $tokenizer->tokenize($text);
 
-        $this->assertEquals(["Quick", "Foxes"], $res);
+        $this->assertEquals(["quick", "foxes"], $res);
     }
 }

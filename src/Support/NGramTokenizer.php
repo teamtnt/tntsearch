@@ -16,6 +16,8 @@ class NGramTokenizer extends AbstractTokenizer implements TokenizerInterface
 
     public function tokenize($text, $stopwords = [])
     {
+        $text = mb_strtolower($text);
+
         $ngrams = [];
         $splits = preg_split($this->getPattern(), $text, -1, PREG_SPLIT_NO_EMPTY);
 

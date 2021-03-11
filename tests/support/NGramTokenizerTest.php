@@ -11,7 +11,7 @@ class NGramTokenizerTest extends PHPUnit\Framework\TestCase
         $text = "Quick Foxes";
         $res  = $tokenizer->tokenize($text);
 
-        $this->assertEquals(["Qui", "uic", "ick", "Fox", "oxe", "xes"], $res);
+        $this->assertEquals(["qui", "uic", "ick", "fox", "oxe", "xes"], $res);
     }
 
     public function testNgram12Tokenize()
@@ -21,7 +21,7 @@ class NGramTokenizerTest extends PHPUnit\Framework\TestCase
         $text = "Quick Fox";
         $res  = $tokenizer->tokenize($text);
 
-        $this->assertEquals(["Q", "u", "i", "c", "k", "Qu", "ui", "ic", "ck", "F", "o", "x", "Fo", "ox"], $res);
+        $this->assertEquals(["q", "u", "i", "c", "k", "qu", "ui", "ic", "ck", "f", "o", "x", "fo", "ox"], $res);
     }
 
     public function testFourGramTokenize()
@@ -31,7 +31,7 @@ class NGramTokenizerTest extends PHPUnit\Framework\TestCase
         $text = "Quick Foxes";
         $res  = $tokenizer->tokenize($text);
 
-        $this->assertEquals(["Quic", "uick", "Foxe", "oxes"], $res);
+        $this->assertEquals(["quic", "uick", "foxe", "oxes"], $res);
     }
 
 }
