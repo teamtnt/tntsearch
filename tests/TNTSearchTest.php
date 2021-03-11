@@ -113,7 +113,7 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertEquals(12, $tnt->totalDocumentsInCollection());
     }
 
-    public function testRemovePrimaryKeyFromIndex()
+    public function testPrimaryKeyIncludedInResult()
     {
         $tnt = new TNTSearch;
 
@@ -129,6 +129,14 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $res = $tnt->search(3);
         $this->assertEquals([3], $res['ids']);
 
+    }
+
+    public function testPrimaryKeyNotIncludedInResult()
+    {
+        $tnt = new TNTSearch;
+
+        $tnt->loadConfig($this->config);
+
         $indexer                = $tnt->createIndex($this->indexName);
         $indexer->disableOutput = true;
         $indexer->query('SELECT id, title, article FROM articles;');
@@ -137,7 +145,6 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $tnt->selectIndex($this->indexName);
         $res = $tnt->search(3);
         $this->assertEquals([], $res['ids']);
-
     }
 
     public function testIndexUpdate()
