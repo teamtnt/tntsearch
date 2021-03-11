@@ -5,7 +5,7 @@ namespace TeamTNT\TNTSearch;
 use PDO;
 use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
 use TeamTNT\TNTSearch\Indexer\TNTIndexer;
-use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
+use TeamTNT\TNTSearch\Stemmer\NoStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Support\Expression;
 use TeamTNT\TNTSearch\Support\Highlighter;
@@ -371,7 +371,7 @@ class TNTSearch
         if ($stemmer) {
             $this->stemmer = new $stemmer;
         } else {
-            $this->stemmer = isset($this->config['stemmer']) ? new $this->config['stemmer'] : new PorterStemmer;
+            $this->stemmer = isset($this->config['stemmer']) ? new $this->config['stemmer'] : new NoStemmer;
         }
     }
 
