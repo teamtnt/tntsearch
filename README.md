@@ -50,6 +50,12 @@ or [Facebook](https://www.facebook.com/tntstudiohr) &nbsp;|&nbsp;
 * [Solving the search problem with Laravel and TNTSearch](https://tnt.studio/solving-the-search-problem-with-laravel-and-tntsearch)
 * [Searching for Users with Laravel Scout and TNTSearch](https://tnt.studio/searching-for-users-with-laravel-scout-and-tntsearch)
 
+## Premium products
+
+If you find TNT Search to be one of your valuable assets, take a look at one of our premium products
+
+[<img src="https://i.imgur.com/ujagviB.png" width="420px" />](https://analytics.tnt.studio)
+
 ## Support us on Open Collective
 
 - [TNTSearch](https://opencollective.com/tntsearch)
@@ -328,12 +334,6 @@ $classifier->load('sports.cls');
 ## Drivers
 
 * [TNTSearch Driver for Laravel Scout](https://github.com/teamtnt/laravel-scout-tntsearch-driver)
-
-## Premium products
-
-If you find TNT Search to be one of your valuable assets, take a look at one of our premium products
-
-[<img src="https://i.imgur.com/ujagviB.png" width="420px" />](https://analytics.tnt.studio)
 
 ## PS4Ware
 
