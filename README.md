@@ -52,7 +52,7 @@ or [Facebook](https://www.facebook.com/tntstudiohr) &nbsp;|&nbsp;
 
 ## Premium products
 
-If you find TNT Search to be one of your valuable assets, take a look at one of our premium products
+If you find TNTSearch to be one of your valuable assets, take a look at one of our premium products
 
 [<img src="https://i.imgur.com/ujagviB.png" width="420px" />](https://analytics.tnt.studio)
 
