@@ -131,9 +131,9 @@ class TNTIndexer
     }
 
     /**
-     * @param string $language  - one of: arabic, croatian, german, italian, porter, russian, ukrainian
+     * @param string $language  - one of: no, arabic, croatian, german, italian, porter, portuguese, russian, ukrainian
      */
-    public function setLanguage($language = 'porter')
+    public function setLanguage($language = 'no')
     {
         $class = 'TeamTNT\\TNTSearch\\Stemmer\\'.ucfirst(strtolower($language)).'Stemmer';
         $this->setStemmer(new $class);

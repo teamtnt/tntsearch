@@ -2,7 +2,7 @@
 
 namespace TeamTNT\TNTSearch\Classifier;
 
-use TeamTNT\TNTSearch\Stemmer\PorterStemmer;
+use TeamTNT\TNTSearch\Stemmer\NoStemmer;
 use TeamTNT\TNTSearch\Support\Tokenizer;
 
 class TNTClassifier
@@ -18,7 +18,7 @@ class TNTClassifier
     public function __construct()
     {
         $this->tokenizer = new Tokenizer;
-        $this->stemmer   = new PorterStemmer;
+        $this->stemmer   = new NoStemmer;
     }
 
     public function predict($statement)
