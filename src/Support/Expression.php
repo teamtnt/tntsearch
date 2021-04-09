@@ -18,7 +18,7 @@ class Expression
                 $postfix[] = $token;
             } else {
                 if ($token == ")") {
-                    while (($top = array_pop($stack)) != "(") {
+                    while (($top = array_pop($stack)) != "(" && !empty($top)) {
                         $postfix[] = $top;
                     }
 
