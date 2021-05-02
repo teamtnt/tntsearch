@@ -1,4 +1,5 @@
 .idea/*
+.phpintel/*
 vendor
 examples
 .DS_Store
