@@ -327,7 +327,7 @@ class TNTSearch
      */
     public function fuzzySearch($keyword)
     {
-        $prefix         = substr($keyword, 0, $this->fuzzy_prefix_length);
+        $prefix         = mb_substr($keyword, 0, $this->fuzzy_prefix_length);
         $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY num_hits DESC LIMIT {$this->fuzzy_max_expansions}";
         $stmtWord       = $this->index->prepare($searchWordlist);
         $stmtWord->bindValue(':keyword', mb_strtolower($prefix)."%");
