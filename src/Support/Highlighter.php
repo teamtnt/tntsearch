@@ -189,16 +189,30 @@ class Highlighter
             $startpos = $startpos - ($textlength - $startpos) / 2;
         }
 
+        // in case no match is found, reset position for proper math below
+        if ($startpos == -1) {
+            $startpos = 0;
+        }
+
         $reltext = mb_substr($fulltext, $startpos, $rellength);
+        preg_match_all($this->tokenizer->getPattern(), $reltext, $offset, PREG_OFFSET_CAPTURE);
+        // since PREG_OFFSET_CAPTURE returns offset in bytes we have to use mb_strlen(substr()) hack here
+        $last = mb_strlen(substr($reltext, 0, end($offset[0])[1]));
+        $first = mb_strlen(substr($reltext, 0, $offset[0][0][1]));
+
+        // if no match is found, just return first $rellength characters without the last word
+        if (empty($locations)) {
+            return mb_substr($reltext, 0, $last) . $indicator;
+        }
 
         // check to ensure we dont snip the last word if thats the match
         if ($startpos + $rellength < $textlength) {
-            $reltext = mb_substr($reltext, 0, mb_strrpos($reltext, " ")) . $indicator; // remove last word
+            $reltext = mb_substr($reltext, 0, $last) . $indicator; // remove last word
         }
 
         // If we trimmed from the front add ...
         if ($startpos != 0) {
-            $reltext = $indicator . mb_substr($reltext, mb_strpos($reltext, " ") + 1); // remove first word
+            $reltext = $indicator . mb_substr($reltext, $first + 1); // remove first word
         }
 
         return $reltext;
