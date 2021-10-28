@@ -104,11 +104,11 @@ class Highlighter
     {
         $locations = array();
         foreach ($words as $word) {
-            $wordlen = strlen($word);
-            $loc     = stripos($fulltext, $word);
+            $wordlen = mb_strlen($word);
+            $loc     = mb_stripos($fulltext, $word);
             while ($loc !== false) {
                 $locations[] = $loc;
-                $loc         = stripos($fulltext, $word, $loc + $wordlen);
+                $loc         = mb_stripos($fulltext, $word, $loc + $wordlen);
             }
         }
         $locations = array_unique($locations);
@@ -177,7 +177,7 @@ class Highlighter
     public function extractRelevant($words, $fulltext, $rellength = 300, $prevcount = 50, $indicator = '...')
     {
         $words      = preg_split($this->tokenizer->getPattern(), $words, -1, PREG_SPLIT_NO_EMPTY);
-        $textlength = strlen($fulltext);
+        $textlength = mb_strlen($fulltext);
         if ($textlength <= $rellength) {
             return $fulltext;
         }
@@ -189,16 +189,16 @@ class Highlighter
             $startpos = $startpos - ($textlength - $startpos) / 2;
         }
 
-        $reltext = substr($fulltext, $startpos, $rellength);
+        $reltext = mb_substr($fulltext, $startpos, $rellength);
 
         // check to ensure we dont snip the last word if thats the match
         if ($startpos + $rellength < $textlength) {
-            $reltext = substr($reltext, 0, strrpos($reltext, " ")) . $indicator; // remove last word
+            $reltext = mb_substr($reltext, 0, mb_strrpos($reltext, " ")) . $indicator; // remove last word
         }
 
         // If we trimmed from the front add ...
         if ($startpos != 0) {
-            $reltext = $indicator . substr($reltext, strpos($reltext, " ") + 1); // remove first word
+            $reltext = $indicator . mb_substr($reltext, mb_strpos($reltext, " ") + 1); // remove first word
         }
 
         return $reltext;
