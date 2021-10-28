@@ -27,14 +27,14 @@ class Highlighter
         }
     }
 
-	/**
-	 * @param        $text
-	 * @param        $needle
-	 * @param string $tag
-	 * @param array  $options
-	 *
-	 * @return string
-	 */
+    /**
+      * @param        $text
+      * @param        $needle
+      * @param string $tag
+      * @param array  $options
+      *
+      * @return string
+      */
     public function highlight($text, $needle, $tag = 'em', $options = [])
     {
         $this->options = array_merge($this->options, $options);
@@ -90,16 +90,16 @@ class Highlighter
         return $text;
     }
 
-	/**
-	 * find the locations of each of the words
-	 * Nothing exciting here. The array_unique is required
-	 * unless you decide to make the words unique before passing in
-	 *
-	 * @param $words
-	 * @param $fulltext
-	 *
-	 * @return array
-	 */
+    /**
+     * find the locations of each of the words
+     * Nothing exciting here. The array_unique is required
+     * unless you decide to make the words unique before passing in
+     *
+     * @param $words
+     * @param $fulltext
+     *
+     * @return array
+     */
     public function _extractLocations($words, $fulltext)
     {
         $locations = array();
@@ -117,19 +117,19 @@ class Highlighter
         return $locations;
     }
 
-	/**
-	 * Work out which is the most relevant portion to display
-	 * This is done by looping over each match and finding the smallest distance between two found
-	 * strings. The idea being that the closer the terms are the better match the snippet would be.
-	 * When checking for matches we only change the location if there is a better match.
-	 * The only exception is where we have only two matches in which case we just take the
-	 * first as will be equally distant.
-	 *
-	 * @param $locations
-	 * @param $prevcount
-	 *
-	 * @return int
-	 */
+    /**
+     * Work out which is the most relevant portion to display
+     * This is done by looping over each match and finding the smallest distance between two found
+     * strings. The idea being that the closer the terms are the better match the snippet would be.
+     * When checking for matches we only change the location if there is a better match.
+     * The only exception is where we have only two matches in which case we just take the
+     * first as will be equally distant.
+     *
+     * @param $locations
+     * @param $prevcount
+     *
+     * @return int
+     */
     public function _determineSnipLocation($locations, $prevcount)
     {
         if (!isset($locations[0])) {
@@ -162,18 +162,18 @@ class Highlighter
         return $startpos;
     }
 
-	/**
-	 * 1/6 ratio on prevcount tends to work pretty well and puts the terms
-	 * in the middle of the extract
-	 *
-	 * @param        $words
-	 * @param        $fulltext
-	 * @param int    $rellength
-	 * @param int    $prevcount
-	 * @param string $indicator
-	 *
-	 * @return bool|string
-	 */
+    /**
+     * 1/6 ratio on prevcount tends to work pretty well and puts the terms
+     * in the middle of the extract
+     *
+     * @param        $words
+     * @param        $fulltext
+     * @param int    $rellength
+     * @param int    $prevcount
+     * @param string $indicator
+     *
+     * @return bool|string
+     */
     public function extractRelevant($words, $fulltext, $rellength = 300, $prevcount = 50, $indicator = '...')
     {
         $words      = preg_split($this->tokenizer->getPattern(), $words, -1, PREG_SPLIT_NO_EMPTY);
