@@ -28,13 +28,13 @@ class Highlighter
     }
 
     /**
-      * @param        $text
-      * @param        $needle
-      * @param string $tag
-      * @param array  $options
-      *
-      * @return string
-      */
+     * @param        $text
+     * @param        $needle
+     * @param string $tag
+     * @param array  $options
+     *
+     * @return string
+     */
     public function highlight($text, $needle, $tag = 'em', $options = [])
     {
         $this->options = array_merge($this->options, $options);
