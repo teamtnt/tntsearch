@@ -82,6 +82,40 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
 
         $res = $tnt->searchBoolean('Eldred ~bar');
         $this->assertEquals([11], $res['ids']);
+
+        $res = $tnt->searchBoolean('(eldred foo)');
+        $this->assertEquals([11], $res['ids']);
+
+        $res = $tnt->searchBoolean('queen (eldred foo)');
+        $this->assertEquals([], $res['ids']);
+
+        $res = $tnt->searchBoolean('what (eldred foo)');
+        $this->assertEquals([11], $res['ids']);
+
+        $res = $tnt->searchBoolean('(romeo queen) (eldred foo)');
+        $this->assertEquals([], $res['ids']);
+
+        $res = $tnt->searchBoolean('queen or (eldred foo)');
+        $this->assertEquals([11, 7], $res['ids']);
+
+        $res = $tnt->searchBoolean('(romeo queen) or (eldred foo)');
+        $this->assertEquals([11, 7], $res['ids']);
+
+        $res = $tnt->searchBoolean('eldred (foo)');
+        $this->assertEquals([11], $res['ids']);
+
+        $res = $tnt->searchBoolean('eldred(foo)');
+        $this->assertEquals([], $res['ids']); //@todo what should be returned ?
+
+        $res = $tnt->searchBoolean('eldred(foo');
+        $this->assertEquals([], $res['ids']); //@todo what should be returned ?
+//        TypeError: array_slice(): Argument #1 ($array) must be of type array, string given
+//
+//        /var/www/tntsearch/src/Support/Collection.php:136
+//        /var/www/tntsearch/src/Support/Collection.php:145
+//        /var/www/tntsearch/src/TNTSearch.php:222
+//        /var/www/tntsearch/tests/TNTSearchTest.php:104
+
     }
 
     /**
