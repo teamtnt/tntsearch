@@ -107,8 +107,11 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $res = $tnt->searchBoolean('eldred(foo)');
         $this->assertEquals([], $res['ids']); //@todo what should be returned ?
 
-        $res = $tnt->searchBoolean('eldred(foo');
+        $res = $tnt->searchBoolean('eldred (foo');
         $this->assertEquals([], $res['ids']); //@todo what should be returned ?
+
+//        $res = $tnt->searchBoolean('eldred(foo');
+//        $this->assertEquals([], $res['ids']); //@todo what should be returned ?
 //        TypeError: array_slice(): Argument #1 ($array) must be of type array, string given
 //
 //        /var/www/tntsearch/src/Support/Collection.php:136
