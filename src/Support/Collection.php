@@ -148,6 +148,7 @@ class Collection implements Countable, IteratorAggregate
     /**
      * @return ArrayIterator
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($this->items);
