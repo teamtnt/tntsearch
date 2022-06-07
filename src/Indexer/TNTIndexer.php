@@ -420,11 +420,11 @@ class TNTIndexer
             $updateStmt->execute();
         }
 
-        $this->prepareAndExecuteStatement("DELETE FROM doclist WHERE doc_id = :documentId;", [
+        $res = $this->prepareAndExecuteStatement("DELETE FROM doclist WHERE doc_id = :documentId;", [
             ['key' => ':documentId', 'value' => $documentId]
         ]);
 
-        $res = $this->prepareAndExecuteStatement("DELETE FROM wordlist WHERE num_hits = 0");
+        $this->prepareAndExecuteStatement("DELETE FROM wordlist WHERE num_hits = 0");
 
         $affected = $res->rowCount();
 
