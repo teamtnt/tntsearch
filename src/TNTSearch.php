@@ -139,6 +139,7 @@ class TNTSearch
         return [
             'ids'            => array_keys($docs->toArray()),
             'hits'           => $totalHits,
+            'docScores'      => $docScores,
             'execution_time' => round($stopTimer - $startTimer, 7) * 1000 ." ms"
         ];
     }
