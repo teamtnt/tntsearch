@@ -33,6 +33,10 @@ class TNTIndexer
     protected $wordlist           = [];
     protected $inMemoryTerms      = [];
     protected $decodeHTMLEntities = false;
+    protected $updateInfoTableStmt;
+    protected $insertWordlistStmt;
+    protected $selectWordlistStmt;
+    protected $updateWordlistStmt;
     public $disableOutput         = false;
     public $inMemory              = true;
     public $steps                 = 1000;
