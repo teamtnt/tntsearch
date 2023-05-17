@@ -18,7 +18,7 @@ use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Support\Tokenizer;
 use TeamTNT\TNTSearch\Support\TokenizerInterface;
 
-class TNTIndexer
+class TNTIndexer  extends \stdClass
 {
     protected $index              = null;
     protected $dbh                = null;
