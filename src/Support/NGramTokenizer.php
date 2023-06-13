@@ -23,7 +23,7 @@ class NGramTokenizer extends AbstractTokenizer implements TokenizerInterface
 
         foreach ($splits as $split) {
             for ($currentGram = $this->min_gram; $currentGram <= $this->max_gram; $currentGram++) {
-                for ($i = 0; $i <= strlen($split) - $currentGram; $i++) {
+                for ($i = 0; $i <= mb_strlen($split) - $currentGram; $i++) {
                     $ngrams[] = mb_substr($split, $i, $currentGram);
                 }
             }
