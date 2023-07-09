@@ -3,6 +3,7 @@
 namespace TeamTNT\TNTSearch\Indexer;
 
 use PDO;
+use TeamTNT\TNTSearch\Support\Collection;
 
 class TNTGeoIndexer extends TNTIndexer
 {
