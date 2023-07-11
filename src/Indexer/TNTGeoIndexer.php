@@ -69,4 +69,16 @@ class TNTGeoIndexer extends TNTIndexer
         $this->insertStmt = $this->index->prepare("INSERT INTO locations (doc_id, longitude, latitude, cos_lat, sin_lat, cos_lng, sin_lng)
             VALUES (:doc_id, :longitude, :latitude, :cos_lat, :sin_lat, :cos_lng, :sin_lng)");
     }
+
+    public function insert($document)
+    {
+        $this->processDocument(new Collection($document));
+    }
+
+    public function delete($documentId)
+    {
+        $this->prepareAndExecuteStatement("DELETE FROM locations WHERE doc_id = :documentId;", [
+            ['key' => ':documentId', 'value' => $documentId]
+        ]);
+    }
 }

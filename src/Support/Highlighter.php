@@ -27,14 +27,14 @@ class Highlighter
         }
     }
 
-	/**
-	 * @param        $text
-	 * @param        $needle
-	 * @param string $tag
-	 * @param array  $options
-	 *
-	 * @return string
-	 */
+    /**
+     * @param        $text
+     * @param        $needle
+     * @param string $tag
+     * @param array  $options
+     *
+     * @return string
+     */
     public function highlight($text, $needle, $tag = 'em', $options = [])
     {
         $this->options = array_merge($this->options, $options);
@@ -90,25 +90,25 @@ class Highlighter
         return $text;
     }
 
-	/**
-	 * find the locations of each of the words
-	 * Nothing exciting here. The array_unique is required
-	 * unless you decide to make the words unique before passing in
-	 *
-	 * @param $words
-	 * @param $fulltext
-	 *
-	 * @return array
-	 */
+    /**
+     * find the locations of each of the words
+     * Nothing exciting here. The array_unique is required
+     * unless you decide to make the words unique before passing in
+     *
+     * @param $words
+     * @param $fulltext
+     *
+     * @return array
+     */
     public function _extractLocations($words, $fulltext)
     {
         $locations = array();
         foreach ($words as $word) {
-            $wordlen = strlen($word);
-            $loc     = stripos($fulltext, $word);
+            $wordlen = mb_strlen($word);
+            $loc     = mb_stripos($fulltext, $word);
             while ($loc !== false) {
                 $locations[] = $loc;
-                $loc         = stripos($fulltext, $word, $loc + $wordlen);
+                $loc         = mb_stripos($fulltext, $word, $loc + $wordlen);
             }
         }
         $locations = array_unique($locations);
@@ -117,19 +117,19 @@ class Highlighter
         return $locations;
     }
 
-	/**
-	 * Work out which is the most relevant portion to display
-	 * This is done by looping over each match and finding the smallest distance between two found
-	 * strings. The idea being that the closer the terms are the better match the snippet would be.
-	 * When checking for matches we only change the location if there is a better match.
-	 * The only exception is where we have only two matches in which case we just take the
-	 * first as will be equally distant.
-	 *
-	 * @param $locations
-	 * @param $prevcount
-	 *
-	 * @return int
-	 */
+    /**
+     * Work out which is the most relevant portion to display
+     * This is done by looping over each match and finding the smallest distance between two found
+     * strings. The idea being that the closer the terms are the better match the snippet would be.
+     * When checking for matches we only change the location if there is a better match.
+     * The only exception is where we have only two matches in which case we just take the
+     * first as will be equally distant.
+     *
+     * @param $locations
+     * @param $prevcount
+     *
+     * @return int
+     */
     public function _determineSnipLocation($locations, $prevcount)
     {
         if (!isset($locations[0])) {
@@ -162,22 +162,22 @@ class Highlighter
         return $startpos;
     }
 
-	/**
-	 * 1/6 ratio on prevcount tends to work pretty well and puts the terms
-	 * in the middle of the extract
-	 *
-	 * @param        $words
-	 * @param        $fulltext
-	 * @param int    $rellength
-	 * @param int    $prevcount
-	 * @param string $indicator
-	 *
-	 * @return bool|string
-	 */
+    /**
+     * 1/6 ratio on prevcount tends to work pretty well and puts the terms
+     * in the middle of the extract
+     *
+     * @param        $words
+     * @param        $fulltext
+     * @param int    $rellength
+     * @param int    $prevcount
+     * @param string $indicator
+     *
+     * @return bool|string
+     */
     public function extractRelevant($words, $fulltext, $rellength = 300, $prevcount = 50, $indicator = '...')
     {
         $words      = preg_split($this->tokenizer->getPattern(), $words, -1, PREG_SPLIT_NO_EMPTY);
-        $textlength = strlen($fulltext);
+        $textlength = mb_strlen($fulltext);
         if ($textlength <= $rellength) {
             return $fulltext;
         }
@@ -189,16 +189,30 @@ class Highlighter
             $startpos = $startpos - ($textlength - $startpos) / 2;
         }
 
-        $reltext = substr($fulltext, $startpos, $rellength);
+        // in case no match is found, reset position for proper math below
+        if ($startpos == -1) {
+            $startpos = 0;
+        }
+
+        $reltext = mb_substr($fulltext, $startpos, $rellength);
+        preg_match_all($this->tokenizer->getPattern(), $reltext, $offset, PREG_OFFSET_CAPTURE);
+        // since PREG_OFFSET_CAPTURE returns offset in bytes we have to use mb_strlen(substr()) hack here
+        $last = mb_strlen(substr($reltext, 0, end($offset[0])[1]));
+        $first = mb_strlen(substr($reltext, 0, $offset[0][0][1]));
+
+        // if no match is found, just return first $rellength characters without the last word
+        if (empty($locations)) {
+            return mb_substr($reltext, 0, $last) . $indicator;
+        }
 
         // check to ensure we dont snip the last word if thats the match
         if ($startpos + $rellength < $textlength) {
-            $reltext = substr($reltext, 0, strrpos($reltext, " ")) . $indicator; // remove last word
+            $reltext = mb_substr($reltext, 0, $last) . $indicator; // remove last word
         }
 
         // If we trimmed from the front add ...
         if ($startpos != 0) {
-            $reltext = $indicator . substr($reltext, strpos($reltext, " ") + 1); // remove first word
+            $reltext = $indicator . mb_substr($reltext, $first + 1); // remove first word
         }
 
         return $reltext;
