@@ -7,14 +7,16 @@ use TeamTNT\TNTSearch\TNTSearch;
 
 class TNTIndexerTest extends PHPUnit\Framework\TestCase
 {
+    public $index = null;
+
     protected $indexName = "testIndex";
     protected $config    = [
         'driver'    => 'sqlite',
-        'database'  => __DIR__.'/../_files/articles.sqlite',
+        'database'  => __DIR__ . '/../_files/articles.sqlite',
         'host'      => 'localhost',
         'username'  => 'testUser',
         'password'  => 'testPass',
-        'storage'   => __DIR__.'/../_files/',
+        'storage'   => __DIR__ . '/../_files/',
         'tokenizer' => TeamTNT\TNTSearch\Support\ProductTokenizer::class
 
     ];
@@ -45,8 +47,8 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
     {
         $config = [
             'driver'    => 'filesystem',
-            'storage'   => __DIR__.'/../_files/',
-            'location'  => __DIR__.'/../_files/articles/',
+            'storage'   => __DIR__ . '/../_files/',
+            'location'  => __DIR__ . '/../_files/articles/',
             'extension' => 'txt'
         ];
 
@@ -77,7 +79,7 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
         $indexer->disableOutput = true;
         $indexer->run();
 
-        $this->index = new PDO('sqlite:'.$this->config['storage'].$this->indexName);
+        $this->index = new PDO('sqlite:' . $this->config['storage'] . $this->indexName);
         $query       = "SELECT * FROM info WHERE key = 'stemmer'";
         $docs        = $this->index->query($query);
         $value       = $docs->fetch(PDO::FETCH_ASSOC)['value'];
@@ -99,7 +101,7 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
         $indexer->disableOutput = true;
         $indexer->run();
 
-        $this->index = new PDO('sqlite:'.$this->config['storage'].$this->indexName);
+        $this->index = new PDO('sqlite:' . $this->config['storage'] . $this->indexName);
         $query       = "SELECT * FROM info WHERE key = 'stemmer'";
         $docs        = $this->index->query($query);
         $value       = $docs->fetch(PDO::FETCH_ASSOC)['value'];
@@ -134,8 +136,8 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
 
     public function tearDown(): void
     {
-        if (file_exists(__DIR__.'/../_files/'.$this->indexName)) {
-            unlink(__DIR__.'/../_files/'.$this->indexName);
+        if (file_exists(__DIR__ . '/../_files/' . $this->indexName)) {
+            unlink(__DIR__ . '/../_files/' . $this->indexName);
         }
     }
 
@@ -181,7 +183,7 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
 
 class SomeTokenizer extends AbstractTokenizer implements TokenizerInterface
 {
-    static protected $pattern = '/[\s,\.]+/';
+    protected static $pattern = '/[\s,\.]+/';
 
     public function tokenize($text, $stopwords = [])
     {

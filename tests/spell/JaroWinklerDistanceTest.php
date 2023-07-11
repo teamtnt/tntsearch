@@ -4,10 +4,11 @@ use TeamTNT\TNTSearch\Spell\JaroWinklerDistance;
 
 class JaroWinklerDistanceTest extends PHPUnit\Framework\TestCase
 {
-    public function __construct()
+    protected $sd;
+
+    public function setUp(): void
     {
-        $this->sd = new JaroWinklerDistance;
-        parent::__construct();
+        $this->sd = new JaroWinklerDistance();
     }
 
     public function testJaro()
@@ -33,13 +34,16 @@ class JaroWinklerDistanceTest extends PHPUnit\Framework\TestCase
         $this->assertGreaterThan(0.961, $d);
         $this->assertLessThan(0.962, $d);
         $d = $this->sd->getDistance("jones", "johnson");
-        $this->assertTrue($d > 0.832 && $d < 0.833);
+        $this->assertGreaterThanOrEqual(0.832, $d);
+        $this->assertLessThanOrEqual(0.833, $d);
         $d = $this->sd->getDistance("dwayne", "duane");
-        $this->assertTrue($d > 0.84 && $d < 0.841);
+        $this->assertGreaterThanOrEqual(0.84, $d);
+        $this->assertLessThanOrEqual(0.841, $d);
         $d = $this->sd->getDistance("dixon", "dicksonx");
-        $this->assertTrue($d > 0.813 && $d < 0.814);
+        $this->assertGreaterThanOrEqual(0.813, $d);
+        $this->assertLessThanOrEqual(0.814, $d);
         $d = $this->sd->getDistance("fvie", "ten");
-        $this->assertTrue($d == 0);
+        $this->assertEquals(0, $d);
         $d1 = $this->sd->getDistance("zac ephron", "zac efron");
         $d2 = $this->sd->getDistance("zac ephron", "kai ephron");
         $this->assertTrue($d1 > $d2);

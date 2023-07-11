@@ -6,15 +6,18 @@ use PDO;
 
 class TNTGeoIndexer extends TNTIndexer
 {
+
+    public $insertStmt = null;
+
     public function createIndex($indexName)
     {
         $this->indexName = $indexName;
 
-        if (file_exists($this->config['storage'].$indexName)) {
-            unlink($this->config['storage'].$indexName);
+        if (file_exists($this->config['storage'] . $indexName)) {
+            unlink($this->config['storage'] . $indexName);
         }
 
-        $this->index = new PDO('sqlite:'.$this->config['storage'].$indexName);
+        $this->index = new PDO('sqlite:' . $this->config['storage'] . $indexName);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         $this->index->exec("CREATE TABLE IF NOT EXISTS locations (

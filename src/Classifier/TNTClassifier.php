@@ -10,6 +10,7 @@ class TNTClassifier
     public $documents              = [];
     public $words                  = [];
     public $types                  = [];
+    public $vc                     = null;
     public $tokenizer              = null;
     public $stemmer                = null;
     protected $arraySumOfWordType  = null;

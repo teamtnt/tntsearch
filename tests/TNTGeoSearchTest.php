@@ -7,7 +7,7 @@ class TNTGeoSearchTest extends PHPUnit\Framework\TestCase
     protected $indexName = "cities-geo.index";
 
     protected $config = [
-        'storage' => __DIR__.'/_files/'
+        'storage' => __DIR__ . '/_files/'
     ];
 
     /**
@@ -34,8 +34,8 @@ class TNTGeoSearchTest extends PHPUnit\Framework\TestCase
 
     public function tearDown(): void
     {
-        if (file_exists(__DIR__.'/../_files/'.$this->indexName)) {
-            unlink(__DIR__.'/../_files/'.$this->indexName);
+        if (file_exists(__DIR__ . '/../_files/' . $this->indexName)) {
+            unlink(__DIR__ . '/../_files/' . $this->indexName);
         }
     }
 }

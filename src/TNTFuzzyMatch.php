@@ -101,15 +101,15 @@ class TNTFuzzyMatch
             fclose($lines);
         }
 
-        $paternVector = $this->wordToVector($pattern);
+        $patternVector = $this->wordToVector($pattern);
 
         $sorted = [];
         foreach ($res as $caseSensitiveWord) {
-            $word                   = mb_strtolower(trim($caseSensitiveWord));
-            $wordVector             = $this->wordToVector($word);
-            $normalizedPaternVector = $this->makeVectorSameLength($wordVector, $paternVector);
+            $word                    = mb_strtolower(trim($caseSensitiveWord));
+            $wordVector              = $this->wordToVector($word);
+            $normalizedPatternVector = $this->makeVectorSameLength($wordVector, $patternVector);
 
-            $angle = $this->angleBetweenVectors($wordVector, $normalizedPaternVector);
+            $angle = $this->angleBetweenVectors($wordVector, $normalizedPatternVector);
 
             if (strpos($word, $pattern) !== false) {
                 $angle += 0.2;
@@ -131,15 +131,15 @@ class TNTFuzzyMatch
             }
         }
 
-        $paternVector = $this->wordToVector($pattern);
+        $patternVector = $this->wordToVector($pattern);
 
         $sorted = [];
         foreach ($res as $word) {
-            $word                   = trim($word);
-            $wordVector             = $this->wordToVector($word);
-            $normalizedPaternVector = $this->makeVectorSameLength($wordVector, $paternVector);
+            $word                    = trim($word);
+            $wordVector              = $this->wordToVector($word);
+            $normalizedPatternVector = $this->makeVectorSameLength($wordVector, $patternVector);
 
-            $angle = $this->angleBetweenVectors($wordVector, $normalizedPaternVector);
+            $angle = $this->angleBetweenVectors($wordVector, $normalizedPatternVector);
 
             if (strpos($word, $pattern) !== false) {
                 $angle += 0.2;

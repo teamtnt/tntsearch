@@ -4,10 +4,11 @@ use TeamTNT\TNTSearch\TNTFuzzyMatch;
 
 class TNTFuzzyMatchTest extends PHPUnit\Framework\TestCase
 {
-    public function __construct()
+    protected $fm;
+
+    public function setUp(): void
     {
-        $this->fm = new TNTFuzzyMatch;
-        parent::__construct();
+        $this->fm = new TNTFuzzyMatch();
     }
 
     public function testNorm()
@@ -35,7 +36,7 @@ class TNTFuzzyMatchTest extends PHPUnit\Framework\TestCase
     {
         $word   = "TNT";
         $vector = $this->fm->wordToVector($word);
-        $this->assertEquals($vector, [1000055, 1000039, 1000055]);
+        $this->assertEquals([1000055, 1000039, 1000055], $vector);
     }
 
     public function testAngleBetweenVectors()
@@ -56,8 +57,8 @@ class TNTFuzzyMatchTest extends PHPUnit\Framework\TestCase
         $res1 = $this->fm->hasCommonSubsequence($pattern1, 'tntsearch');
         $res2 = $this->fm->hasCommonSubsequence($pattern2, 'tntsearch');
 
-        $this->assertEquals($res1, true);
-        $this->assertEquals($res2, false);
+        $this->assertEquals(true, $res1);
+        $this->assertEquals(false, $res2);
     }
 
     public function testMakeVectorSameLength()
@@ -71,7 +72,7 @@ class TNTFuzzyMatchTest extends PHPUnit\Framework\TestCase
 
     public function testFuzzyMatchFromFile()
     {
-        $res = $this->fm->fuzzyMatchFromFile('search', __DIR__.'/_files/english_wordlist_2k.txt');
+        $res = $this->fm->fuzzyMatchFromFile('search', __DIR__ . '/_files/english_wordlist_2k.txt');
 
         $equal = bccomp($res['search'], 1.2, 2);
         $this->assertEquals(0, $equal);
@@ -82,7 +83,7 @@ class TNTFuzzyMatchTest extends PHPUnit\Framework\TestCase
 
     public function testFuzzyMatchFromFileFunction()
     {
-        $res = fuzzyMatchFromFile('search', __DIR__.'/_files/english_wordlist_2k.txt');
+        $res = fuzzyMatchFromFile('search', __DIR__ . '/_files/english_wordlist_2k.txt');
 
         $equal = bccomp($res['search'], 1.2, 2);
         $this->assertEquals(0, $equal);
