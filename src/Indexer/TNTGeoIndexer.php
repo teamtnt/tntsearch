@@ -13,14 +13,14 @@ class TNTGeoIndexer extends TNTIndexer
     {
         $this->indexName = $indexName;
 
-        if (file_exists($this->config['storage'] . $indexName)) {
-            unlink($this->config['storage'] . $indexName);
+        if (file_exists($this->engine->config['storage'] . $indexName)) {
+            unlink($this->engine->config['storage'] . $indexName);
         }
 
-        $this->index = new PDO('sqlite:' . $this->config['storage'] . $indexName);
-        $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->engine->index = new PDO('sqlite:' . $this->engine->config['storage'] . $indexName);
+        $this->engine->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $this->index->exec("CREATE TABLE IF NOT EXISTS locations (
+        $this->engine->index->exec("CREATE TABLE IF NOT EXISTS locations (
             doc_id INTEGER,
             longitude REAL,
             latitude REAL,
@@ -30,9 +30,9 @@ class TNTGeoIndexer extends TNTIndexer
             sin_lng REAL
         )");
 
-        $this->index->exec("CREATE INDEX location_index ON locations ('longitude', 'latitude');");
+        $this->engine->index->exec("CREATE INDEX location_index ON locations ('longitude', 'latitude');");
 
-        $this->index->exec("CREATE TABLE IF NOT EXISTS info (key TEXT, value INTEGER)");
+        $this->engine->index->exec("CREATE TABLE IF NOT EXISTS info (key TEXT, value INTEGER)");
 
         $connector = $this->createConnector($this->config);
         if (!$this->dbh) {

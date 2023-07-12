@@ -9,11 +9,11 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
 
     protected $config = [
         'driver'   => 'sqlite',
-        'database' => __DIR__.'/_files/articles.sqlite',
+        'database' => __DIR__ . '/_files/articles.sqlite',
         'host'     => 'localhost',
         'username' => 'testUser',
         'password' => 'testPass',
-        'storage'  => __DIR__.'/_files/',
+        'storage'  => __DIR__ . '/_files/',
         'stemmer'  => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class
     ];
 
@@ -35,9 +35,8 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $tnt = new TNTSearch();
         $tnt->loadConfig($this->config);
         $indexer = $tnt->createIndex($this->indexName);
-
-        $this->assertInstanceOf('TeamTNT\TNTSearch\Indexer\TNTIndexer', $indexer);
-        $this->assertFileExists($indexer->getStoragePath().$this->indexName);
+        $this->assertInstanceOf('TeamTNT\TNTSearch\Engines\SqliteEngine', $indexer);
+        $this->assertFileExists($indexer->getStoragePath() . $this->indexName);
     }
 
     public function testSearchBoolean()
@@ -137,8 +136,8 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
 
         $tnt->loadConfig($this->config);
 
-        $indexer                = $tnt->createIndex($this->indexName);
-        $indexer->disableOutput = true;
+        $indexer = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput(true);
         $indexer->query('SELECT id, title, article FROM articles;');
         $indexer->run();
 
@@ -322,9 +321,9 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $res            = $tnt->search('199x');
         $this->assertEquals([14], $res['ids']);
 
-        $tnt->fuzzy_no_limit    = true;
-        $res                    = $tnt->search('199x');
-        $this->assertEquals([14,15], $res['ids']);
+        $tnt->fuzzy_no_limit = true;
+        $res                 = $tnt->search('199x');
+        $this->assertEquals([14, 15], $res['ids']);
     }
 
     public function testIndexDoesNotExistException()
@@ -364,8 +363,8 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
 
     public function tearDown(): void
     {
-        if (file_exists(__DIR__."/".$this->indexName)) {
-            unlink(__DIR__."/".$this->indexName);
+        if (file_exists(__DIR__ . "/" . $this->indexName)) {
+            unlink(__DIR__ . "/" . $this->indexName);
         }
     }
 }

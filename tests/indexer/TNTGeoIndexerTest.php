@@ -1,5 +1,6 @@
 <?php
 
+use TeamTNT\TNTSearch\Engines\SqliteEngine;
 use TeamTNT\TNTSearch\Indexer\TNTGeoIndexer;
 use TeamTNT\TNTSearch\Indexer\TNTIndexer;
 
@@ -9,23 +10,24 @@ class TNTGeoIndexerTest extends PHPUnit\Framework\TestCase
 
     protected $config = [
         'driver'   => 'sqlite',
-        'database' => __DIR__.'/../_files/cities.sqlite',
+        'database' => __DIR__ . '/../_files/cities.sqlite',
         'host'     => 'localhost',
         'username' => 'testUser',
         'password' => 'testPass',
-        'storage'  => __DIR__.'/../_files/'
+        'storage'  => __DIR__ . '/../_files/'
     ];
 
     public function testGeoIndexCreation()
     {
-        $geoIndex                = new TNTGeoIndexer;
-        $geoIndex->disableOutput = true;
+        $engine   = new SqliteEngine;
+        $geoIndex = new TNTGeoIndexer($engine);
+        $geoIndex->disableOutput(true);
         $geoIndex->loadConfig($this->config);
         $geoIndex->createIndex($this->indexName);
         $geoIndex->query('SELECT id, longitude, latitude FROM cities;');
         $geoIndex->run();
 
-        $indexPath = __DIR__.'/../_files/'.$this->indexName;
+        $indexPath = __DIR__ . '/../_files/' . $this->indexName;
 
         $this->assertTrue(file_exists($indexPath));
     }
