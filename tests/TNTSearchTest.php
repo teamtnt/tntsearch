@@ -207,9 +207,9 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
 
         $tnt->selectIndex($this->indexName);
 
-        //$res = $tnt->search('hamlet');
-        //$this->assertEmpty($res['ids']);
-        //$this->assertEquals(12, $tnt->totalDocumentsInCollection());
+        $res = $tnt->search('Othello');
+        $this->assertEmpty($res['ids']);
+        $this->assertEquals(12, $tnt->totalDocumentsInCollection());
 
         $index = $tnt->getIndex();
 
@@ -238,8 +238,8 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $indexer->run();
 
         $tnt->selectIndex($this->indexName);
-        $tnt->asYouType = true;
-        $res            = $tnt->search('k');
+        $tnt->asYouType(true);
+        $res = $tnt->search('k');
         $this->assertEquals([1], $res['ids']);
     }
 
@@ -272,8 +272,9 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $indexer->run();
 
         $tnt->selectIndex($this->indexName);
-        $tnt->fuzziness = true;
-        $res            = $tnt->search('juleit');
+        $tnt->fuzziness(true);
+
+        $res = $tnt->search('juleit');
         $this->assertEquals("9", $res['ids'][0]);
 
         $res = $tnt->search('quen');
@@ -297,8 +298,8 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
 
         $index->insert(['id' => '14', 'title' => '199x', 'article' => 'Nineties with the x...']);
         $index->insert(['id' => '15', 'title' => '199y', 'article' => 'Nineties with the y...']);
-        $tnt->fuzziness = true;
-        $res            = $tnt->search('199');
+        $tnt->fuzziness(true);
+        $res = $tnt->search('199');
         $this->assertContains(14, $res['ids']);
         $this->assertContains(15, $res['ids']);
     }
@@ -317,12 +318,12 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
 
         $index->insert(['id' => '14', 'title' => '199x', 'article' => 'Nineties with the x...']);
         $index->insert(['id' => '15', 'title' => '199y', 'article' => 'Nineties with the y...']);
-        $tnt->fuzziness = true;
-        $res            = $tnt->search('199x');
+        $tnt->fuzziness(true);
+        $res = $tnt->search('199x');
         $this->assertEquals([14], $res['ids']);
 
-        $tnt->fuzzy_no_limit = true;
-        $res                 = $tnt->search('199x');
+        $tnt->fuzzyNoLimit(true);
+        $res = $tnt->search('199x');
         $this->assertEquals([14, 15], $res['ids']);
     }
 

@@ -35,13 +35,17 @@ class SqliteEngine implements EngineContract
     protected $insertWordlistStmt;
     protected $selectWordlistStmt;
     protected $updateWordlistStmt;
-    public $steps            = 1000;
-    public $inMemory         = true;
-    protected $inMemoryTerms = [];
-    public $filereader       = null;
-    public $asYouType        = false;
-    public $fuzziness        = false;
-    public $maxDocs          = 500;
+    public $steps                = 1000;
+    public $inMemory             = true;
+    protected $inMemoryTerms     = [];
+    public $filereader           = null;
+    public $asYouType            = false;
+    public $fuzziness            = false;
+    public $fuzzy_prefix_length  = 2;
+    public $fuzzy_max_expansions = 50;
+    public $fuzzy_distance       = 2;
+    public $fuzzy_no_limit       = false;
+    public $maxDocs              = 500;
 
     /**
      * @param string $indexName
@@ -765,5 +769,42 @@ class SqliteEngine implements EngineContract
         array_multisort($distance, SORT_ASC, $hits, SORT_DESC, $resultSet);
 
         return $resultSet;
+    }
+
+    public function getAllDocumentsForFuzzyKeyword($words, $noLimit)
+    {
+        $binding_params = implode(',', array_fill(0, count($words), '?'));
+        $query          = "SELECT * FROM doclist WHERE term_id in ($binding_params) ORDER BY CASE term_id";
+        $order_counter  = 1;
+
+        foreach ($words as $word) {
+            $query .= " WHEN " . $word['id'] . " THEN " . $order_counter++;
+        }
+
+        $query .= " END";
+
+        if (!$noLimit) {
+            $query .= " LIMIT {$this->maxDocs}";
+        }
+
+        $stmtDoc = $this->index->prepare($query);
+
+        $ids = null;
+        foreach ($words as $word) {
+            $ids[] = $word['id'];
+        }
+
+        $stmtDoc->execute($ids);
+        return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    public function asYouType($value)
+    {
+        $this->asYouType = $value;
+    }
+
+    public function fuzziness($value)
+    {
+        $this->fuzziness = $value;
     }
 }

@@ -16,15 +16,10 @@ use TeamTNT\TNTSearch\Support\TokenizerInterface;
 class TNTSearch
 {
     public $config;
-    public $tokenizer            = null;
-    public $index                = null;
-    public $stemmer              = null;
-    public $fuzziness            = false;
-    public $fuzzy_prefix_length  = 2;
-    public $fuzzy_max_expansions = 50;
-    public $fuzzy_distance       = 2;
-    public $fuzzy_no_limit       = false;
-    protected $dbh               = null;
+    public $tokenizer = null;
+    public $index     = null;
+    public $stemmer   = null;
+    protected $dbh    = null;
     public $engine;
     /**
      * @param array $config
@@ -102,7 +97,7 @@ class TNTSearch
         $dlWeight  = 0.5;
         $docScores = [];
         $count     = $this->totalDocumentsInCollection();
-        $noLimit   = $this->fuzzy_no_limit;
+        $noLimit   = $this->engine->fuzzy_no_limit;
 
         foreach ($keywords as $index => $term) {
             $isLastKeyword = ($keywords->count() - 1) == $index;
@@ -249,7 +244,7 @@ class TNTSearch
         if (!isset($word[0])) {
             return new Collection([]);
         }
-        if ($this->fuzziness) {
+        if ($this->engine->fuzziness) {
             return $this->getAllDocumentsForFuzzyKeyword($word, $noLimit);
         }
 
@@ -403,29 +398,7 @@ class TNTSearch
      */
     private function getAllDocumentsForFuzzyKeyword($words, $noLimit)
     {
-        $binding_params = implode(',', array_fill(0, count($words), '?'));
-        $query          = "SELECT * FROM doclist WHERE term_id in ($binding_params) ORDER BY CASE term_id";
-        $order_counter  = 1;
-
-        foreach ($words as $word) {
-            $query .= " WHEN " . $word['id'] . " THEN " . $order_counter++;
-        }
-
-        $query .= " END";
-
-        if (!$noLimit) {
-            $query .= " LIMIT {$this->maxDocs}";
-        }
-
-        $stmtDoc = $this->index->prepare($query);
-
-        $ids = null;
-        foreach ($words as $word) {
-            $ids[] = $word['id'];
-        }
-
-        $stmtDoc->execute($ids);
-        return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
+        return $this->engine->getAllDocumentsForFuzzyKeyword($words, $noLimit);
     }
 
     /**
@@ -437,5 +410,20 @@ class TNTSearch
     private function getAllDocumentsForStrictKeyword($word, $noLimit)
     {
         return $this->engine->getAllDocumentsForStrictKeyword($word, $noLimit);
+    }
+
+    public function asYouType($value)
+    {
+        $this->engine->asYouType($value);
+    }
+
+    public function fuzziness($value)
+    {
+        $this->engine->fuzziness = $value;
+    }
+
+    public function fuzzyNoLimit($value)
+    {
+        $this->engine->fuzzy_no_limit = $value;
     }
 }
