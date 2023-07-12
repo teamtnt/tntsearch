@@ -16,15 +16,14 @@ class TNTGeoSearch extends TNTSearch
     {
         $startTimer = microtime(true);
 
-        $res = $this->buildQuery($currentLocation, $distance, $limit);
-
+        $res       = $this->buildQuery($currentLocation, $distance, $limit);
         $stopTimer = microtime(true);
 
         return [
             'ids'            => $res->pluck('doc_id'),
             'distances'      => $res->pluck('distance'),
             'hits'           => $res->count(),
-            'execution_time' => round($stopTimer - $startTimer, 7) * 1000 ." ms"
+            'execution_time' => round($stopTimer - $startTimer, 7) * 1000 . " ms"
         ];
     }
 
@@ -48,7 +47,7 @@ class TNTGeoSearch extends TNTSearch
             ORDER BY distance DESC
             LIMIT :limit";
 
-        $stmtDoc = $this->index->prepare($query);
+        $stmtDoc = $this->engine->index->prepare($query);
 
         $cur_lat = $currentLocation['latitude'];
         $cur_lng = $currentLocation['longitude'];

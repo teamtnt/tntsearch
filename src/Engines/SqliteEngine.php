@@ -39,6 +39,9 @@ class SqliteEngine implements EngineContract
     public $inMemory         = true;
     protected $inMemoryTerms = [];
     public $filereader       = null;
+    public $asYouType        = false;
+    public $fuzziness        = false;
+    public $maxDocs          = 500;
 
     /**
      * @param string $indexName
@@ -329,17 +332,22 @@ class SqliteEngine implements EngineContract
         });
 
         foreach ($terms as $key => $term) {
+
             try {
                 $this->insertWordlistStmt->bindParam(":keyword", $key);
                 $this->insertWordlistStmt->bindParam(":hits", $term['hits']);
                 $this->insertWordlistStmt->bindParam(":docs", $term['docs']);
                 $this->insertWordlistStmt->execute();
 
-                $terms[$key]['id'] = $this->index->lastInsertId();
+                $lastInsertId      = $this->index->query('SELECT MAX(id) FROM wordlist')->fetchColumn();
+                $terms[$key]['id'] = $lastInsertId;
+
                 if ($this->inMemory) {
                     $this->inMemoryTerms[$key] = $terms[$key]['id'];
                 }
+
             } catch (\Exception $e) {
+
                 if ($e->getCode() == 23000) {
                     $this->updateWordlistStmt->bindValue(':docs', $term['docs']);
                     $this->updateWordlistStmt->bindValue(':hits', $term['hits']);
@@ -363,20 +371,23 @@ class SqliteEngine implements EngineContract
 
             }
         }
+
         return $terms;
     }
 
     public function saveDoclist($terms, $docId)
     {
+
         $insert = "INSERT INTO doclist (term_id, doc_id, hit_count) VALUES (:id, :doc, :hits)";
         $stmt   = $this->index->prepare($insert);
 
         foreach ($terms as $key => $term) {
+
             $stmt->bindValue(':id', $term['id']);
             $stmt->bindValue(':doc', $docId);
             $stmt->bindValue(':hits', $term['hits']);
             try {
-                $stmt->execute();
+                $res = $stmt->execute();
             } catch (\Exception $e) {
                 //we have a duplicate
                 echo $e->getMessage();
@@ -623,5 +634,136 @@ class SqliteEngine implements EngineContract
         }
 
         file_put_contents($filename, $dictionary, LOCK_EX);
+    }
+
+    public function selectIndex($indexName)
+    {
+        $pathToIndex = $this->config['storage'] . $indexName;
+        if (!file_exists($pathToIndex)) {
+            throw new IndexNotFoundException("Index {$pathToIndex} does not exist", 1);
+        }
+        $this->index = new PDO('sqlite:' . $pathToIndex);
+        $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    }
+
+    public function getWordlistByKeyword($keyword, $isLastWord = false, $noLimit = false)
+    {
+        $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword LIMIT 1";
+        $stmtWord       = $this->index->prepare($searchWordlist);
+
+        if ($this->asYouType && $isLastWord) {
+            $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY length(term) ASC, num_hits DESC LIMIT 1";
+            $stmtWord       = $this->index->prepare($searchWordlist);
+            $stmtWord->bindValue(':keyword', mb_strtolower($keyword) . "%");
+        } else {
+            $stmtWord->bindValue(':keyword', mb_strtolower($keyword));
+        }
+        $stmtWord->execute();
+        $res = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($this->fuzziness && (!isset($res[0]) || $noLimit)) {
+            return $this->fuzzySearch($keyword);
+        }
+        return $res;
+    }
+
+    /**
+     * @param $word
+     * @param $noLimit
+     *
+     * @return Collection
+     */
+    public function getAllDocumentsForStrictKeyword($word, $noLimit)
+    {
+        $query = "SELECT * FROM doclist WHERE term_id = :id ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
+        if ($noLimit) {
+            $query = "SELECT * FROM doclist WHERE term_id = :id ORDER BY hit_count DESC";
+        }
+        $stmtDoc = $this->index->prepare($query);
+
+        $stmtDoc->bindValue(':id', $word[0]['id']);
+        $stmtDoc->execute();
+        return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    /**
+     * @param      $keyword
+     * @param bool $noLimit
+     *
+     * @return Collection
+     */
+    public function getAllDocumentsForWhereKeywordNot($keyword, $noLimit = false)
+    {
+        $word = $this->getWordlistByKeyword($keyword);
+        if (!isset($word[0])) {
+            return new Collection([]);
+        }
+        $query = "SELECT * FROM doclist WHERE doc_id NOT IN (SELECT doc_id FROM doclist WHERE term_id = :id) GROUP BY doc_id ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
+        if ($noLimit) {
+            $query = "SELECT * FROM doclist WHERE doc_id NOT IN (SELECT doc_id FROM doclist WHERE term_id = :id) GROUP BY doc_id ORDER BY hit_count DESC";
+        }
+        $stmtDoc = $this->index->prepare($query);
+
+        $stmtDoc->bindValue(':id', $word[0]['id']);
+        $stmtDoc->execute();
+        return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    public function getValueFromInfoTable($value)
+    {
+        $query = "SELECT * FROM info WHERE key = '$value'";
+        $docs  = $this->index->query($query);
+
+        if ($ret = $docs->fetch(PDO::FETCH_ASSOC)) {
+            return $ret['value'];
+        }
+
+        return null;
+    }
+
+    public function filesystemMapIdsToPaths($docs)
+    {
+        $query = "SELECT * FROM filemap WHERE id in (" . $docs->implode(', ') . ");";
+        $res   = $this->index->query($query)->fetchAll(PDO::FETCH_ASSOC);
+
+        return $docs->map(function ($key) use ($res) {
+            $index = array_search($key, array_column($res, 'id'));
+            return $res[$index];
+        });
+    }
+
+    /**
+     * @param $keyword
+     *
+     * @return array
+     */
+    public function fuzzySearch($keyword)
+    {
+        $prefix         = mb_substr($keyword, 0, $this->fuzzy_prefix_length);
+        $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY num_hits DESC LIMIT {$this->fuzzy_max_expansions}";
+        $stmtWord       = $this->index->prepare($searchWordlist);
+        $stmtWord->bindValue(':keyword', mb_strtolower($prefix) . "%");
+        $stmtWord->execute();
+        $matches = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
+
+        $resultSet = [];
+        foreach ($matches as $match) {
+            $distance = levenshtein($match['term'], $keyword);
+            if ($distance <= $this->fuzzy_distance) {
+                $match['distance'] = $distance;
+                $resultSet[]       = $match;
+            }
+        }
+
+        // Sort the data by distance, and than by num_hits
+        $distance = [];
+        $hits     = [];
+        foreach ($resultSet as $key => $row) {
+            $distance[$key] = $row['distance'];
+            $hits[$key]     = $row['num_hits'];
+        }
+        array_multisort($distance, SORT_ASC, $hits, SORT_DESC, $resultSet);
+
+        return $resultSet;
     }
 }
