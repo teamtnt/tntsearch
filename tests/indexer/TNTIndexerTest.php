@@ -34,8 +34,8 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
         $indexer->run();
 
         $tnt->selectIndex($this->indexName);
-        $tnt->asYouType = true;
-        $res            = $tnt->search('Juliet');
+        $tnt->asYouType(true);
+        $res = $tnt->search('Juliet');
 
         //the most relevant doc has the id 9
         $this->assertEquals("9", $res['ids'][0]);

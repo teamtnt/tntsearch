@@ -2,13 +2,17 @@
 
 namespace TeamTNT\TNTSearch\Engines;
 
+use Exception;
 use PDO;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use TeamTNT\TNTSearch\Connectors\FileSystemConnector;
 use TeamTNT\TNTSearch\Connectors\MySqlConnector;
 use TeamTNT\TNTSearch\Connectors\PostgresConnector;
 use TeamTNT\TNTSearch\Connectors\SQLiteConnector;
 use TeamTNT\TNTSearch\Connectors\SqlServerConnector;
 use TeamTNT\TNTSearch\Contracts\EngineContract;
+use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
 use TeamTNT\TNTSearch\FileReaders\TextFileReader;
 use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
 use TeamTNT\TNTSearch\Stemmer\NoStemmer;
@@ -201,7 +205,6 @@ class SqliteEngine implements EngineContract
         if ($this->config['driver'] == "filesystem") {
             return $this->readDocumentsFromFileSystem();
         }
-
         $result = $this->dbh->query($this->query);
 
         $counter = 0;
@@ -806,5 +809,11 @@ class SqliteEngine implements EngineContract
     public function fuzziness($value)
     {
         $this->fuzziness = $value;
+    }
+
+    public function setLanguage($language = 'no')
+    {
+        $class = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
+        $this->setStemmer(new $class);
     }
 }

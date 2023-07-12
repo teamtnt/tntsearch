@@ -11,8 +11,6 @@ class TNTGeoIndexer extends TNTIndexer
 
     public function createIndex($indexName)
     {
-        $this->indexName = $indexName;
-
         if (file_exists($this->engine->config['storage'] . $indexName)) {
             unlink($this->engine->config['storage'] . $indexName);
         }
@@ -34,9 +32,9 @@ class TNTGeoIndexer extends TNTIndexer
 
         $this->engine->index->exec("CREATE TABLE IF NOT EXISTS info (key TEXT, value INTEGER)");
 
-        $connector = $this->engine->createConnector($this->config);
-        if (!$this->dbh) {
-            $this->dbh = $connector->connect($this->config);
+        $connector = $this->engine->createConnector($this->engine->config);
+        if (!$this->engine->dbh) {
+            $this->engine->dbh = $connector->connect($this->engine->config);
         }
         return $this;
     }
@@ -69,18 +67,18 @@ class TNTGeoIndexer extends TNTIndexer
             return $this->insertStmt;
         }
 
-        $this->insertStmt = $this->index->prepare("INSERT INTO locations (doc_id, longitude, latitude, cos_lat, sin_lat, cos_lng, sin_lng)
+        $this->insertStmt = $this->engine->index->prepare("INSERT INTO locations (doc_id, longitude, latitude, cos_lat, sin_lat, cos_lng, sin_lng)
             VALUES (:doc_id, :longitude, :latitude, :cos_lat, :sin_lat, :cos_lng, :sin_lng)");
     }
 
     public function insert($document)
     {
-        $this->processDocument(new Collection($document));
+        $this->engine->processDocument(new Collection($document));
     }
 
     public function delete($documentId)
     {
-        $this->prepareAndExecuteStatement("DELETE FROM locations WHERE doc_id = :documentId;", [
+        $this->engine->prepareAndExecuteStatement("DELETE FROM locations WHERE doc_id = :documentId;", [
             ['key' => ':documentId', 'value' => $documentId]
         ]);
     }

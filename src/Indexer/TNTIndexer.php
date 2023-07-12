@@ -4,8 +4,6 @@ namespace TeamTNT\TNTSearch\Indexer;
 
 use Exception;
 use PDO;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use TeamTNT\TNTSearch\Contracts\EngineContract;
 use TeamTNT\TNTSearch\FileReaders\TextFileReader;
 use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
@@ -100,8 +98,7 @@ class TNTIndexer
      */
     public function setLanguage($language = 'no')
     {
-        $class = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
-        $this->engine->setStemmer(new $class);
+        $this->engine->setLanguage($language);
     }
 
     /**
