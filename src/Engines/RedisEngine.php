@@ -59,6 +59,8 @@ class RedisEngine implements EngineContract
 
     public function createIndex($indexName)
     {
+        $this->redis->flushAll();
+
         $this->indexName = $indexName;
 
         if (isset($this->config['stemmer'])) {
@@ -285,6 +287,9 @@ class RedisEngine implements EngineContract
         $wordlistKeysToUpdate = [];
         $termsHitsDeleted     = [];
 
+        // Track if any document ID was found and deleted
+        $documentDeleted = false;
+
         // Remove the document ID from the associated terms in doclist
         foreach ($doclistTerms as $keyName) {
             if ($this->redis->hexists($keyName, $documentId)) {
@@ -302,7 +307,15 @@ class RedisEngine implements EngineContract
                 } else {
                     $termsHitsDeleted[$termKey] += $hits;
                 }
+
+                // Set the flag indicating that a document was deleted
+                $documentDeleted = true;
             }
+        }
+
+        // If no document was found and deleted, return early
+        if (!$documentDeleted) {
+            return;
         }
 
         // Update the document count and hits count in the wordlist keys
@@ -322,7 +335,14 @@ class RedisEngine implements EngineContract
         // Update the total_documents key in the info table
         $totalDocumentsKey = $this->indexName . ':info';
         $this->redis->hincrby($totalDocumentsKey, 'total_documents', -1);
+    }
 
+    /**
+     * @return int
+     */
+    public function totalDocumentsInCollection()
+    {
+        return $this->getValueFromInfoTable('total_documents');
     }
 
 }

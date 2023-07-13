@@ -211,11 +211,6 @@ class SqliteEngine implements EngineContract
         $this->excludePrimaryKey = true;
     }
 
-    public function includePrimaryKey()
-    {
-        $this->excludePrimaryKey = false;
-    }
-
     public function setStopWords(array $stopWords)
     {
         $this->stopWords = $stopWords;
@@ -417,13 +412,6 @@ class SqliteEngine implements EngineContract
         $this->info("Index created: {$this->config['storage']}");
     }
 
-    public function insert($document)
-    {
-        $this->processDocument(new Collection($document));
-        $total = $this->totalDocumentsInCollection() + 1;
-        $this->updateInfoTable('total_documents', $total);
-    }
-
     public function delete($documentId)
     {
         $rows = $this->prepareAndExecuteStatement("SELECT * FROM doclist WHERE doc_id = :documentId;", [
@@ -450,12 +438,6 @@ class SqliteEngine implements EngineContract
             $total = $this->totalDocumentsInCollection() - 1;
             $this->updateInfoTable('total_documents', $total);
         }
-    }
-
-    public function update($id, $document)
-    {
-        $this->delete($id);
-        $this->insert($document);
     }
 
     public function prepareAndExecuteStatement($query, $params = [])

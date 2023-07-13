@@ -198,6 +198,7 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
 
         $count = $index->countWordInWordList('romeo');
         $this->assertEquals(7, $count, 'Word romeo should be 7');
+
     }
 
     public function testMultipleSearch()

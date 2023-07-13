@@ -6,6 +6,7 @@ use TeamTNT\TNTSearch\Connectors\MySqlConnector;
 use TeamTNT\TNTSearch\Connectors\PostgresConnector;
 use TeamTNT\TNTSearch\Connectors\SQLiteConnector;
 use TeamTNT\TNTSearch\Connectors\SqlServerConnector;
+use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Support\TokenizerInterface;
 
 trait EngineTrait
@@ -117,6 +118,24 @@ trait EngineTrait
     {
         $this->tokenizer = $tokenizer;
         $this->updateInfoTable('tokenizer', get_class($tokenizer));
+    }
+
+    public function update($id, $document)
+    {
+        $this->delete($id);
+        $this->insert($document);
+    }
+
+    public function insert($document)
+    {
+        $this->processDocument(new Collection($document));
+        $total = $this->totalDocumentsInCollection() + 1;
+        $this->updateInfoTable('total_documents', $total);
+    }
+
+    public function includePrimaryKey()
+    {
+        $this->excludePrimaryKey = false;
     }
 
 }
