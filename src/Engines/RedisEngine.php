@@ -206,6 +206,8 @@ class RedisEngine implements EngineContract
     {
         $redisKey = $this->indexName . ':wordlist:' . $keyword;
 
+        $return = [];
+
         if ($this->asYouType && $isLastWord) {
 
             // Perform custom sorting for as-you-type queries
@@ -241,7 +243,7 @@ class RedisEngine implements EngineContract
 
             $res = $this->redis->hgetall($redisKey);
             if (!empty($res)) {
-                return [[
+                $return = [[
                     'id'       => $keyword,
                     'term'     => $keyword,
                     'num_hits' => $res['num_hits'],
@@ -254,7 +256,7 @@ class RedisEngine implements EngineContract
             return $this->fuzzySearch($keyword);
         }
 
-        return [];
+        return $return;
     }
 
     public function getAllDocumentsForStrictKeyword($word, $noLimit)
@@ -368,6 +370,63 @@ class RedisEngine implements EngineContract
         }
 
         return null;
+    }
+
+    /**
+     * @param $keyword
+     *
+     * @return array
+     */
+    public function fuzzySearch($keyword)
+    {
+        $prefix          = mb_substr($keyword, 0, $this->fuzzy_prefix_length);
+        $redisKeyPattern = $this->indexName . ':wordlist:' . $prefix . '*';
+        $wordlistKeys    = $this->redis->keys($redisKeyPattern);
+        $resultSet       = [];
+        foreach ($wordlistKeys as $wordlistKey) {
+            $members = $this->redis->hgetall($wordlistKey);
+            $term    = str_replace([$this->indexName . ':wordlist:', ':'], '', $wordlistKey);
+
+            $distance = levenshtein($term, $keyword);
+            if ($distance <= $this->fuzzy_distance) {
+                $resultSet[] = [
+                    'term'     => $term,
+                    'distance' => $distance,
+                    'num_hits' => $members['num_hits'],
+                    'num_docs' => $members['num_docs']
+                ];
+            }
+        }
+
+        // Sort the result set by distance and then by num_hits
+        usort($resultSet, function ($a, $b) {
+            if ($a['distance'] === $b['distance']) {
+                return $b['num_hits'] <=> $a['num_hits'];
+            }
+            return $a['distance'] <=> $b['distance'];
+        });
+        return $resultSet;
+    }
+
+    public function getAllDocumentsForFuzzyKeyword($words, $noLimit)
+    {
+        $docs = [];
+        foreach ($words as $word) {
+            $doclistKey = $this->indexName . ':doclist:' . $word['term'];
+            $fields     = $this->redis->hgetall($doclistKey);
+            foreach ($fields as $key => $value) {
+                $docs[] = [
+                    "doc_id"    => $key,
+                    "hit_count" => $value
+                ];
+            }
+        }
+
+        if ($noLimit) {
+            return new Collection($docs);
+        } else {
+            return new Collection(array_slice($docs, 0, $this->maxDocs));
+        }
     }
 
 }
