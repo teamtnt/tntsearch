@@ -48,7 +48,6 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
 
     public function testSearchBoolean()
     {
-        return;
         $tnt = new TNTSearch;
 
         $tnt->loadConfig($this->config);
@@ -67,7 +66,13 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertEquals(4, $res['hits']);
 
         $res = $tnt->searchBoolean('juliet ~well');
-        $this->assertEquals([5, 6, 7, 8, 10], $res['ids']);
+        $this->assertContainsOnly('int', $res['ids']);
+        $this->assertCount(5, $res['ids']);
+        $this->assertContains(5, $res['ids']);
+        $this->assertContains(6, $res['ids']);
+        $this->assertContains(7, $res['ids']);
+        $this->assertContains(8, $res['ids']);
+        $this->assertContains(10, $res['ids']);
 
         $res = $tnt->searchBoolean('juliet ~romeo');
         $this->assertEquals([10], $res['ids']);

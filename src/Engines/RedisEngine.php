@@ -479,4 +479,48 @@ class RedisEngine implements EngineContract
         }
     }
 
+    public function getAllDocumentsForWhereKeywordNot($keyword, $noLimit = false)
+    {
+        $word = $this->getWordlistByKeyword($keyword);
+        if (!isset($word[0])) {
+            return new Collection([]);
+        }
+
+        $pattern     = $this->indexName . ':doclist:*';
+        $excludedKey = $this->indexName . ':doclist:' . $keyword;
+        $limit       = $this->maxDocs;
+
+        // Get all doc_ids where the keyword is excluded
+        $excludedDocs = $this->redis->hgetall($excludedKey);
+        $excludedDocs = array_map(function ($doc) {
+            return ['doc_id' => $doc];
+        }, array_keys($excludedDocs));
+
+        // Retrieve all keys matching the pattern
+        $keys = $this->redis->keys($pattern);
+
+        // Filter out the excluded key
+        $filteredKeys = array_filter($keys, function ($key) use ($excludedKey) {
+            return $key !== $excludedKey;
+        });
+
+        // Output the keys up to the limit
+        $documents = [];
+        foreach (array_slice($filteredKeys, 0, $limit) as $key) {
+            $fields = $this->redis->hgetall($key);
+            foreach ($fields as $field => $value) {
+                $documents[] = [
+                    'doc_id' => $field
+                ];
+            }
+        }
+
+        // Perform a diff between all documents and excluded documents
+        $filteredDocuments = array_udiff($documents, $excludedDocs, function ($doc1, $doc2) {
+            return $doc1['doc_id'] <=> $doc2['doc_id'];
+        });
+
+        return new Collection($filteredDocuments);
+    }
+
 }
