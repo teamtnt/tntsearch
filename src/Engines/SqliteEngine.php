@@ -671,16 +671,6 @@ class SqliteEngine implements EngineContract
         return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    public function asYouType($value)
-    {
-        $this->asYouType = $value;
-    }
-
-    public function fuzziness($value)
-    {
-        $this->fuzziness = $value;
-    }
-
     public function setLanguage($language = 'no')
     {
         $class = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';

@@ -147,4 +147,14 @@ trait EngineTrait
         }
         return 0;
     }
+
+    public function asYouType($value)
+    {
+        $this->asYouType = $value;
+    }
+
+    public function fuzziness($value)
+    {
+        $this->fuzziness = $value;
+    }
 }

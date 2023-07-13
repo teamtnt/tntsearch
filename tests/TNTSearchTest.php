@@ -240,8 +240,8 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
 
         $tnt->loadConfig($this->config);
 
-        $indexer                = $tnt->createIndex($this->indexName);
-        $indexer->disableOutput = true;
+        $indexer = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput(true);
         $indexer->query('SELECT id, title, article FROM articles;');
         $indexer->run();
 

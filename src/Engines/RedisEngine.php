@@ -207,6 +207,7 @@ class RedisEngine implements EngineContract
         $redisKey = $this->indexName . ':wordlist:' . $keyword;
 
         if ($this->asYouType && $isLastWord) {
+
             // Perform custom sorting for as-you-type queries
             $wordlistKeys = $this->redis->keys($this->indexName . ':wordlist:' . $keyword . '*');
             $wordlistKeys = array_filter($wordlistKeys, function ($key) {
@@ -226,20 +227,26 @@ class RedisEngine implements EngineContract
                     return $lengthA <=> $lengthB;
                 });
 
-                // Retrieve the wordlist entry with the highest hits
-                $res = $this->redis->hgetall($wordlistKeys[0]);
-                return [array_merge($res, [
-                    'id'   => $this->redis->hget($wordlistKeys[0], 'id'),
-                    'term' => $keyword
-                ])];
+                $term = str_replace($this->indexName . ':wordlist:', '', $wordlistKeys[0]);
+                $res  = $this->redis->hgetall($wordlistKeys[0]);
+                return [[
+                    'id'       => $term,
+                    'term'     => $term,
+                    'num_hits' => $res['num_hits'],
+                    'num_docs' => $res['num_docs']
+                ]];
+
             }
         } else {
+
             $res = $this->redis->hgetall($redisKey);
             if (!empty($res)) {
-                return [array_merge($res, [
-                    'id'   => $this->redis->hget($redisKey, 'id'),
-                    'term' => $keyword
-                ])];
+                return [[
+                    'id'       => $keyword,
+                    'term'     => $keyword,
+                    'num_hits' => $res['num_hits'],
+                    'num_docs' => $res['num_docs']
+                ]];
             }
         }
 
