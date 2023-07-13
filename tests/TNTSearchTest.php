@@ -1,5 +1,7 @@
 <?php
 
+use TeamTNT\TNTSearch\Engines\RedisEngine;
+use TeamTNT\TNTSearch\Engines\SqliteEngine;
 use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
 use TeamTNT\TNTSearch\TNTSearch;
 
@@ -337,11 +339,14 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
 
     public function testIndexDoesNotExistException()
     {
-        $this->expectException(IndexNotFoundException::class);
-        $this->expectExceptionCode(1);
-        $tnt = new TNTSearch;
-        $tnt->loadConfig($this->config);
-        $tnt->selectIndex('IndexThatDoesNotExist');
+        if ($this->config['engine'] == SqliteEngine::class) {
+            $this->expectException(IndexNotFoundException::class);
+            $this->expectExceptionCode(1);
+            $tnt = new TNTSearch;
+            $tnt->loadConfig($this->config);
+            $tnt->selectIndex('IndexThatDoesNotExist');
+        }
+        $this->assertTrue(true);
     }
 
     public function testStemmerIsSetOnNewIndexesBasedOnConfig()

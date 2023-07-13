@@ -81,10 +81,7 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
         $indexer->disableOutput = true;
         $indexer->run();
 
-        $this->index = new PDO('sqlite:' . $this->config['storage'] . $this->indexName);
-        $query       = "SELECT * FROM info WHERE key = 'stemmer'";
-        $docs        = $this->index->query($query);
-        $value       = $docs->fetch(PDO::FETCH_ASSOC)['value'];
+        $value = $indexer->getValueFromInfoTable('stemmer');
         $this->assertEquals('TeamTNT\TNTSearch\Stemmer\CroatianStemmer', $value);
 
         $tnt->selectIndex($this->indexName);
@@ -103,10 +100,8 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
         $indexer->disableOutput = true;
         $indexer->run();
 
-        $this->index = new PDO('sqlite:' . $this->config['storage'] . $this->indexName);
-        $query       = "SELECT * FROM info WHERE key = 'stemmer'";
-        $docs        = $this->index->query($query);
-        $value       = $docs->fetch(PDO::FETCH_ASSOC)['value'];
+        $value = $indexer->getValueFromInfoTable('stemmer');
+
         $this->assertEquals('TeamTNT\TNTSearch\Stemmer\GermanStemmer', $value);
 
         $tnt->selectIndex($this->indexName);

@@ -138,6 +138,11 @@ trait EngineTrait
         $this->excludePrimaryKey = false;
     }
 
+    public function setPrimaryKey($primaryKey)
+    {
+        $this->primaryKey = $primaryKey;
+    }
+
     public function countWordInWordList($word)
     {
         $res = $this->getWordFromWordList($word);
@@ -156,5 +161,11 @@ trait EngineTrait
     public function fuzziness($value)
     {
         $this->fuzziness = $value;
+    }
+
+    public function setLanguage($language = 'no')
+    {
+        $class = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
+        $this->setStemmer(new $class);
     }
 }

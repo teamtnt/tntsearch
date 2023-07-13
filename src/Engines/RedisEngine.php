@@ -429,4 +429,54 @@ class RedisEngine implements EngineContract
         }
     }
 
+    public function readDocumentsFromFileSystem()
+    {
+        $exclude = [];
+        if (isset($this->config['exclude'])) {
+            $exclude = $this->config['exclude'];
+        }
+
+        $path = realpath($this->config['location']);
+
+        $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
+        $counter = 0;
+
+        foreach ($objects as $name => $object) {
+            $name = str_replace($path . '/', '', $name);
+
+            if (is_callable($this->config['extension'])) {
+                $includeFile = $this->config['extension']($object);
+            } elseif (is_array($this->config['extension'])) {
+                $includeFile = in_array($object->getExtension(), $this->config['extension']);
+            } else {
+                $includeFile = stringEndsWith($name, $this->config['extension']);
+            }
+
+            if ($includeFile && !in_array($name, $exclude)) {
+                $counter++;
+                $file = [
+                    'id'      => $counter,
+                    'name'    => $name,
+                    'content' => $this->filereader->read($object)
+                ];
+                $fileCollection = new Collection($file);
+
+                if (property_exists($this->filereader, 'fileFilterCallback')
+                    && is_callable($this->filereader->fileFilterCallback)) {
+                    $fileCollection = $fileCollection->filter($this->filereader->fileFilterCallback);
+                }
+                if (property_exists($this->filereader, 'fileMapCallback')
+                    && is_callable($this->filereader->fileMapCallback)) {
+                    $fileCollection = $fileCollection->map($this->filereader->fileMapCallback);
+                }
+
+                $this->processDocument($fileCollection);
+                $redisKey = $this->indexName . ':filemap:' . $counter;
+                $this->redis->hset($redisKey, 'id', $counter);
+                $this->redis->hset($redisKey, 'path', $object);
+                $this->info("Processed $counter $object");
+            }
+        }
+    }
+
 }

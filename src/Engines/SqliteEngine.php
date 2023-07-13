@@ -201,11 +201,6 @@ class SqliteEngine implements EngineContract
         $this->saveToIndex($stems, $documentId);
     }
 
-    public function setPrimaryKey($primaryKey)
-    {
-        $this->primaryKey = $primaryKey;
-    }
-
     public function excludePrimaryKey()
     {
         $this->excludePrimaryKey = true;
@@ -671,9 +666,4 @@ class SqliteEngine implements EngineContract
         return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    public function setLanguage($language = 'no')
-    {
-        $class = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
-        $this->setStemmer(new $class);
-    }
 }
