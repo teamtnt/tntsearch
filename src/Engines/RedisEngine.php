@@ -150,12 +150,12 @@ class RedisEngine implements EngineContract
         $stems->map(function ($column, $key) use (&$terms) {
             foreach ($column as $term) {
                 if (array_key_exists($term, $terms)) {
-                    $terms[$term]['hits']++;
-                    $terms[$term]['docs'] = 1;
+                    $terms[$term]['num_hits']++;
+                    $terms[$term]['num_docs'] = 1;
                 } else {
                     $terms[$term] = [
-                        'hits' => 1,
-                        'docs' => 1
+                        'num_hits' => 1,
+                        'num_docs' => 1
                     ];
                 }
             }
@@ -166,24 +166,22 @@ class RedisEngine implements EngineContract
             $redisKey = $this->indexName . ':wordlist:' . $key;
             if ($this->redis->exists($redisKey)) {
                 // Term already exists, retrieve existing hits and docs values
-                $existingHits = $this->redis->hget($redisKey, 'hits');
-                $existingDocs = $this->redis->hget($redisKey, 'docs');
+                $existingHits = $this->redis->hget($redisKey, 'num_hits');
+                $existingDocs = $this->redis->hget($redisKey, 'num_docs');
 
                 // Increment hits and docs values
-                $updatedHits = $existingHits + $term['hits'];
-                $updatedDocs = $existingDocs + $term['docs'];
+                $updatedHits = $existingHits + $term['num_hits'];
+                $updatedDocs = $existingDocs + $term['num_docs'];
 
                 // Update hits and docs values in Redis
-                $this->redis->hset($redisKey, 'hits', $updatedHits);
-                $this->redis->hset($redisKey, 'docs', $updatedDocs);
+                $this->redis->hset($redisKey, 'num_hits', $updatedHits);
+                $this->redis->hset($redisKey, 'num_docs', $updatedDocs);
 
-                // Update the terms array with the updated values
-                $terms[$key]['hits'] = $updatedHits;
-                $terms[$key]['docs'] = $updatedDocs;
             } else {
+
                 // Term doesn't exist, store initial hits and docs values in Redis
-                $this->redis->hset($redisKey, 'hits', $term['hits']);
-                $this->redis->hset($redisKey, 'docs', $term['docs']);
+                $this->redis->hset($redisKey, 'num_hits', $term['num_hits']);
+                $this->redis->hset($redisKey, 'num_docs', $term['num_docs']);
             }
         }
 
@@ -195,7 +193,7 @@ class RedisEngine implements EngineContract
         foreach ($terms as $key => $term) {
             $redisKey = $this->indexName . ':doclist:' . $key;
 
-            $this->redis->hset($redisKey, $docId, $term['hits']);
+            $this->redis->hset($redisKey, $docId, $term['num_hits']);
         }
     }
 
@@ -220,8 +218,8 @@ class RedisEngine implements EngineContract
                 usort($wordlistKeys, function ($a, $b) {
                     $lengthA = strlen($this->redis->hget($a, 'term'));
                     $lengthB = strlen($this->redis->hget($b, 'term'));
-                    $hitsA   = $this->redis->hget($a, 'hits');
-                    $hitsB   = $this->redis->hget($b, 'hits');
+                    $hitsA   = $this->redis->hget($a, 'num_hits');
+                    $hitsB   = $this->redis->hget($b, 'num_hits');
                     if ($lengthA == $lengthB) {
                         return $hitsB <=> $hitsA;
                     }
@@ -256,19 +254,21 @@ class RedisEngine implements EngineContract
     {
         $redisKey = $this->indexName . ':doclist:' . $word[0]['term'];
 
+        // Get all document IDs from the hash field
+        $docIds = $this->redis->hkeys($redisKey);
+
+        // Sort the document IDs if needed
         if (!$noLimit) {
-            $docIds = $this->redis->zrevrange($redisKey, 0, $this->maxDocs - 1);
-        } else {
-            $docIds = $this->redis->zrevrange($redisKey, 0, -1);
+            sort($docIds);
         }
 
         $documents = [];
 
         foreach ($docIds as $docId) {
             $document = [
-                'term_id'   => $word[0]['id'],
+                'term_id'   => $word[0]['term'],
                 'doc_id'    => $docId,
-                'hit_count' => $this->redis->hget($redisKey . ':hits', $docId)
+                'hit_count' => $this->redis->hget($redisKey, $docId)
             ];
 
             $documents[] = $document;
@@ -322,10 +322,10 @@ class RedisEngine implements EngineContract
         foreach ($wordlistKeysToUpdate as $wordlistKey) {
             $termKey = str_replace($this->indexName . ':wordlist:', '', $wordlistKey);
 
-            $this->redis->hincrby($wordlistKey, 'docs', -1);
-            $this->redis->hincrby($wordlistKey, 'hits', -$termsHitsDeleted[$termKey]);
+            $this->redis->hincrby($wordlistKey, 'num_docs', -1);
+            $this->redis->hincrby($wordlistKey, 'num_hits', -$termsHitsDeleted[$termKey]);
 
-            $docsCount = $this->redis->hget($wordlistKey, 'docs');
+            $docsCount = $this->redis->hget($wordlistKey, 'num_docs');
 
             if ($docsCount == 0) {
                 $this->redis->del($wordlistKey);
@@ -343,6 +343,23 @@ class RedisEngine implements EngineContract
     public function totalDocumentsInCollection()
     {
         return $this->getValueFromInfoTable('total_documents');
+    }
+
+    public function getWordFromWordList($word)
+    {
+        $redisKey = $this->indexName . ':wordlist:' . $word;
+        $result   = $this->redis->hgetall($redisKey);
+
+        if (!empty($result)) {
+            return [
+                'id'       => $word,
+                'term'     => $word,
+                'num_hits' => $result['num_hits'],
+                'num_docs' => $result['num_docs']
+            ];
+        }
+
+        return null;
     }
 
 }

@@ -474,16 +474,6 @@ class SqliteEngine implements EngineContract
         return $selectStmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function countWordInWordList($word)
-    {
-        $res = $this->getWordFromWordList($word);
-
-        if ($res) {
-            return $res['num_hits'];
-        }
-        return 0;
-    }
-
     public function countDocHitsInWordList($word)
     {
         $res = $this->getWordFromWordList($word);
@@ -547,8 +537,6 @@ class SqliteEngine implements EngineContract
         }
         $stmtWord->execute();
         $res = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
-
-        dd($res);
 
         if ($this->fuzziness && (!isset($res[0]) || $noLimit)) {
             return $this->fuzzySearch($keyword);

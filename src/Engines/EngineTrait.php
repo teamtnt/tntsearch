@@ -138,4 +138,13 @@ trait EngineTrait
         $this->excludePrimaryKey = false;
     }
 
+    public function countWordInWordList($word)
+    {
+        $res = $this->getWordFromWordList($word);
+
+        if ($res) {
+            return $res['num_hits'];
+        }
+        return 0;
+    }
 }
