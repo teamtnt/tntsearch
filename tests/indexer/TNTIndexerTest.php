@@ -1,5 +1,6 @@
 <?php
 
+use TeamTNT\TNTSearch\Engines\RedisEngine;
 use TeamTNT\TNTSearch\Engines\SqliteEngine;
 use TeamTNT\TNTSearch\Indexer\TNTIndexer;
 use TeamTNT\TNTSearch\Support\AbstractTokenizer;
@@ -114,7 +115,7 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
 
     public function testBuildTrigrams()
     {
-        $engine   = new SqliteEngine;
+        $engine   = new RedisEngine;
         $indexer  = new TNTIndexer($engine);
         $trigrams = $indexer->buildTrigrams('created');
         $this->assertEquals('__c _cr cre rea eat ate ted ed_ d__', $trigrams);

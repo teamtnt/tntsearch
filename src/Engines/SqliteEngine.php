@@ -6,11 +6,6 @@ use Exception;
 use PDO;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use TeamTNT\TNTSearch\Connectors\FileSystemConnector;
-use TeamTNT\TNTSearch\Connectors\MySqlConnector;
-use TeamTNT\TNTSearch\Connectors\PostgresConnector;
-use TeamTNT\TNTSearch\Connectors\SQLiteConnector;
-use TeamTNT\TNTSearch\Connectors\SqlServerConnector;
 use TeamTNT\TNTSearch\Contracts\EngineContract;
 use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
 use TeamTNT\TNTSearch\FileReaders\TextFileReader;
@@ -18,10 +13,11 @@ use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
 use TeamTNT\TNTSearch\Stemmer\NoStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Support\Tokenizer;
-use TeamTNT\TNTSearch\Support\TokenizerInterface;
 
 class SqliteEngine implements EngineContract
 {
+    use EngineTrait;
+
     public $indexName;
     public $config;
     public $index;
@@ -150,33 +146,6 @@ class SqliteEngine implements EngineContract
         $this->updateInfoTableStmt->execute();
     }
 
-    /**
-     * @param array $config
-     *
-     * @return FileSystemConnector|MySqlConnector|PostgresConnector|SQLiteConnector|SqlServerConnector
-     * @throws Exception
-     */
-    public function createConnector(array $config)
-    {
-        if (!isset($config['driver'])) {
-            throw new Exception('A driver must be specified.');
-        }
-
-        switch ($config['driver']) {
-            case 'mysql':
-                return new MySqlConnector;
-            case 'pgsql':
-                return new PostgresConnector;
-            case 'sqlite':
-                return new SQLiteConnector;
-            case 'sqlsrv':
-                return new SqlServerConnector;
-            case 'filesystem':
-                return new FileSystemConnector;
-        }
-        throw new Exception("Unsupported driver [{$config['driver']}]");
-    }
-
     public function indexBeginTransaction()
     {
         $this->index->beginTransaction();
@@ -185,19 +154,6 @@ class SqliteEngine implements EngineContract
     public function indexEndTransaction()
     {
         $this->index->commit();
-    }
-
-    /**
-     * @return string
-     */
-    public function getStoragePath()
-    {
-        return $this->config['storage'];
-    }
-
-    public function query($query)
-    {
-        $this->query = $query;
     }
 
     public function run()
@@ -245,14 +201,6 @@ class SqliteEngine implements EngineContract
         $this->saveToIndex($stems, $documentId);
     }
 
-    public function getPrimaryKey()
-    {
-        if (isset($this->primaryKey)) {
-            return $this->primaryKey;
-        }
-        return 'id';
-    }
-
     public function setPrimaryKey($primaryKey)
     {
         $this->primaryKey = $primaryKey;
@@ -266,30 +214,6 @@ class SqliteEngine implements EngineContract
     public function includePrimaryKey()
     {
         $this->excludePrimaryKey = false;
-    }
-
-    public function stemText($text)
-    {
-        $stemmer = $this->getStemmer();
-        $words   = $this->breakIntoTokens($text);
-        $stems   = [];
-        foreach ($words as $word) {
-            $stems[] = $stemmer->stem($word);
-        }
-        return $stems;
-    }
-
-    public function getStemmer()
-    {
-        return $this->stemmer;
-    }
-
-    public function breakIntoTokens($text)
-    {
-        if ($this->decodeHTMLEntities) {
-            $text = html_entity_decode($text);
-        }
-        return $this->tokenizer->tokenize($text, $this->stopWords);
     }
 
     public function setStopWords(array $stopWords)
@@ -429,32 +353,6 @@ class SqliteEngine implements EngineContract
             }
             $fieldCounter++;
         }
-    }
-
-    public function info($text)
-    {
-        if (!$this->disableOutput) {
-            echo $text . PHP_EOL;
-        }
-    }
-
-    public function setInMemory($value)
-    {
-        $this->inMemory = $value;
-    }
-
-    public function setIndex($index)
-    {
-        $this->index = $index;
-    }
-
-    /**
-     * @param TokenizerInterface $tokenizer
-     */
-    public function setTokenizer(TokenizerInterface $tokenizer)
-    {
-        $this->tokenizer = $tokenizer;
-        $this->updateInfoTable('tokenizer', get_class($tokenizer));
     }
 
     public function readDocumentsFromFileSystem()
@@ -667,6 +565,8 @@ class SqliteEngine implements EngineContract
         }
         $stmtWord->execute();
         $res = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
+
+        dd($res);
 
         if ($this->fuzziness && (!isset($res[0]) || $noLimit)) {
             return $this->fuzzySearch($keyword);

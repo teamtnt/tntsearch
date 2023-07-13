@@ -3,6 +3,7 @@
 namespace TeamTNT\TNTSearch;
 
 use PDO;
+use TeamTNT\TNTSearch\Engines\RedisEngine;
 use TeamTNT\TNTSearch\Engines\SqliteEngine;
 use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
 use TeamTNT\TNTSearch\Indexer\TNTIndexer;
@@ -36,7 +37,7 @@ class TNTSearch
 
     public function __construct()
     {
-        $this->engine    = new SqliteEngine;
+        $this->engine    = new RedisEngine;
         $this->tokenizer = new Tokenizer;
     }
 
