@@ -347,6 +347,7 @@ class RedisEngine implements EngineContract
 
     public function getWordFromWordList($word)
     {
+        $word     = strtolower($word);
         $redisKey = $this->indexName . ':wordlist:' . $word;
         $result   = $this->redis->hgetall($redisKey);
 

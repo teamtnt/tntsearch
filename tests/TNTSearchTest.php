@@ -224,6 +224,7 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertTrue($count == 0, 'Word Othello should be 0');
         $index->insert(['id' => 13, 'title' => 'Othello', 'article' => 'For she had eyes and chose me.']);
         $count = $index->countWordInWordList('Othello');
+
         $this->assertEquals(1, $count, 'Word Othello should be 1');
         $this->assertEquals(13, $tnt->totalDocumentsInCollection());
 
