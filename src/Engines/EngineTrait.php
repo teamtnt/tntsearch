@@ -168,4 +168,9 @@ trait EngineTrait
         $class = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
         $this->setStemmer(new $class);
     }
+
+    public function setDatabaseHandle($dbh)
+    {
+        $this->dbh = $dbh;
+    }
 }

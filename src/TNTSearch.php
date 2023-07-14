@@ -435,4 +435,63 @@ class TNTSearch
     {
         $this->engine->fuzzy_no_limit = $value;
     }
+
+    public function setFuzziness($value)
+    {
+        $this->engine->fuzziness = $value;
+    }
+
+    public function setFuzzyDistance($value)
+    {
+        $this->engine->fuzzy_distance = $value;
+    }
+
+    public function setFuzzyPrefixLength($value)
+    {
+        $this->engine->fuzzy_prefix_length = $value;
+    }
+
+    public function setFuzzyMaxExpansions($value)
+    {
+        $this->engine->fuzzy_max_expansions = $value;
+    }
+
+    public function setFuzzyNoLimit($value)
+    {
+        $this->engine->fuzzy_no_limit = $value;
+    }
+    public function setAsYouType($value)
+    {
+        $this->engine->asYouType = $value;
+    }
+
+    public function getFuzziness()
+    {
+        return $this->engine->fuzziness;
+    }
+
+    public function getFuzzyDistance()
+    {
+        return $this->engine->fuzzy_distance;
+    }
+
+    public function getFuzzyPrefixLength()
+    {
+        return $this->engine->fuzzy_prefix_length;
+    }
+
+    public function getFuzzyMaxExpansions()
+    {
+        return $this->engine->fuzzy_max_expansions;
+    }
+    public function getFuzzyNoLimit()
+    {
+        return $this->engine->fuzzy_no_limit;
+    }
+
+    public function getAsYouType()
+    {
+        return $this->engine->asYouType;
+    }
+
 }
