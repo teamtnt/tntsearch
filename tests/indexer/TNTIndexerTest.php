@@ -13,13 +13,16 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
 
     protected $indexName = "testIndex";
     protected $config    = [
-        'driver'    => 'sqlite',
-        'database'  => __DIR__ . '/../_files/articles.sqlite',
-        'host'      => 'localhost',
-        'username'  => 'testUser',
-        'password'  => 'testPass',
-        'storage'   => __DIR__ . '/../_files/',
-        'tokenizer' => TeamTNT\TNTSearch\Support\ProductTokenizer::class
+        'driver'     => 'sqlite',
+        'engine'     => 'TeamTNT\TNTSearch\Engines\RedisEngine',
+        'redis_host' => '127.0.0.1',
+        'redis_port' => '6379',
+        'database'   => __DIR__ . '/../_files/articles.sqlite',
+        'host'       => 'localhost',
+        'username'   => 'testUser',
+        'password'   => 'testPass',
+        'storage'    => __DIR__ . '/../_files/',
+        'tokenizer'  => TeamTNT\TNTSearch\Support\ProductTokenizer::class
 
     ];
 
@@ -48,10 +51,13 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
     public function testIndexFromFileSystem()
     {
         $config = [
-            'driver'    => 'filesystem',
-            'storage'   => __DIR__ . '/../_files/',
-            'location'  => __DIR__ . '/../_files/articles/',
-            'extension' => 'txt'
+            'driver'     => 'filesystem',
+            'engine'     => 'TeamTNT\TNTSearch\Engines\RedisEngine',
+            'redis_host' => '127.0.0.1',
+            'redis_port' => '6379',
+            'storage'    => __DIR__ . '/../_files/',
+            'location'   => __DIR__ . '/../_files/articles/',
+            'extension'  => 'txt'
         ];
 
         $tnt = new TNTSearch;

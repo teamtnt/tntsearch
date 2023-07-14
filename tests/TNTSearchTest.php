@@ -10,14 +10,17 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
     protected $indexName = "testIndex";
 
     protected $config = [
-        'driver'   => 'sqlite',
-        'engine'   => 'TeamTNT\TNTSearch\Engines\RedisEngine',
-        'database' => __DIR__ . '/_files/articles.sqlite',
-        'host'     => 'localhost',
-        'username' => 'testUser',
-        'password' => 'testPass',
-        'storage'  => __DIR__ . '/_files/',
-        'stemmer'  => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class
+        'driver'     => 'sqlite',
+        'engine'     => 'TeamTNT\TNTSearch\Engines\RedisEngine',
+        'redis_host' => '127.0.0.1',
+        'redis_port' => '6379',
+        'engine'     => 'TeamTNT\TNTSearch\Engines\RedisEngine',
+        'database'   => __DIR__ . '/_files/articles.sqlite',
+        'host'       => 'localhost',
+        'username'   => 'testUser',
+        'password'   => 'testPass',
+        'storage'    => __DIR__ . '/_files/',
+        'stemmer'    => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class
     ];
 
     public function testLoadConfig()

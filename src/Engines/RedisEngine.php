@@ -53,13 +53,21 @@ class RedisEngine implements EngineContract
     public function loadConfig(array $config)
     {
         $this->config = $config;
-        $this->redis  = new Redis();
-        $this->redis->connect('127.0.0.1', 6379);
+
+        if (!isset($this->config['redis_host']) || !isset($this->config['redis_port'])) {
+            throw new Exception('Redis host and port are not set in the configuration.');
+        }
+
+        $redisHost = $this->config['redis_host'];
+        $redisPort = $this->config['redis_port'];
+
+        $this->redis = new Redis();
+        $this->redis->connect($redisHost, $redisPort);
     }
 
     public function createIndex($indexName)
     {
-        $this->redis->flushAll();
+        $this->flushIndex($indexName);
 
         $this->indexName = $indexName;
 
@@ -521,6 +529,15 @@ class RedisEngine implements EngineContract
         });
 
         return new Collection($filteredDocuments);
+    }
+
+    public function flushIndex($indexName)
+    {
+        $keys = $this->redis->keys($indexName . ':*');
+
+        foreach ($keys as $key) {
+            $this->redis->del($key);
+        }
     }
 
 }
