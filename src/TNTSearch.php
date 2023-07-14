@@ -32,12 +32,20 @@ class TNTSearch
         $this->config            = $config;
         $this->config['storage'] = rtrim($this->config['storage'], '/') . '/';
 
+        // Check if 'engine' key is set in the config
+        if (!isset($this->config['engine'])) {
+            $this->config['engine'] = \TeamTNT\TNTSearch\Engines\SqliteEngine::class;
+        }
+
+        // Create the engine instance based on the config
+        $engine       = $this->config['engine'];
+        $this->engine = new $engine;
+
         $this->engine->loadConfig($config);
     }
 
     public function __construct()
     {
-        $this->engine    = new RedisEngine;
         $this->tokenizer = new Tokenizer;
     }
 
