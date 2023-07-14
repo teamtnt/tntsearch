@@ -56,9 +56,7 @@ class SqliteEngine implements EngineContract
     {
         $this->indexName = $indexName;
 
-        if (file_exists($this->config['storage'] . $indexName)) {
-            unlink($this->config['storage'] . $indexName);
-        }
+        $this->flushIndex($indexName);
 
         $this->index = new PDO('sqlite:' . $this->config['storage'] . $indexName);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -666,4 +664,10 @@ class SqliteEngine implements EngineContract
         return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
     }
 
+    public function flushIndex($indexName)
+    {
+        if (file_exists($this->config['storage'] . $indexName)) {
+            unlink($this->config['storage'] . $indexName);
+        }
+    }
 }

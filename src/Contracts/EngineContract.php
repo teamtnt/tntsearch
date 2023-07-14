@@ -14,7 +14,7 @@ interface EngineContract
     public function selectIndex($indexName);
     public function saveWordlist($stems);
     public function saveDoclist($terms, $docId);
-    public function saveHitList();
+    public function saveHitList($stems, $docId, $termsList);
     public function delete($documentId);
     public function totalDocumentsInCollection();
     public function getWordFromWordList($word);

@@ -14,7 +14,6 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         'engine'     => 'TeamTNT\TNTSearch\Engines\RedisEngine',
         'redis_host' => '127.0.0.1',
         'redis_port' => '6379',
-        'engine'     => 'TeamTNT\TNTSearch\Engines\RedisEngine',
         'database'   => __DIR__ . '/_files/articles.sqlite',
         'host'       => 'localhost',
         'username'   => 'testUser',

@@ -205,7 +205,7 @@ class RedisEngine implements EngineContract
         }
     }
 
-    public function saveHitList()
+    public function saveHitList($stems, $docId, $termsList)
     {
         return;
     }
