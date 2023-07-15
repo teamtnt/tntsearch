@@ -1,6 +1,7 @@
 <?php
 namespace TeamTNT\TNTSearch\Engines;
 
+use Exception;
 use TeamTNT\TNTSearch\Connectors\FileSystemConnector;
 use TeamTNT\TNTSearch\Connectors\MySqlConnector;
 use TeamTNT\TNTSearch\Connectors\PostgresConnector;

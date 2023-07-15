@@ -356,6 +356,17 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertTrue(true);
     }
 
+    public function testUnsupportedDriverException()
+    {
+        $this->config['driver'] = 'NonExistentDriver';
+        $this->expectException(Exception::class);
+
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($this->config);
+
+        $res = $tnt->engine->createConnector($this->config);
+    }
+
     public function testStemmerIsSetOnNewIndexesBasedOnConfig()
     {
         $config            = $this->config;
