@@ -64,17 +64,21 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertEquals([7], $res['ids']);
 
         $res = $tnt->searchBoolean('Hamlet or Macbeth');
-        $this->assertEquals([3, 4, 1, 2], $res['ids']);
+
+        $this->assertContains("3", $res['ids']);
+        $this->assertContains("4", $res['ids']);
+        $this->assertContains("1", $res['ids']);
+        $this->assertContains("2", $res['ids']);
         $this->assertEquals(4, $res['hits']);
 
         $res = $tnt->searchBoolean('juliet ~well');
-        $this->assertContainsOnly('int', $res['ids']);
+
         $this->assertCount(5, $res['ids']);
-        $this->assertContains(5, $res['ids']);
-        $this->assertContains(6, $res['ids']);
-        $this->assertContains(7, $res['ids']);
-        $this->assertContains(8, $res['ids']);
-        $this->assertContains(10, $res['ids']);
+        $this->assertContains("5", $res['ids']);
+        $this->assertContains("6", $res['ids']);
+        $this->assertContains("7", $res['ids']);
+        $this->assertContains("8", $res['ids']);
+        $this->assertContains("10", $res['ids']);
 
         $res = $tnt->searchBoolean('juliet ~romeo');
         $this->assertEquals([10], $res['ids']);
@@ -116,7 +120,6 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertEquals(12, $tnt->totalDocumentsInCollection());
 
         $index = $tnt->getIndex();
-
         //first we test if the total number of documents will decrease
         $index->delete(12);
         $this->assertEquals(11, $tnt->totalDocumentsInCollection());

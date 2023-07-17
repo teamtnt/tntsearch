@@ -198,10 +198,9 @@ class RedisEngine implements EngineContract
 
     public function saveDoclist($terms, $docId)
     {
-        foreach ($terms as $key => $term) {
-            $redisKey = $this->indexName . ':doclist:' . $key;
-
-            $this->redis->hset($redisKey, $docId, $term['num_hits']);
+        foreach ($terms as $term => $docsHits) {
+            $redisKey = $this->indexName . ':doclist:' . $term . ':' . $docId;
+            $this->redis->hset($redisKey, 'num_hits', $docsHits['num_hits']);
         }
     }
 
@@ -269,23 +268,28 @@ class RedisEngine implements EngineContract
 
     public function getAllDocumentsForStrictKeyword($word, $noLimit)
     {
-        $redisKey = $this->indexName . ':doclist:' . $word[0]['term'];
+        $redisKey = $this->indexName . ':doclist:' . $word[0]['term'] . ":*";
 
         // Get all document IDs from the hash field
-        $docIds = $this->redis->hkeys($redisKey);
+        $doclist = $this->redis->keys($redisKey);
 
         // Sort the document IDs if needed
         if (!$noLimit) {
-            sort($docIds);
+            sort($doclist);
         }
 
         $documents = [];
 
-        foreach ($docIds as $docId) {
+        foreach ($doclist as $doc) {
+            $parts = explode(':', $doc);
+            $docId = $parts[3];
+
+            $doclistKey = $this->indexName . ':doclist:' . $word[0]['term'] . ":" . $docId;
+
             $document = [
                 'term_id'   => $word[0]['term'],
                 'doc_id'    => $docId,
-                'hit_count' => $this->redis->hget($redisKey, $docId)
+                'hit_count' => $this->redis->hget($doclistKey, 'num_hits')
             ];
 
             $documents[] = $document;
@@ -297,7 +301,7 @@ class RedisEngine implements EngineContract
     public function delete($documentId)
     {
         // Fetch the terms associated with the given document ID from doclist
-        $doclistKey   = $this->indexName . ':doclist:*';
+        $doclistKey   = $this->indexName . ':doclist:*:' . $documentId;
         $doclistTerms = $this->redis->keys($doclistKey);
 
         // Track the wordlist keys to be updated and the hits count per term
@@ -309,25 +313,22 @@ class RedisEngine implements EngineContract
 
         // Remove the document ID from the associated terms in doclist
         foreach ($doclistTerms as $keyName) {
-            if ($this->redis->hexists($keyName, $documentId)) {
-                // Remove the document ID from the hash
-                $hits = $this->redis->hget($keyName, $documentId);
-                $this->redis->hdel($keyName, $documentId);
 
-                // Add the wordlist key to the update list
-                $wordlistKeysToUpdate[] = str_replace('doclist:', 'wordlist:', $keyName);
+            // Remove the document ID from the hash
+            $hits = $this->redis->hget($keyName, 'num_hits');
 
-                // Track the hits deleted per term
-                $termKey = str_replace([$this->indexName . ':doclist:', ':' . $documentId], '', $keyName);
-                if (!isset($termsHitsDeleted[$termKey])) {
-                    $termsHitsDeleted[$termKey] = $hits;
-                } else {
-                    $termsHitsDeleted[$termKey] += $hits;
-                }
+            $parts = explode(':', $keyName);
+            $term  = $parts[2];
 
-                // Set the flag indicating that a document was deleted
-                $documentDeleted = true;
+            // Add the wordlist key to the update list
+            $wordlistKeysToUpdate[] = $this->indexName . ':wordlist:' . $term;
+
+            if (!isset($termsHitsDeleted[$term])) {
+                $termsHitsDeleted[$term] = $hits;
+            } else {
+                $termsHitsDeleted[$term] += $hits;
             }
+            $documentDeleted = true;
         }
 
         // If no document was found and deleted, return early
@@ -420,12 +421,17 @@ class RedisEngine implements EngineContract
     {
         $docs = [];
         foreach ($words as $word) {
-            $doclistKey = $this->indexName . ':doclist:' . $word['term'];
-            $fields     = $this->redis->hgetall($doclistKey);
-            foreach ($fields as $key => $value) {
+            $doclistKey = $this->indexName . ':doclist:' . $word['term'] . ":*";
+
+            $doclist = $this->redis->keys($doclistKey);
+            foreach ($doclist as $doc) {
+                $hitCount = $this->redis->hget($doc, 'num_hits');
+                $parts    = explode(':', $doc);
+                $docId    = $parts[3];
+
                 $docs[] = [
-                    "doc_id"    => $key,
-                    "hit_count" => $value
+                    "doc_id"    => $docId,
+                    "hit_count" => $hitCount
                 ];
             }
         }
@@ -495,32 +501,30 @@ class RedisEngine implements EngineContract
         }
 
         $pattern     = $this->indexName . ':doclist:*';
-        $excludedKey = $this->indexName . ':doclist:' . $keyword;
+        $excludedKey = $this->indexName . ':doclist:' . $keyword . ":*";
         $limit       = $this->maxDocs;
 
         // Get all doc_ids where the keyword is excluded
-        $excludedDocs = $this->redis->hgetall($excludedKey);
+        $excludedDocs = $this->redis->keys($excludedKey);
+
         $excludedDocs = array_map(function ($doc) {
-            return ['doc_id' => $doc];
-        }, array_keys($excludedDocs));
+            $parts = explode(':', $doc);
+            $docId = $parts[3];
+            return ['doc_id' => $docId];
+        }, $excludedDocs);
 
         // Retrieve all keys matching the pattern
         $keys = $this->redis->keys($pattern);
 
-        // Filter out the excluded key
-        $filteredKeys = array_filter($keys, function ($key) use ($excludedKey) {
-            return $key !== $excludedKey;
-        });
-
         // Output the keys up to the limit
         $documents = [];
-        foreach (array_slice($filteredKeys, 0, $limit) as $key) {
-            $fields = $this->redis->hgetall($key);
-            foreach ($fields as $field => $value) {
-                $documents[] = [
-                    'doc_id' => $field
-                ];
-            }
+        foreach (array_slice($keys, 0, $limit) as $doc) {
+            $parts       = explode(':', $doc);
+            $docId       = $parts[3];
+            $documents[] = [
+                'doc_id' => $docId
+            ];
+
         }
 
         // Perform a diff between all documents and excluded documents
