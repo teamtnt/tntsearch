@@ -58,11 +58,20 @@ class RedisEngine implements EngineContract
             throw new Exception('Redis host and port are not set in the configuration.');
         }
 
-        $redisHost = $this->config['redis_host'];
-        $redisPort = $this->config['redis_port'];
+        $redisHost       = $this->config['redis_host'];
+        $redisPort       = $this->config['redis_port'];
+        $redisScheme     = $this->config['redis_scheme'] ?? "tcp";
+        $redisPassword   = $this->config['redis_password'] ?? null;
+        $redisSSLOptions = $this->config['redis_ssl_options'] ?? null;
 
-        $this->redis = new Redis();
-        $this->redis->connect($redisHost, $redisPort);
+        $this->redis = new \Predis\Client([
+            'scheme'   => $redisScheme,
+            'host'     => $redisHost,
+            'port'     => $redisPort,
+            'password' => $redisPassword,
+            'ssl'      => $redisSSLOptions
+        ]);
+
     }
 
     public function createIndex($indexName)

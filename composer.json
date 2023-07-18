@@ -25,7 +25,8 @@
         "php": "~7.1|^8",
         "ext-pdo_sqlite": "*",
         "ext-sqlite3": "*",
-        "ext-mbstring": "*"
+        "ext-mbstring": "*",
+        "predis/predis": "^2.2"
     },
     "require-dev": {
         "phpunit/phpunit": "7.*|8.*|9.*",
