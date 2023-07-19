@@ -60,6 +60,7 @@ class RedisEngine implements EngineContract
 
         $redisHost       = $this->config['redis_host'];
         $redisPort       = $this->config['redis_port'];
+        $redisOptions    = $this->config['redis_options'] ?? null;
         $redisScheme     = $this->config['redis_scheme'] ?? "tcp";
         $redisPassword   = $this->config['redis_password'] ?? null;
         $redisSSLOptions = $this->config['redis_ssl_options'] ?? null;
@@ -70,8 +71,7 @@ class RedisEngine implements EngineContract
             'port'     => $redisPort,
             'password' => $redisPassword,
             'ssl'      => $redisSSLOptions
-        ]);
-
+        ], $redisOptions);
     }
 
     public function createIndex($indexName)
