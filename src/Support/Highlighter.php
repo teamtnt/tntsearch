@@ -187,6 +187,7 @@ class Highlighter
         // if we are going to snip too much...
         if ($textlength - $startpos < $rellength) {
             $startpos = $startpos - ($textlength - $startpos) / 2;
+            $startpos = max($startpos, 0);
         }
 
         // in case no match is found, reset position for proper math below
