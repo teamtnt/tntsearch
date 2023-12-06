@@ -189,7 +189,7 @@ $tnt = new TNTSearch;
 
 $tnt->loadConfig($config);
 $tnt->selectIndex("name.index");
-$tnt->fuzziness = true;
+$tnt->fuzziness(true);
 
 //when the fuzziness flag is set to true, the keyword juleit will return
 //documents that match the word juliet, the default Levenshtein distance is 2
