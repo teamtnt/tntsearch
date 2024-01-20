@@ -531,9 +531,21 @@ class SqliteEngine implements EngineContract
         $stmtWord->execute();
         $res = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($this->fuzziness && (!isset($res[0]) || $noLimit)) {
-            return $this->fuzzySearch($keyword);
+        if (isset($res[0])) {
+            $res[0]['distance'] = 0;
         }
+
+        if ($this->fuzziness && (! isset($res[0]) || $noLimit)) {
+            $fuzzyRes = $this->fuzzySearch($keyword);
+
+            if (isset($res[0]) && isset($fuzzyRes[0])) {
+                if ($res[0]['id'] === $fuzzyRes[0]['id']) {
+                    $fuzzyRes = array_slice($fuzzyRes, 1);
+                }
+            }
+            array_push($res, ...$fuzzyRes);
+        }
+
         return $res;
     }
 
