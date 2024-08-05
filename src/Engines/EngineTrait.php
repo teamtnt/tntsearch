@@ -43,6 +43,8 @@ trait EngineTrait
                 return new SqlServerConnector;
             case 'filesystem':
                 return new FileSystemConnector;
+            case 'oracledb':
+                return new OracleDBConnector;
         }
         throw new Exception("Unsupported driver [{$config['driver']}]");
     }
