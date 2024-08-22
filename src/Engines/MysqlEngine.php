@@ -184,8 +184,10 @@ class MysqlEngine extends SqliteEngine
     public function saveDoclist($terms, $docId)
     {
         $insertRows = [];
+
+        $countTerms = count($terms);
         foreach ($terms as $key => $term) {
-            $insertRows[] = '('.$this->index->quote($term['id']).', '.$this->index->quote($docId).', '.$this->index->quote($term['hits']).')';
+            $insertRows[] = '('.$this->index->quote($term['id']).', '.$this->index->quote($docId).', '.$this->index->quote($term['hits'] / $countTerms).')';
         }
 
         $this->index->exec('INSERT INTO '.$this->indexName.'_doclist (term_id, doc_id, hit_count) VALUES '.implode(',', $insertRows).'');
