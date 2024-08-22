@@ -76,7 +76,7 @@ class SqliteEngine implements EngineContract
         $this->index->exec("CREATE TABLE IF NOT EXISTS doclist (
                     term_id INTEGER,
                     doc_id INTEGER,
-                    hit_count INTEGER)");
+                    hit_count FLOAT)");
 
         $this->index->exec("CREATE TABLE IF NOT EXISTS fields (
                     id INTEGER PRIMARY KEY,

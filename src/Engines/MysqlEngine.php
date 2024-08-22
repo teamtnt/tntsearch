@@ -41,7 +41,7 @@ class MysqlEngine extends SqliteEngine
             'CREATE TABLE IF NOT EXISTS '.$this->indexName.'_doclist (
                     term_id INTEGER,
                     doc_id VARCHAR(255),
-                    hit_count INTEGER)'
+                    hit_count FLOAT)'
         );
 
         $this->index->exec(
