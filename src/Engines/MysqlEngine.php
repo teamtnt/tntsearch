@@ -71,7 +71,7 @@ class MysqlEngine extends SqliteEngine
             ( 'tokenizer', 'TeamTNT\TNTSearch\Support\Tokenizer')"
         );
 
-        $this->index->exec("ALTER TABLE ".$this->indexName."_doclist ADD INDEX idx_term_id_hit_count (`term_id`, `hit_count`);");
+        $this->index->exec("ALTER TABLE ".$this->indexName."_doclist ADD INDEX idx_term_id_hit_count (`term_id`, `hit_count` DESC);");
         $this->index->exec("ALTER TABLE ".$this->indexName."_doclist ADD INDEX idx_doc_id (`doc_id`);");
 
         if (isset($this->config['stemmer'])) {
