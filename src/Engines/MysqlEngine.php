@@ -30,7 +30,7 @@ class MysqlEngine extends SqliteEngine
         $this->index->exec(
             'CREATE TABLE IF NOT EXISTS '.$this->indexName.'_wordlist (
                     id INTEGER PRIMARY KEY AUTO_INCREMENT,
-                    term VARCHAR(255) UNIQUE,
+                    term VARCHAR(255),
                     num_hits INTEGER,
                     num_docs INTEGER)'
         );
