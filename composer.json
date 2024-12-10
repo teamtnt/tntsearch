@@ -23,8 +23,6 @@
     }],
     "require": {
         "php": "~7.1|^8",
-        "ext-pdo_sqlite": "*",
-        "ext-sqlite3": "*",
         "ext-mbstring": "*",
         "predis/predis": "^2.2"
     },
