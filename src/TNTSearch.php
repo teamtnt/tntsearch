@@ -157,6 +157,9 @@ class TNTSearch
      */
     public function searchBoolean($phrase, $numOfResults = 100)
     {
+        $keywords   = $this->breakIntoTokens($phrase);
+        $lastKeyword = end($keywords);
+
         $stack      = [];
         $startTimer = microtime(true);
 
@@ -168,11 +171,13 @@ class TNTSearch
                 $left  = array_pop($stack);
                 $right = array_pop($stack);
                 if (is_string($left)) {
-                    $left = $this->getAllDocumentsForKeyword($this->stemmer->stem($left), true)
+                    $isLastKeyword = $left == $lastKeyword;
+                    $left = $this->getAllDocumentsForKeyword($this->stemmer->stem($left), true, $isLastKeyword)
                         ->pluck('doc_id');
                 }
                 if (is_string($right)) {
-                    $right = $this->getAllDocumentsForKeyword($this->stemmer->stem($right), true)
+                    $isLastKeyword = $right == $lastKeyword;
+                    $right = $this->getAllDocumentsForKeyword($this->stemmer->stem($right), true, $isLastKeyword)
                         ->pluck('doc_id');
                 }
                 if (is_null($left)) {
@@ -189,11 +194,13 @@ class TNTSearch
                 $right = array_pop($stack);
 
                 if (is_string($left)) {
-                    $left = $this->getAllDocumentsForKeyword($this->stemmer->stem($left), true)
+                    $isLastKeyword = $left == $lastKeyword;
+                    $left = $this->getAllDocumentsForKeyword($this->stemmer->stem($left), true, $isLastKeyword)
                         ->pluck('doc_id');
                 }
                 if (is_string($right)) {
-                    $right = $this->getAllDocumentsForKeyword($this->stemmer->stem($right), true)
+                    $isLastKeyword = $right == $lastKeyword;
+                    $right = $this->getAllDocumentsForKeyword($this->stemmer->stem($right), true, $isLastKeyword)
                         ->pluck('doc_id');
                 }
                 if (is_null($left)) {
