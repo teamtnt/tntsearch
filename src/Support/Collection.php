@@ -42,7 +42,7 @@ class Collection implements Countable, IteratorAggregate
      *
      * @return static
      */
-    public function filter(callable $callback = null)
+    public function filter(?callable $callback = null)
     {
         if ($callback) {
             $return = [];
