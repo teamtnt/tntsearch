@@ -369,9 +369,9 @@ class MysqlEngine extends SqliteEngine
         if (!isset($word[0])) {
             return new Collection([]);
         }
-        $query = "SELECT * FROM ".$this->indexName."_doclist WHERE doc_id NOT IN (SELECT doc_id FROM doclist WHERE term_id = :id) GROUP BY doc_id ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
+        $query = "SELECT * FROM ".$this->indexName."_doclist WHERE doc_id NOT IN (SELECT doc_id FROM ".$this->indexName."_doclist WHERE term_id = :id) GROUP BY doc_id ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
         if ($noLimit) {
-            $query = 'SELECT * FROM '.$this->indexName.'_doclist WHERE doc_id NOT IN (SELECT doc_id FROM doclist WHERE term_id = :id) GROUP BY doc_id ORDER BY hit_count DESC';
+            $query = 'SELECT * FROM '.$this->indexName.'_doclist WHERE doc_id NOT IN (SELECT doc_id FROM '.$this->indexName.'_doclist WHERE term_id = :id) GROUP BY doc_id ORDER BY hit_count DESC';
         }
         $stmtDoc = $this->index->prepare($query);
 
