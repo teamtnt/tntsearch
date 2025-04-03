@@ -94,7 +94,7 @@ class MysqlEngine extends SqliteEngine
     {
         if($this->index === null || $this->indexName != $indexName) {
             $this->setIndexName($indexName);
-            $this->index = new PDO('mysql:dbname='.$this->config['mysql_database'].';host='.$this->config['mysql_host'], $this->config['mysql_user'], $this->config['mysql_password']);
+            $this->index = new PDO('mysql:dbname='.$this->config['database'].';host='.$this->config['host'], $this->config['username'], $this->config['password']);
             $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
     }
