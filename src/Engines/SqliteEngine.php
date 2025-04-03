@@ -91,7 +91,7 @@ class SqliteEngine implements EngineContract
 
         $this->index->exec("CREATE TABLE IF NOT EXISTS info (
                     key TEXT,
-                    value INTEGER)");
+                    value TEXT)");
 
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', 0)");
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', 'TeamTNT\TNTSearch\Stemmer\NoStemmer')");

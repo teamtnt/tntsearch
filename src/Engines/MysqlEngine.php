@@ -61,8 +61,8 @@ class MysqlEngine extends SqliteEngine
 
         $this->index->exec(
             'CREATE TABLE IF NOT EXISTS '.$this->indexName.'_info (
-                    `key` TEXT,
-                    `value` INTEGER)'
+                    `key` VARCHAR(64),
+                    `value` VARCHAR(255))'
         );
 
         $this->index->exec("INSERT INTO ".$this->indexName."_info ( `key`, `value`) values 
