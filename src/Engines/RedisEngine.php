@@ -139,7 +139,7 @@ class RedisEngine implements EngineContract
     {
         $terms = $this->saveWordlist($stems);
         $this->saveDoclist($terms, $docId);
-        $this->saveHitList($stems, $docId, $terms);
+        $this->saveHitList($stems->toArray(), $docId, $terms);
     }
 
     public function selectIndex(string $indexName)
