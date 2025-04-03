@@ -38,7 +38,7 @@ class Connector
      * @param  array   $options
      * @return \PDO
      */
-    public function createConnection($dsn, array $config, array $options)
+    public function createConnection(string $dsn, array $config, array $options)
     {
         extract($config, EXTR_SKIP);
 

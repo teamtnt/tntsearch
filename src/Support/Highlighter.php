@@ -5,15 +5,15 @@ namespace TeamTNT\TNTSearch\Support;
 class Highlighter
 {
     protected $options = [
-        'simple'        => false,
-        'wholeWord'     => true,
+        'simple' => false,
+        'wholeWord' => true,
         'caseSensitive' => false,
-        'stripLinks'    => false,
+        'stripLinks' => false,
         'tagOptions' => [
             // 'class' => 'search-term',             // Example
             // 'title' => 'You searched for this.',  // Example
             // 'data-toggle' => 'tooltip',           // Example
-        ]
+        ],
     ];
 
     protected $tokenizer;
@@ -31,11 +31,11 @@ class Highlighter
      * @param        $text
      * @param        $needle
      * @param string $tag
-     * @param array  $options
+     * @param array $options
      *
      * @return string
      */
-    public function highlight($text, $needle, $tag = 'em', $options = [])
+    public function highlight($text, string $needle, string $tag = 'em', array $options = [])
     {
         $this->options = array_merge($this->options, $options);
 
@@ -47,20 +47,20 @@ class Highlighter
             $tagAttributes = ' ' . trim($tagAttributes);
         }
 
-        $highlight = '<' . $tag . $tagAttributes .'>\1</' . $tag . '>';
-        $needle    = preg_split($this->tokenizer->getPattern(), $needle, -1, PREG_SPLIT_NO_EMPTY);
+        $highlight = '<' . $tag . $tagAttributes . '>\1</' . $tag . '>';
+        $needle = preg_split($this->tokenizer->getPattern(), $needle, -1, PREG_SPLIT_NO_EMPTY);
 
         // Select pattern to use
         if ($this->options['simple']) {
-            $pattern    = '#(%s)#';
+            $pattern = '#(%s)#';
             $sl_pattern = '#(%s)#';
         } else {
-            $pattern    = '#(?!<.*?)(%s)(?![^<>]*?>)#';
+            $pattern = '#(?!<.*?)(%s)(?![^<>]*?>)#';
             $sl_pattern = '#<a\s(?:.*?)>(%s)</a>#';
         }
 
-	    // Add Forgotten Unicode
-	    $pattern .= 'u';
+        // Add Forgotten Unicode
+        $pattern .= 'u';
 
         // Case sensitivity
         if (!($this->options['caseSensitive'])) {
@@ -68,7 +68,7 @@ class Highlighter
             $sl_pattern .= 'i';
         }
 
-        $needle = (array) $needle;
+        $needle = (array)$needle;
         foreach ($needle as $needle_s) {
             $needle_s = preg_quote($needle_s);
 
@@ -80,11 +80,11 @@ class Highlighter
             // Strip links
             if ($this->options['stripLinks']) {
                 $sl_regex = sprintf($sl_pattern, $needle_s);
-                $text     = preg_replace($sl_regex, '\1', $text);
+                $text = preg_replace($sl_regex, '\1', $text);
             }
 
             $regex = sprintf($pattern, $needle_s);
-            $text  = preg_replace($regex, $highlight, $text);
+            $text = preg_replace($regex, $highlight, $text);
         }
 
         return $text;
@@ -95,20 +95,20 @@ class Highlighter
      * Nothing exciting here. The array_unique is required
      * unless you decide to make the words unique before passing in
      *
-     * @param $words
-     * @param $fulltext
+     * @param array $words
+     * @param string $fulltext
      *
      * @return array
      */
-    public function _extractLocations($words, $fulltext)
+    public function _extractLocations(array $words, string $fulltext)
     {
-        $locations = array();
+        $locations = [];
         foreach ($words as $word) {
             $wordlen = mb_strlen($word);
-            $loc     = mb_stripos($fulltext, $word);
+            $loc = mb_stripos($fulltext, $word);
             while ($loc !== false) {
                 $locations[] = $loc;
-                $loc         = mb_stripos($fulltext, $word, $loc + $wordlen);
+                $loc = mb_stripos($fulltext, $word, $loc + $wordlen);
             }
         }
         $locations = array_unique($locations);
@@ -125,20 +125,20 @@ class Highlighter
      * The only exception is where we have only two matches in which case we just take the
      * first as will be equally distant.
      *
-     * @param $locations
-     * @param $prevcount
+     * @param array $locations
+     * @param int $prevcount
      *
      * @return int
      */
-    public function _determineSnipLocation($locations, $prevcount)
+    public function _determineSnipLocation(array $locations, int $prevcount)
     {
         if (!isset($locations[0])) {
             return -1;
         }
 
         // If we only have 1 match we dont actually do the for loop so set to the first
-        $startpos     = $locations[0];
-        $loccount     = count($locations);
+        $startpos = $locations[0];
+        $loccount = count($locations);
         $smallestdiff = PHP_INT_MAX;
         // If we only have 2 skip as its probably equally relevant
         if (count($locations) > 2) {
@@ -153,7 +153,7 @@ class Highlighter
 
                 if ($smallestdiff > $diff) {
                     $smallestdiff = $diff;
-                    $startpos     = $locations[$i];
+                    $startpos = $locations[$i];
                 }
             }
         }
@@ -166,24 +166,29 @@ class Highlighter
      * 1/6 ratio on prevcount tends to work pretty well and puts the terms
      * in the middle of the extract
      *
-     * @param        $words
-     * @param        $fulltext
-     * @param int    $rellength
-     * @param int    $prevcount
+     * @param string $words
+     * @param string $fulltext
+     * @param int $rellength
+     * @param int $prevcount
      * @param string $indicator
      *
      * @return bool|string
      */
-    public function extractRelevant($words, $fulltext, $rellength = 300, $prevcount = 50, $indicator = '...')
-    {
-        $words      = preg_split($this->tokenizer->getPattern(), $words, -1, PREG_SPLIT_NO_EMPTY);
+    public function extractRelevant(
+        string $words,
+        string $fulltext,
+        int $rellength = 300,
+        int $prevcount = 50,
+        string $indicator = '...'
+    ) {
+        $words = preg_split($this->tokenizer->getPattern(), $words, -1, PREG_SPLIT_NO_EMPTY);
         $textlength = mb_strlen($fulltext);
         if ($textlength <= $rellength) {
             return $fulltext;
         }
 
         $locations = $this->_extractLocations($words, $fulltext);
-        $startpos  = $this->_determineSnipLocation($locations, $prevcount);
+        $startpos = $this->_determineSnipLocation($locations, $prevcount);
         // if we are going to snip too much...
         if ($textlength - $startpos < $rellength) {
             $startpos = $startpos - ($textlength - $startpos) / 2;

@@ -4,16 +4,16 @@ namespace TeamTNT\TNTSearch\KeywordExtraction;
 
 class Rake
 {
-    public function __construct($language = "english")
+    public function __construct(string $language = "english")
     {
-        $stopwords       = file_get_contents(__DIR__."/../Stopwords/".$language.".json");
-        $this->stopwords = json_decode($stopwords);
+        $stopwords = file_get_contents(__DIR__ . "/../Stopwords/{$language}.json");
+        $this->stopwords = json_decode($stopwords, true);
     }
 
-    public function extractKeywords($text, $includeScores = true)
+    public function extractKeywords(string $text, bool $includeScores = true)
     {
-        $phraseList   = $this->generateCandidateKeywords($text);
-        $wordScores   = $this->calculateWordScores($phraseList);
+        $phraseList = $this->generateCandidateKeywords($text);
+        $wordScores = $this->calculateWordScores($phraseList);
         $phraseScores = $this->calculatePhraseScores($phraseList, $wordScores);
 
         arsort($phraseScores);
@@ -26,18 +26,18 @@ class Rake
         return array_keys($phraseScores);
     }
 
-    public function generateCandidateKeywords($text)
+    public function generateCandidateKeywords(string $text)
     {
         $phraseList = [];
 
-        $words  = $this->tokenize($text);
+        $words = $this->tokenize($text);
         $phrase = [];
 
         foreach ($words as $word) {
             if (in_array($word, $this->stopwords) || ctype_punct($word)) {
                 if (count($phrase) > 0) {
                     $phraseList[] = $phrase;
-                    $phrase       = [];
+                    $phrase = [];
                 }
             } else {
                 $phrase[] = $word;
@@ -46,15 +46,14 @@ class Rake
 
         if (count($phrase) > 0) {
             $phraseList[] = $phrase;
-            $phrase       = [];
+            $phrase = [];
         }
 
         return $phraseList;
     }
 
-    public function calculatePhraseScores($phraseList, $wordScores)
+    public function calculatePhraseScores(array $phraseList, array $wordScores)
     {
-
         $result = [];
 
         foreach ($phraseList as $phrase) {
@@ -70,20 +69,20 @@ class Rake
         return $result;
     }
 
-    public function calculateWordScores($phraseList)
+    public function calculateWordScores(array $phraseList)
     {
         $result = [];
 
         foreach ($phraseList as $phrase) {
             foreach ($phrase as $word) {
-                $wordScore     = $this->wordDegree($word, $phraseList) / $this->wordFrequency($word, $phraseList);
+                $wordScore = $this->wordDegree($word, $phraseList) / $this->wordFrequency($word, $phraseList);
                 $result[$word] = $wordScore;
             }
         }
         return $result;
     }
 
-    public function wordDegree($word, $phraseList)
+    public function wordDegree(string $word, array $phraseList)
     {
         $count = 0;
 
@@ -97,7 +96,7 @@ class Rake
         return $count;
     }
 
-    public function wordFrequency($word, $phraseList)
+    public function wordFrequency(string $word, array $phraseList)
     {
         $count = 0;
 
@@ -111,7 +110,7 @@ class Rake
         return $count;
     }
 
-    public function returnFormatedPharaseList($phraseList)
+    public function returnFormatedPharaseList(array $phraseList)
     {
         $formatedList = [];
         foreach ($phraseList as $phrase) {
@@ -120,7 +119,7 @@ class Rake
         return $formatedList;
     }
 
-    public function tokenize($str)
+    public function tokenize(string $str)
     {
         $str = mb_strtolower($str);
 
@@ -143,5 +142,4 @@ class Rake
         preg_match_all($pat, $str, $arr);
         return $arr[2];
     }
-
 }

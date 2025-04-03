@@ -4,9 +4,9 @@ namespace TeamTNT\TNTSearch;
 
 class TNTFuzzyMatch
 {
-    public function norm($vec)
+    public function norm(array $vec)
     {
-        $norm       = 0;
+        $norm = 0;
         $components = count($vec);
 
         for ($i = 0; $i < $components; $i++) {
@@ -16,9 +16,9 @@ class TNTFuzzyMatch
         return sqrt($norm);
     }
 
-    public function dot($vec1, $vec2)
+    public function dot(array $vec1, array $vec2)
     {
-        $prod       = 0;
+        $prod = 0;
         $components = count($vec1);
 
         for ($i = 0; $i < $components; $i++) {
@@ -28,7 +28,7 @@ class TNTFuzzyMatch
         return $prod;
     }
 
-    public function wordToVector($word)
+    public function wordToVector(string $word)
     {
         $alphabet = "aAbBcCčČćĆdDđĐeEfFgGhHiIjJkKlLmMnNoOpPqQrRsSšŠtTvVuUwWxXyYzZžŽ1234567890'+ /";
 
@@ -39,7 +39,7 @@ class TNTFuzzyMatch
         return $result;
     }
 
-    public function angleBetweenVectors($a, $b)
+    public function angleBetweenVectors(array $a, array $b)
     {
         $denominator = ($this->norm($a) * $this->norm($b));
 
@@ -50,14 +50,14 @@ class TNTFuzzyMatch
         return $this->dot($a, $b) / $denominator;
     }
 
-    public function hasCommonSubsequence($pattern, $str)
+    public function hasCommonSubsequence(string $pattern, string $str)
     {
         $pattern = mb_strtolower($pattern);
-        $str     = mb_strtolower($str);
+        $str = mb_strtolower($str);
 
-        $j             = 0;
+        $j = 0;
         $patternLength = strlen($pattern);
-        $strLength     = strlen($str);
+        $strLength = strlen($str);
 
         for ($i = 0; $i < $strLength && $j < $patternLength; $i++) {
             if ($pattern[$j] == $str[$i]) {
@@ -68,12 +68,12 @@ class TNTFuzzyMatch
         return ($j == $patternLength);
     }
 
-    public function makeVectorSameLength($str, $pattern)
+    public function makeVectorSameLength(array $str, array $pattern)
     {
-        $j   = 0;
+        $j = 0;
         $max = max(count($pattern), count($str));
-        $a   = [];
-        $b   = [];
+        $a = [];
+        $b = [];
 
         for ($i = 0; $i < $max && $j < $max; $i++) {
             if (isset($pattern[$j]) && isset($str[$i]) && $pattern[$j] == $str[$i]) {
@@ -87,9 +87,9 @@ class TNTFuzzyMatch
         return $b;
     }
 
-    public function fuzzyMatchFromFile($pattern, $path)
+    public function fuzzyMatchFromFile(string $pattern, string $path)
     {
-        $res   = [];
+        $res = [];
         $lines = fopen($path, "r");
         if ($lines) {
             while (!feof($lines)) {
@@ -105,8 +105,8 @@ class TNTFuzzyMatch
 
         $sorted = [];
         foreach ($res as $caseSensitiveWord) {
-            $word                    = mb_strtolower(trim($caseSensitiveWord));
-            $wordVector              = $this->wordToVector($word);
+            $word = mb_strtolower(trim($caseSensitiveWord));
+            $wordVector = $this->wordToVector($word);
             $normalizedPatternVector = $this->makeVectorSameLength($wordVector, $patternVector);
 
             $angle = $this->angleBetweenVectors($wordVector, $normalizedPatternVector);
@@ -121,7 +121,7 @@ class TNTFuzzyMatch
         return $sorted;
     }
 
-    public function fuzzyMatch($pattern, $items)
+    public function fuzzyMatch(string $pattern, array $items)
     {
         $res = [];
 
@@ -135,8 +135,8 @@ class TNTFuzzyMatch
 
         $sorted = [];
         foreach ($res as $word) {
-            $word                    = trim($word);
-            $wordVector              = $this->wordToVector($word);
+            $word = trim($word);
+            $wordVector = $this->wordToVector($word);
             $normalizedPatternVector = $this->makeVectorSameLength($wordVector, $patternVector);
 
             $angle = $this->angleBetweenVectors($wordVector, $normalizedPatternVector);

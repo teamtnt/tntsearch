@@ -10,7 +10,7 @@ class TNTGeoIndexer extends TNTIndexer
 
     public $insertStmt = null;
 
-    public function createIndex($indexName)
+    public function createIndex(string $indexName)
     {
         if (file_exists($this->engine->config['storage'] . $indexName)) {
             unlink($this->engine->config['storage'] . $indexName);
@@ -40,7 +40,7 @@ class TNTGeoIndexer extends TNTIndexer
         return $this;
     }
 
-    public function processDocument($row)
+    public function processDocument(Collection $row)
     {
         $this->prepareInsertStatement();
 
