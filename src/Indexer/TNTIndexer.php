@@ -114,7 +114,7 @@ class TNTIndexer
         $this->engine->filereader = $filereader;
     }
 
-    public function createIndex($indexName)
+    public function createIndex(string $indexName)
     {
         return $this->engine->createIndex($indexName);
     }
@@ -140,7 +140,7 @@ class TNTIndexer
         $this->engine->run();
     }
 
-    public function processDocument($row)
+    public function processDocument(Collection $row)
     {
         $this->engine->processDocument($row);
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace TeamTNT\TNTSearch\Engines;
 
 use Exception;
@@ -7,6 +8,7 @@ use TeamTNT\TNTSearch\Connectors\MySqlConnector;
 use TeamTNT\TNTSearch\Connectors\PostgresConnector;
 use TeamTNT\TNTSearch\Connectors\SQLiteConnector;
 use TeamTNT\TNTSearch\Connectors\SqlServerConnector;
+use TeamTNT\TNTSearch\Stemmer\Stemmer;
 use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Support\TokenizerInterface;
 
@@ -49,17 +51,17 @@ trait EngineTrait
         throw new Exception("Unsupported driver [{$config['driver']}]");
     }
 
-    public function query($query)
+    public function query(string $query)
     {
         $this->query = $query;
     }
 
-    public function disableOutput($value)
+    public function disableOutput(bool $value)
     {
         $this->disableOutput = $value;
     }
 
-    public function setStemmer($stemmer)
+    public function setStemmer(Stemmer $stemmer)
     {
         $this->stemmer = $stemmer;
         $this->updateInfoTable('stemmer', get_class($stemmer));
@@ -73,11 +75,11 @@ trait EngineTrait
         return 'id';
     }
 
-    public function stemText($text)
+    public function stemText(string $text)
     {
         $stemmer = $this->getStemmer();
-        $words   = $this->breakIntoTokens($text);
-        $stems   = [];
+        $words = $this->breakIntoTokens($text);
+        $stems = [];
         foreach ($words as $word) {
             $stems[] = $stemmer->stem($word);
         }
@@ -89,7 +91,7 @@ trait EngineTrait
         return $this->stemmer;
     }
 
-    public function breakIntoTokens($text)
+    public function breakIntoTokens(string $text)
     {
         if ($this->decodeHTMLEntities) {
             $text = html_entity_decode($text);
@@ -97,19 +99,19 @@ trait EngineTrait
         return $this->tokenizer->tokenize($text, $this->stopWords);
     }
 
-    public function info($text)
+    public function info(string $text)
     {
         if (!$this->disableOutput) {
             echo $text . PHP_EOL;
         }
     }
 
-    public function setInMemory($value)
+    public function setInMemory(bool $value)
     {
         $this->inMemory = $value;
     }
 
-    public function setIndex($index)
+    public function setIndex(\PDO $index)
     {
         $this->index = $index;
     }
@@ -123,13 +125,13 @@ trait EngineTrait
         $this->updateInfoTable('tokenizer', get_class($tokenizer));
     }
 
-    public function update($id, $document)
+    public function update(int $id, array $document)
     {
         $this->delete($id);
         $this->insert($document);
     }
 
-    public function insert($document)
+    public function insert(array $document)
     {
         $this->processDocument(new Collection($document));
         $total = $this->totalDocumentsInCollection() + 1;
@@ -141,12 +143,12 @@ trait EngineTrait
         $this->excludePrimaryKey = false;
     }
 
-    public function setPrimaryKey($primaryKey)
+    public function setPrimaryKey(string $primaryKey)
     {
         $this->primaryKey = $primaryKey;
     }
 
-    public function countWordInWordList($word)
+    public function countWordInWordList(string $word)
     {
         $res = $this->getWordFromWordList($word);
 
@@ -156,23 +158,23 @@ trait EngineTrait
         return 0;
     }
 
-    public function asYouType($value)
+    public function asYouType(bool $value)
     {
         $this->asYouType = $value;
     }
 
-    public function fuzziness($value)
+    public function fuzziness(bool $value)
     {
         $this->fuzziness = $value;
     }
 
-    public function setLanguage($language = 'no')
+    public function setLanguage(string $language = 'no')
     {
         $class = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
         $this->setStemmer(new $class);
     }
 
-    public function setDatabaseHandle($dbh)
+    public function setDatabaseHandle(\PDO $dbh)
     {
         $this->dbh = $dbh;
     }

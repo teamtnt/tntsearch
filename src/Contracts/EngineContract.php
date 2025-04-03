@@ -2,26 +2,28 @@
 
 namespace TeamTNT\TNTSearch\Contracts;
 
+use TeamTNT\TNTSearch\Support\Collection;
+
 interface EngineContract
 {
     public function loadConfig(array $config);
     public function createIndex(string $indexName);
-    public function updateInfoTable(string $key, string $value);
+    public function updateInfoTable(string $key, $value);
     public function getValueFromInfoTable(string $value);
     public function run();
-    public function processDocument($row);
-    public function saveToIndex($stems, $docId);
-    public function selectIndex($indexName);
-    public function saveWordlist($stems);
-    public function saveDoclist($terms, $docId);
-    public function saveHitList($stems, $docId, $termsList);
-    public function delete($documentId);
+    public function processDocument(Collection $row);
+    public function saveToIndex(Collection $stems, int $docId);
+    public function selectIndex(string $indexName);
+    public function saveWordlist(Collection $stems);
+    public function saveDoclist(array $terms, int $docId);
+    public function saveHitList(array $stems, int $docId, array $termsList);
+    public function delete(int $documentId);
     public function totalDocumentsInCollection();
-    public function getWordFromWordList($word);
-    public function fuzzySearch($keyword);
+    public function getWordFromWordList(string $word);
+    public function fuzzySearch(string $keyword);
     public function readDocumentsFromFileSystem();
-    public function getAllDocumentsForStrictKeyword($word, $noLimit);
-    public function getAllDocumentsForFuzzyKeyword($words, $noLimit);
-    public function getAllDocumentsForWhereKeywordNot($keyword, $noLimit);
-    public function flushIndex($indexName);
+    public function getAllDocumentsForStrictKeyword(array $word, bool $noLimit);
+    public function getAllDocumentsForFuzzyKeyword(array $words, bool $noLimit);
+    public function getAllDocumentsForWhereKeywordNot(string $keyword, bool $noLimit);
+    public function flushIndex(string $indexName);
 }

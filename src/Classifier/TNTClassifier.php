@@ -22,7 +22,7 @@ class TNTClassifier
         $this->stemmer   = new NoStemmer;
     }
 
-    public function predict($statement)
+    public function predict(string $statement)
     {
         $words = $this->tokenizer->tokenize($statement);
 
@@ -47,7 +47,7 @@ class TNTClassifier
         ];
     }
 
-    public function learn($statement, $type)
+    public function learn(string $statement, $type)
     {
         if (!in_array($type, $this->types)) {
             $this->types[] = $type;
@@ -70,7 +70,7 @@ class TNTClassifier
         $this->documents[$type]++; // increment the document count for the type
     }
 
-    public function p($word, $type)
+    public function p(string $word, $type)
     {
         $count = 0;
         if (isset($this->words[$type][$word])) {
@@ -114,7 +114,7 @@ class TNTClassifier
         return file_put_contents($path, $s);
     }
 
-    public function load($name)
+    public function load(string $name)
     {
         $s          = file_get_contents($name);
         $classifier = unserialize($s);

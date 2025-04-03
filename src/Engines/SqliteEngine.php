@@ -2,17 +2,12 @@
 
 namespace TeamTNT\TNTSearch\Engines;
 
-use Exception;
 use PDO;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use TeamTNT\TNTSearch\Contracts\EngineContract;
 use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
-use TeamTNT\TNTSearch\FileReaders\TextFileReader;
-use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
-use TeamTNT\TNTSearch\Stemmer\NoStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
-use TeamTNT\TNTSearch\Support\Tokenizer;
 
 class SqliteEngine implements EngineContract
 {
@@ -29,30 +24,30 @@ class SqliteEngine implements EngineContract
     protected $excludePrimaryKey = true;
     public $decodeHTMLEntities;
     public $tokenizer;
-    public $stopWords          = [];
+    public $stopWords = [];
     public $statementsPrepared = false;
     protected $updateInfoTableStmt;
     protected $insertWordlistStmt;
     protected $selectWordlistStmt;
     protected $updateWordlistStmt;
-    public $steps                = 1000;
-    public $inMemory             = true;
-    protected $inMemoryTerms     = [];
-    public $filereader           = null;
-    public $asYouType            = false;
-    public $fuzziness            = false;
-    public $fuzzy_prefix_length  = 2;
+    public $steps = 1000;
+    public $inMemory = true;
+    protected $inMemoryTerms = [];
+    public $filereader = null;
+    public $asYouType = false;
+    public $fuzziness = false;
+    public $fuzzy_prefix_length = 2;
     public $fuzzy_max_expansions = 50;
-    public $fuzzy_distance       = 2;
-    public $fuzzy_no_limit       = false;
-    public $maxDocs              = 500;
+    public $fuzzy_distance = 2;
+    public $fuzzy_no_limit = false;
+    public $maxDocs = 500;
 
     /**
      * @param string $indexName
      *
      * @return TNTIndexer
      */
-    public function createIndex($indexName)
+    public function createIndex(string $indexName)
     {
         $this->indexName = $indexName;
 
@@ -118,7 +113,7 @@ class SqliteEngine implements EngineContract
 
     public function loadConfig(array $config)
     {
-        $this->config            = $config;
+        $this->config = $config;
         $this->config['storage'] = rtrim($this->config['storage'], '/') . '/';
 
         if (!isset($this->config['driver'])) {
@@ -136,9 +131,9 @@ class SqliteEngine implements EngineContract
         $this->updateInfoTable('stemmer', get_class($stemmer));
     }
 
-    public function updateInfoTable($key, $value)
+    public function updateInfoTable(string $key, $value)
     {
-        $this->updateInfoTableStmt = $this->index->prepare("UPDATE info SET value = :value WHERE key = :key");
+        $this->updateInfoTableStmt = $this->index->prepare('UPDATE info SET value = :value WHERE key = :key');
         $this->updateInfoTableStmt->bindValue(':key', $key);
         $this->updateInfoTableStmt->bindValue(':value', $value);
         $this->updateInfoTableStmt->execute();
@@ -156,8 +151,9 @@ class SqliteEngine implements EngineContract
 
     public function run()
     {
-        if ($this->config['driver'] == "filesystem") {
-            return $this->readDocumentsFromFileSystem();
+        if ($this->config['driver'] === 'filesystem') {
+            $this->readDocumentsFromFileSystem();
+            return;
         }
         $result = $this->dbh->query($this->query);
 
@@ -169,7 +165,7 @@ class SqliteEngine implements EngineContract
             $this->processDocument(new Collection($row));
 
             if ($counter % $this->steps == 0) {
-                $this->info("Processed $counter rows");
+                $this->info("Processed {$counter} rows");
             }
             if ($counter % 10000 == 0) {
                 $this->index->commit();
@@ -181,10 +177,10 @@ class SqliteEngine implements EngineContract
 
         $this->updateInfoTable('total_documents', $counter);
 
-        $this->info("Total rows $counter");
+        $this->info("Total rows {$counter}");
     }
 
-    public function processDocument($row)
+    public function processDocument(Collection $row)
     {
         $documentId = $row->get($this->getPrimaryKey());
 
@@ -209,12 +205,12 @@ class SqliteEngine implements EngineContract
         $this->stopWords = $stopWords;
     }
 
-    public function saveToIndex($stems, $docId)
+    public function saveToIndex(Collection $stems, int $docId)
     {
         $this->prepareStatementsForIndex();
         $terms = $this->saveWordlist($stems);
         $this->saveDoclist($terms, $docId);
-        $this->saveHitList($stems, $docId, $terms);
+        $this->saveHitList($stems->toArray(), $docId, $terms);
     }
 
     public function prepareStatementsForIndex()
@@ -232,7 +228,7 @@ class SqliteEngine implements EngineContract
      *
      * @return array
      */
-    public function saveWordlist($stems)
+    public function saveWordlist(Collection $stems)
     {
         $terms = [];
         $stems->map(function ($column, $key) use (&$terms) {
@@ -244,7 +240,7 @@ class SqliteEngine implements EngineContract
                     $terms[$term] = [
                         'hits' => 1,
                         'docs' => 1,
-                        'id'   => 0
+                        'id' => 0,
                     ];
                 }
             }
@@ -258,7 +254,7 @@ class SqliteEngine implements EngineContract
                 $this->insertWordlistStmt->bindParam(":docs", $term['docs']);
                 $this->insertWordlistStmt->execute();
 
-                $lastInsertId      = $this->index->query('SELECT MAX(id) FROM wordlist')->fetchColumn();
+                $lastInsertId = $this->index->query('SELECT MAX(id) FROM wordlist')->fetchColumn();
                 $terms[$key]['id'] = $lastInsertId;
 
                 if ($this->inMemory) {
@@ -275,7 +271,7 @@ class SqliteEngine implements EngineContract
                     if (!$this->inMemory) {
                         $this->selectWordlistStmt->bindValue(':keyword', $key);
                         $this->selectWordlistStmt->execute();
-                        $res               = $this->selectWordlistStmt->fetch(PDO::FETCH_ASSOC);
+                        $res = $this->selectWordlistStmt->fetch(PDO::FETCH_ASSOC);
                         $terms[$key]['id'] = $res['id'];
                     } else {
                         $terms[$key]['id'] = $this->inMemoryTerms[$key];
@@ -294,11 +290,10 @@ class SqliteEngine implements EngineContract
         return $terms;
     }
 
-    public function saveDoclist($terms, $docId)
+    public function saveDoclist(array $terms, int $docId)
     {
-
-        $insert = "INSERT INTO doclist (term_id, doc_id, hit_count) VALUES (:id, :doc, :hits)";
-        $stmt   = $this->index->prepare($insert);
+        $insert = 'INSERT INTO doclist (term_id, doc_id, hit_count) VALUES (:id, :doc, :hits)';
+        $stmt = $this->index->prepare($insert);
 
         foreach ($terms as $key => $term) {
 
@@ -314,11 +309,11 @@ class SqliteEngine implements EngineContract
         }
     }
 
-    public function saveHitList($stems, $docId, $termsList)
+    public function saveHitList(array $stems, int $docId, array $termsList)
     {
         return;
         $fieldCounter = 0;
-        $fields       = [];
+        $fields = [];
 
         $insert = "INSERT INTO hitlist (term_id, doc_id, field_id, position, hit_count)
                    VALUES (:term_id, :doc_id, :field_id, :position, :hit_count)";
@@ -326,8 +321,8 @@ class SqliteEngine implements EngineContract
 
         foreach ($stems as $field => $terms) {
             $fields[$fieldCounter] = $field;
-            $positionCounter       = 0;
-            $termCounts            = array_count_values($terms);
+            $positionCounter = 0;
+            $termCounts = array_count_values($terms);
             foreach ($terms as $term) {
                 if (isset($termsList[$term])) {
                     $stmt->bindValue(':term_id', $termsList[$term]['id']);
@@ -350,12 +345,13 @@ class SqliteEngine implements EngineContract
             $exclude = $this->config['exclude'];
         }
 
-        $this->index->exec("CREATE TABLE IF NOT EXISTS filemap (
+        $this->index->exec('CREATE TABLE IF NOT EXISTS filemap (
                     id INTEGER PRIMARY KEY,
-                    path TEXT)");
+                    path TEXT)');
         $path = realpath($this->config['location']);
 
-        $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
+        $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path),
+            RecursiveIteratorIterator::SELF_FIRST);
         $this->index->beginTransaction();
         $counter = 0;
 
@@ -373,9 +369,9 @@ class SqliteEngine implements EngineContract
             if ($includeFile && !in_array($name, $exclude)) {
                 $counter++;
                 $file = [
-                    'id'      => $counter,
-                    'name'    => $name,
-                    'content' => $this->filereader->read($object)
+                    'id' => $counter,
+                    'name' => $name,
+                    'content' => $this->filereader->read($object),
                 ];
                 $fileCollection = new Collection($file);
 
@@ -389,29 +385,30 @@ class SqliteEngine implements EngineContract
                 }
 
                 $this->processDocument($fileCollection);
-                $statement = $this->index->prepare("INSERT INTO filemap ( 'id', 'path') values ( $counter, :object)");
+                $statement = $this->index->prepare("INSERT INTO filemap ( 'id', 'path') values (:counter, :object)");
+                $statement->bindParam(':counter', $counter);
                 $statement->bindParam(':object', $object);
                 $statement->execute();
-                $this->info("Processed $counter $object");
+                $this->info("Processed {$counter} {$object}");
             }
         }
 
         $this->index->commit();
 
-        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', $counter)");
-        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'driver', 'filesystem')");
+        $this->index->exec("INSERT INTO info ('key', 'value') values ('total_documents', {$counter})");
+        $this->index->exec("INSERT INTO info ('key', 'value') values ('driver', 'filesystem')");
 
-        $this->info("Total rows $counter");
+        $this->info("Total rows {$counter}");
         $this->info("Index created: {$this->config['storage']}");
     }
 
-    public function delete($documentId)
+    public function delete(int $documentId)
     {
         $rows = $this->prepareAndExecuteStatement("SELECT * FROM doclist WHERE doc_id = :documentId;", [
-            ['key' => ':documentId', 'value' => $documentId]
+            ['key' => ':documentId', 'value' => $documentId],
         ])->fetchAll(PDO::FETCH_ASSOC);
 
-        $updateStmt = $this->index->prepare("UPDATE wordlist SET num_docs = num_docs - 1, num_hits = num_hits - :hits WHERE id = :term_id");
+        $updateStmt = $this->index->prepare('UPDATE wordlist SET num_docs = num_docs - 1, num_hits = num_hits - :hits WHERE id = :term_id;');
 
         foreach ($rows as $document) {
             $updateStmt->bindParam(":hits", $document['hit_count']);
@@ -419,11 +416,11 @@ class SqliteEngine implements EngineContract
             $updateStmt->execute();
         }
 
-        $res = $this->prepareAndExecuteStatement("DELETE FROM doclist WHERE doc_id = :documentId;", [
-            ['key' => ':documentId', 'value' => $documentId]
+        $res = $this->prepareAndExecuteStatement('DELETE FROM doclist WHERE doc_id = :documentId;', [
+            ['key' => ':documentId', 'value' => $documentId],
         ]);
 
-        $this->prepareAndExecuteStatement("DELETE FROM wordlist WHERE num_hits = 0");
+        $this->prepareAndExecuteStatement('DELETE FROM wordlist WHERE num_hits = 0;');
 
         $affected = $res->rowCount();
 
@@ -433,7 +430,7 @@ class SqliteEngine implements EngineContract
         }
     }
 
-    public function prepareAndExecuteStatement($query, $params = [])
+    public function prepareAndExecuteStatement(string $query, array $params = [])
     {
         $statemnt = $this->index->prepare($query);
         foreach ($params as $param) {
@@ -448,20 +445,20 @@ class SqliteEngine implements EngineContract
      */
     public function totalDocumentsInCollection()
     {
-        $query = "SELECT * FROM info WHERE key = 'total_documents'";
-        $docs  = $this->index->query($query);
+        $query = "SELECT * FROM info WHERE key = 'total_documents';";
+        $docs = $this->index->query($query);
 
         return $docs->fetch(PDO::FETCH_ASSOC)['value'];
     }
 
-    public function disableOutput($value)
+    public function disableOutput(bool $value)
     {
         $this->disableOutput = $value;
     }
 
-    public function getWordFromWordList($word)
+    public function getWordFromWordList(string $word)
     {
-        $selectStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
+        $selectStmt = $this->index->prepare('SELECT * FROM wordlist WHERE term like :keyword LIMIT 1;');
         $selectStmt->bindValue(':keyword', $word);
         $selectStmt->execute();
         return $selectStmt->fetch(PDO::FETCH_ASSOC);
@@ -479,11 +476,11 @@ class SqliteEngine implements EngineContract
 
     public function buildDictionary($filename, $count = -1, $hits = true, $docs = false)
     {
-        $selectStmt = $this->index->prepare("SELECT * FROM wordlist ORDER BY num_hits DESC;");
+        $selectStmt = $this->index->prepare('SELECT * FROM wordlist ORDER BY num_hits DESC;');
         $selectStmt->execute();
 
         $dictionary = "";
-        $counter    = 0;
+        $counter = 0;
 
         while ($row = $selectStmt->fetch(PDO::FETCH_ASSOC)) {
             $dictionary .= $row['term'];
@@ -506,7 +503,7 @@ class SqliteEngine implements EngineContract
         file_put_contents($filename, $dictionary, LOCK_EX);
     }
 
-    public function selectIndex($indexName)
+    public function selectIndex(string $indexName)
     {
         $pathToIndex = $this->config['storage'] . $indexName;
         if (!file_exists($pathToIndex)) {
@@ -516,14 +513,14 @@ class SqliteEngine implements EngineContract
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
-    public function getWordlistByKeyword($keyword, $isLastWord = false, $noLimit = false)
+    public function getWordlistByKeyword(string $keyword, bool $isLastWord = false, bool $noLimit = false)
     {
-        $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword LIMIT 1";
-        $stmtWord       = $this->index->prepare($searchWordlist);
+        $searchWordlist = 'SELECT * FROM wordlist WHERE term like :keyword LIMIT 1;';
+        $stmtWord = $this->index->prepare($searchWordlist);
 
         if ($this->asYouType && $isLastWord) {
-            $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY length(term) ASC, num_hits DESC LIMIT 1";
-            $stmtWord       = $this->index->prepare($searchWordlist);
+            $searchWordlist = 'SELECT * FROM wordlist WHERE term like :keyword ORDER BY length(term) ASC, num_hits DESC LIMIT 1;';
+            $stmtWord = $this->index->prepare($searchWordlist);
             $stmtWord->bindValue(':keyword', mb_strtolower($keyword) . "%");
         } else {
             $stmtWord->bindValue(':keyword', mb_strtolower($keyword));
@@ -543,11 +540,11 @@ class SqliteEngine implements EngineContract
      *
      * @return Collection
      */
-    public function getAllDocumentsForStrictKeyword($word, $noLimit)
+    public function getAllDocumentsForStrictKeyword(array $word, bool $noLimit)
     {
-        $query = "SELECT * FROM doclist WHERE term_id = :id ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
+        $query = "SELECT * FROM doclist WHERE term_id = :id ORDER BY hit_count DESC LIMIT {$this->maxDocs};";
         if ($noLimit) {
-            $query = "SELECT * FROM doclist WHERE term_id = :id ORDER BY hit_count DESC";
+            $query = 'SELECT * FROM doclist WHERE term_id = :id ORDER BY hit_count DESC;';
         }
         $stmtDoc = $this->index->prepare($query);
 
@@ -562,15 +559,15 @@ class SqliteEngine implements EngineContract
      *
      * @return Collection
      */
-    public function getAllDocumentsForWhereKeywordNot($keyword, $noLimit = false)
+    public function getAllDocumentsForWhereKeywordNot(string $keyword, bool $noLimit = false)
     {
         $word = $this->getWordlistByKeyword($keyword);
         if (!isset($word[0])) {
             return new Collection([]);
         }
-        $query = "SELECT * FROM doclist WHERE doc_id NOT IN (SELECT doc_id FROM doclist WHERE term_id = :id) GROUP BY doc_id ORDER BY hit_count DESC LIMIT {$this->maxDocs}";
+        $query = "SELECT * FROM doclist WHERE doc_id NOT IN (SELECT doc_id FROM doclist WHERE term_id = :id) GROUP BY doc_id ORDER BY hit_count DESC LIMIT {$this->maxDocs};";
         if ($noLimit) {
-            $query = "SELECT * FROM doclist WHERE doc_id NOT IN (SELECT doc_id FROM doclist WHERE term_id = :id) GROUP BY doc_id ORDER BY hit_count DESC";
+            $query = 'SELECT * FROM doclist WHERE doc_id NOT IN (SELECT doc_id FROM doclist WHERE term_id = :id) GROUP BY doc_id ORDER BY hit_count DESC;';
         }
         $stmtDoc = $this->index->prepare($query);
 
@@ -579,10 +576,10 @@ class SqliteEngine implements EngineContract
         return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    public function getValueFromInfoTable($value)
+    public function getValueFromInfoTable(string $value)
     {
-        $query = "SELECT * FROM info WHERE key = '$value'";
-        $docs  = $this->index->query($query);
+        $query = "SELECT * FROM info WHERE key = '{$value}'";
+        $docs = $this->index->query($query);
 
         if ($ret = $docs->fetch(PDO::FETCH_ASSOC)) {
             return $ret['value'];
@@ -594,7 +591,7 @@ class SqliteEngine implements EngineContract
     public function filesystemMapIdsToPaths($docs)
     {
         $query = "SELECT * FROM filemap WHERE id in (" . $docs->implode(', ') . ");";
-        $res   = $this->index->query($query)->fetchAll(PDO::FETCH_ASSOC);
+        $res = $this->index->query($query)->fetchAll(PDO::FETCH_ASSOC);
 
         return $docs->map(function ($key) use ($res) {
             $index = array_search($key, array_column($res, 'id'));
@@ -607,11 +604,11 @@ class SqliteEngine implements EngineContract
      *
      * @return array
      */
-    public function fuzzySearch($keyword)
+    public function fuzzySearch(string $keyword)
     {
-        $prefix         = mb_substr($keyword, 0, $this->fuzzy_prefix_length);
-        $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY num_hits DESC LIMIT {$this->fuzzy_max_expansions}";
-        $stmtWord       = $this->index->prepare($searchWordlist);
+        $prefix = mb_substr($keyword, 0, $this->fuzzy_prefix_length);
+        $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY num_hits DESC LIMIT {$this->fuzzy_max_expansions};";
+        $stmtWord = $this->index->prepare($searchWordlist);
         $stmtWord->bindValue(':keyword', mb_strtolower($prefix) . "%");
         $stmtWord->execute();
         $matches = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
@@ -621,27 +618,27 @@ class SqliteEngine implements EngineContract
             $distance = levenshtein($match['term'], $keyword);
             if ($distance <= $this->fuzzy_distance) {
                 $match['distance'] = $distance;
-                $resultSet[]       = $match;
+                $resultSet[] = $match;
             }
         }
 
         // Sort the data by distance, and than by num_hits
         $distance = [];
-        $hits     = [];
+        $hits = [];
         foreach ($resultSet as $key => $row) {
             $distance[$key] = $row['distance'];
-            $hits[$key]     = $row['num_hits'];
+            $hits[$key] = $row['num_hits'];
         }
         array_multisort($distance, SORT_ASC, $hits, SORT_DESC, $resultSet);
 
         return $resultSet;
     }
 
-    public function getAllDocumentsForFuzzyKeyword($words, $noLimit)
+    public function getAllDocumentsForFuzzyKeyword(array $words, bool $noLimit)
     {
         $binding_params = implode(',', array_fill(0, count($words), '?'));
-        $query          = "SELECT * FROM doclist WHERE term_id in ($binding_params) ORDER BY CASE term_id";
-        $order_counter  = 1;
+        $query = "SELECT * FROM doclist WHERE term_id in ($binding_params) ORDER BY CASE term_id";
+        $order_counter = 1;
 
         foreach ($words as $word) {
             $query .= " WHEN " . $word['id'] . " THEN " . $order_counter++;
@@ -664,7 +661,7 @@ class SqliteEngine implements EngineContract
         return new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    public function flushIndex($indexName)
+    public function flushIndex(string $indexName)
     {
         if (file_exists($this->config['storage'] . $indexName)) {
             unlink($this->config['storage'] . $indexName);
