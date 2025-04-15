@@ -6,15 +6,8 @@ use Exception;
 use PDO;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use Redis;
 use TeamTNT\TNTSearch\Contracts\EngineContract;
-use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
-use TeamTNT\TNTSearch\FileReaders\TextFileReader;
-use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
-use TeamTNT\TNTSearch\Stemmer\NoStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
-use TeamTNT\TNTSearch\Support\Tokenizer;
-use TeamTNT\TNTSearch\Support\TokenizerInterface;
 
 class RedisEngine implements EngineContract
 {
@@ -31,23 +24,15 @@ class RedisEngine implements EngineContract
     protected $excludePrimaryKey = true;
     public $decodeHTMLEntities;
     public $tokenizer;
-    public $stopWords          = [];
-    public $statementsPrepared = false;
-    protected $updateInfoTableStmt;
-    protected $insertWordlistStmt;
-    protected $selectWordlistStmt;
-    protected $updateWordlistStmt;
-    public $steps                = 1000;
-    public $inMemory             = true;
-    protected $inMemoryTerms     = [];
-    public $filereader           = null;
-    public $asYouType            = false;
-    public $fuzziness            = false;
-    public $fuzzy_prefix_length  = 2;
-    public $fuzzy_max_expansions = 50;
-    public $fuzzy_distance       = 2;
-    public $fuzzy_no_limit       = false;
-    public $maxDocs              = 500;
+    public $stopWords = [];
+    public $steps = 1000;
+    public $inMemory = true;
+    public $filereader = null;
+    public $asYouType = false;
+    public $fuzziness = false;
+    public $fuzzy_prefix_length = 2;
+    public $fuzzy_distance = 2;
+    public $maxDocs = 500;
     public $redis;
 
     public function loadConfig(array $config)
@@ -58,23 +43,23 @@ class RedisEngine implements EngineContract
             throw new Exception('Redis host and port are not set in the configuration.');
         }
 
-        $redisHost       = $this->config['redis_host'];
-        $redisPort       = $this->config['redis_port'];
-        $redisOptions    = $this->config['redis_options'] ?? null;
-        $redisScheme     = $this->config['redis_scheme'] ?? "tcp";
-        $redisPassword   = $this->config['redis_password'] ?? null;
+        $redisHost = $this->config['redis_host'];
+        $redisPort = $this->config['redis_port'];
+        $redisOptions = $this->config['redis_options'] ?? null;
+        $redisScheme = $this->config['redis_scheme'] ?? "tcp";
+        $redisPassword = $this->config['redis_password'] ?? null;
         $redisSSLOptions = $this->config['redis_ssl_options'] ?? null;
 
         $this->redis = new \Predis\Client([
-            'scheme'   => $redisScheme,
-            'host'     => $redisHost,
-            'port'     => $redisPort,
+            'scheme' => $redisScheme,
+            'host' => $redisHost,
+            'port' => $redisPort,
             'password' => $redisPassword,
-            'ssl'      => $redisSSLOptions
+            'ssl' => $redisSSLOptions,
         ], $redisOptions);
     }
 
-    public function createIndex($indexName)
+    public function createIndex(string $indexName)
     {
         $this->flushIndex($indexName);
 
@@ -96,24 +81,26 @@ class RedisEngine implements EngineContract
         return $this;
     }
 
-    public function updateInfoTable($key, $value)
+    public function updateInfoTable(string $key, $value)
     {
         $redisKey = $this->indexName . ':info';
+
         $this->redis->hset($redisKey, $key, $value);
     }
 
-    public function getValueFromInfoTable($value)
+    public function getValueFromInfoTable(string $value)
     {
         $redisKey = $this->indexName . ':info';
-        $ret      = $this->redis->hget($redisKey, $value);
+        $ret = $this->redis->hget($redisKey, $value);
 
         return $ret ?? null;
     }
 
     public function run()
     {
-        if ($this->config['driver'] == "filesystem") {
-            return $this->readDocumentsFromFileSystem();
+        if ($this->config['driver'] === 'filesystem') {
+            $this->readDocumentsFromFileSystem();
+            return;
         }
         $result = $this->dbh->query($this->query);
 
@@ -124,16 +111,16 @@ class RedisEngine implements EngineContract
             $this->processDocument(new Collection($row));
 
             if ($counter % $this->steps == 0) {
-                $this->info("Processed $counter rows");
+                $this->info("Processed {$counter} rows");
             }
         }
 
         $this->updateInfoTable('total_documents', $counter);
 
-        $this->info("Total rows $counter");
+        $this->info("Total rows {$counter}");
     }
 
-    public function processDocument($row)
+    public function processDocument(Collection $row)
     {
         $documentId = $row->get($this->getPrimaryKey());
 
@@ -148,19 +135,19 @@ class RedisEngine implements EngineContract
         $this->saveToIndex($stems, $documentId);
     }
 
-    public function saveToIndex($stems, $docId)
+    public function saveToIndex(Collection $stems, int $docId)
     {
         $terms = $this->saveWordlist($stems);
         $this->saveDoclist($terms, $docId);
-        $this->saveHitList($stems, $docId, $terms);
+        $this->saveHitList($stems->toArray(), $docId, $terms);
     }
 
-    public function selectIndex($indexName)
+    public function selectIndex(string $indexName)
     {
         $this->indexName = $indexName;
     }
 
-    public function saveWordlist($stems)
+    public function saveWordlist(Collection $stems)
     {
         $terms = [];
 
@@ -172,7 +159,7 @@ class RedisEngine implements EngineContract
                 } else {
                     $terms[$term] = [
                         'num_hits' => 1,
-                        'num_docs' => 1
+                        'num_docs' => 1,
                     ];
                 }
             }
@@ -205,29 +192,28 @@ class RedisEngine implements EngineContract
         return $terms;
     }
 
-    public function saveDoclist($terms, $docId)
+    public function saveDoclist(array $terms, int $docId)
     {
         foreach ($terms as $term => $docsHits) {
-            $redisKey = $this->indexName . ':doclist:' . $term . ':' . $docId;
+            $redisKey = "{$this->indexName}:doclist:{$term}:{$docId}";
             $this->redis->hset($redisKey, 'num_hits', $docsHits['num_hits']);
         }
     }
 
-    public function saveHitList($stems, $docId, $termsList)
+    public function saveHitList(array $stems, int $docId, array $termsList)
     {
-        return;
     }
 
-    public function getWordlistByKeyword($keyword, $isLastWord = false, $noLimit = false)
+    public function getWordlistByKeyword(string $keyword, bool $isLastWord = false, bool $noLimit = false)
     {
-        $redisKey = $this->indexName . ':wordlist:' . $keyword;
+        $redisKey = "{$this->indexName}:wordlist:{$keyword}";
 
         $return = [];
 
         if ($this->asYouType && $isLastWord) {
 
             // Perform custom sorting for as-you-type queries
-            $wordlistKeys = $this->redis->keys($this->indexName . ':wordlist:' . $keyword . '*');
+            $wordlistKeys = $this->redis->keys("{$this->indexName}:wordlist:{$keyword}*");
             $wordlistKeys = array_filter($wordlistKeys, function ($key) {
                 return $this->redis->exists($key);
             });
@@ -237,8 +223,8 @@ class RedisEngine implements EngineContract
                 usort($wordlistKeys, function ($a, $b) {
                     $lengthA = strlen($this->redis->hget($a, 'term'));
                     $lengthB = strlen($this->redis->hget($b, 'term'));
-                    $hitsA   = $this->redis->hget($a, 'num_hits');
-                    $hitsB   = $this->redis->hget($b, 'num_hits');
+                    $hitsA = $this->redis->hget($a, 'num_hits');
+                    $hitsB = $this->redis->hget($b, 'num_hits');
                     if ($lengthA == $lengthB) {
                         return $hitsB <=> $hitsA;
                     }
@@ -246,25 +232,29 @@ class RedisEngine implements EngineContract
                 });
 
                 $term = str_replace($this->indexName . ':wordlist:', '', $wordlistKeys[0]);
-                $res  = $this->redis->hgetall($wordlistKeys[0]);
-                return [[
-                    'id'       => $term,
-                    'term'     => $term,
-                    'num_hits' => $res['num_hits'],
-                    'num_docs' => $res['num_docs']
-                ]];
+                $res = $this->redis->hgetall($wordlistKeys[0]);
+                return [
+                    [
+                        'id' => $term,
+                        'term' => $term,
+                        'num_hits' => $res['num_hits'],
+                        'num_docs' => $res['num_docs'],
+                    ],
+                ];
 
             }
         } else {
 
             $res = $this->redis->hgetall($redisKey);
             if (!empty($res)) {
-                $return = [[
-                    'id'       => $keyword,
-                    'term'     => $keyword,
-                    'num_hits' => $res['num_hits'],
-                    'num_docs' => $res['num_docs']
-                ]];
+                $return = [
+                    [
+                        'id' => $keyword,
+                        'term' => $keyword,
+                        'num_hits' => $res['num_hits'],
+                        'num_docs' => $res['num_docs'],
+                    ],
+                ];
             }
         }
 
@@ -275,7 +265,7 @@ class RedisEngine implements EngineContract
         return $return;
     }
 
-    public function getAllDocumentsForStrictKeyword($word, $noLimit)
+    public function getAllDocumentsForStrictKeyword(array $word, bool $noLimit)
     {
         $redisKey = $this->indexName . ':doclist:' . $word[0]['term'] . ":*";
 
@@ -296,9 +286,9 @@ class RedisEngine implements EngineContract
             $doclistKey = $this->indexName . ':doclist:' . $word[0]['term'] . ":" . $docId;
 
             $document = [
-                'term_id'   => $word[0]['term'],
-                'doc_id'    => $docId,
-                'hit_count' => $this->redis->hget($doclistKey, 'num_hits')
+                'term_id' => $word[0]['term'],
+                'doc_id' => $docId,
+                'hit_count' => $this->redis->hget($doclistKey, 'num_hits'),
             ];
 
             $documents[] = $document;
@@ -307,15 +297,15 @@ class RedisEngine implements EngineContract
         return new Collection($documents);
     }
 
-    public function delete($documentId)
+    public function delete(int $documentId)
     {
         // Fetch the terms associated with the given document ID from doclist
-        $doclistKey   = $this->indexName . ':doclist:*:' . $documentId;
+        $doclistKey = $this->indexName . ':doclist:*:' . $documentId;
         $doclistTerms = $this->redis->keys($doclistKey);
 
         // Track the wordlist keys to be updated and the hits count per term
         $wordlistKeysToUpdate = [];
-        $termsHitsDeleted     = [];
+        $termsHitsDeleted = [];
 
         // Track if any document ID was found and deleted
         $documentDeleted = false;
@@ -327,7 +317,7 @@ class RedisEngine implements EngineContract
             $hits = $this->redis->hget($keyName, 'num_hits');
 
             $parts = explode(':', $keyName);
-            $term  = $parts[2];
+            $term = $parts[2];
 
             // Add the wordlist key to the update list
             $wordlistKeysToUpdate[] = $this->indexName . ':wordlist:' . $term;
@@ -372,18 +362,18 @@ class RedisEngine implements EngineContract
         return $this->getValueFromInfoTable('total_documents');
     }
 
-    public function getWordFromWordList($word)
+    public function getWordFromWordList(string $word)
     {
-        $word     = strtolower($word);
+        $word = strtolower($word);
         $redisKey = $this->indexName . ':wordlist:' . $word;
-        $result   = $this->redis->hgetall($redisKey);
+        $result = $this->redis->hgetall($redisKey);
 
         if (!empty($result)) {
             return [
-                'id'       => $word,
-                'term'     => $word,
+                'id' => $word,
+                'term' => $word,
                 'num_hits' => $result['num_hits'],
-                'num_docs' => $result['num_docs']
+                'num_docs' => $result['num_docs'],
             ];
         }
 
@@ -395,23 +385,23 @@ class RedisEngine implements EngineContract
      *
      * @return array
      */
-    public function fuzzySearch($keyword)
+    public function fuzzySearch(string $keyword)
     {
-        $prefix          = mb_substr($keyword, 0, $this->fuzzy_prefix_length);
+        $prefix = mb_substr($keyword, 0, $this->fuzzy_prefix_length);
         $redisKeyPattern = $this->indexName . ':wordlist:' . $prefix . '*';
-        $wordlistKeys    = $this->redis->keys($redisKeyPattern);
-        $resultSet       = [];
+        $wordlistKeys = $this->redis->keys($redisKeyPattern);
+        $resultSet = [];
         foreach ($wordlistKeys as $wordlistKey) {
             $members = $this->redis->hgetall($wordlistKey);
-            $term    = str_replace([$this->indexName . ':wordlist:', ':'], '', $wordlistKey);
+            $term = str_replace([$this->indexName . ':wordlist:', ':'], '', $wordlistKey);
 
             $distance = levenshtein($term, $keyword);
             if ($distance <= $this->fuzzy_distance) {
                 $resultSet[] = [
-                    'term'     => $term,
+                    'term' => $term,
                     'distance' => $distance,
                     'num_hits' => $members['num_hits'],
-                    'num_docs' => $members['num_docs']
+                    'num_docs' => $members['num_docs'],
                 ];
             }
         }
@@ -426,7 +416,7 @@ class RedisEngine implements EngineContract
         return $resultSet;
     }
 
-    public function getAllDocumentsForFuzzyKeyword($words, $noLimit)
+    public function getAllDocumentsForFuzzyKeyword(array $words, bool $noLimit)
     {
         $docs = [];
         foreach ($words as $word) {
@@ -435,12 +425,12 @@ class RedisEngine implements EngineContract
             $doclist = $this->redis->keys($doclistKey);
             foreach ($doclist as $doc) {
                 $hitCount = $this->redis->hget($doc, 'num_hits');
-                $parts    = explode(':', $doc);
-                $docId    = $parts[3];
+                $parts = explode(':', $doc);
+                $docId = $parts[3];
 
                 $docs[] = [
-                    "doc_id"    => $docId,
-                    "hit_count" => $hitCount
+                    "doc_id" => $docId,
+                    "hit_count" => $hitCount,
                 ];
             }
         }
@@ -461,7 +451,8 @@ class RedisEngine implements EngineContract
 
         $path = realpath($this->config['location']);
 
-        $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
+        $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path),
+            RecursiveIteratorIterator::SELF_FIRST);
         $counter = 0;
 
         foreach ($objects as $name => $object) {
@@ -478,9 +469,9 @@ class RedisEngine implements EngineContract
             if ($includeFile && !in_array($name, $exclude)) {
                 $counter++;
                 $file = [
-                    'id'      => $counter,
-                    'name'    => $name,
-                    'content' => $this->filereader->read($object)
+                    'id' => $counter,
+                    'name' => $name,
+                    'content' => $this->filereader->read($object),
                 ];
                 $fileCollection = new Collection($file);
 
@@ -502,16 +493,16 @@ class RedisEngine implements EngineContract
         }
     }
 
-    public function getAllDocumentsForWhereKeywordNot($keyword, $noLimit = false)
+    public function getAllDocumentsForWhereKeywordNot(string $keyword, bool $noLimit = false)
     {
         $word = $this->getWordlistByKeyword($keyword);
         if (!isset($word[0])) {
             return new Collection([]);
         }
 
-        $pattern     = $this->indexName . ':doclist:*';
+        $pattern = $this->indexName . ':doclist:*';
         $excludedKey = $this->indexName . ':doclist:' . $keyword . ":*";
-        $limit       = $this->maxDocs;
+        $limit = $this->maxDocs;
 
         // Get all doc_ids where the keyword is excluded
         $excludedDocs = $this->redis->keys($excludedKey);
@@ -528,12 +519,11 @@ class RedisEngine implements EngineContract
         // Output the keys up to the limit
         $documents = [];
         foreach (array_slice($keys, 0, $limit) as $doc) {
-            $parts       = explode(':', $doc);
-            $docId       = $parts[3];
+            $parts = explode(':', $doc);
+            $docId = $parts[3];
             $documents[] = [
-                'doc_id' => $docId
+                'doc_id' => $docId,
             ];
-
         }
 
         // Perform a diff between all documents and excluded documents
@@ -544,7 +534,7 @@ class RedisEngine implements EngineContract
         return new Collection($filteredDocuments);
     }
 
-    public function flushIndex($indexName)
+    public function flushIndex(string $indexName)
     {
         $keys = $this->redis->keys($indexName . ':*');
 
@@ -552,5 +542,4 @@ class RedisEngine implements EngineContract
             $this->redis->del($key);
         }
     }
-
 }
