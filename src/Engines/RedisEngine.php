@@ -6,10 +6,9 @@ use Exception;
 use PDO;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use TeamTNT\TNTSearch\Contracts\EngineContract;
 use TeamTNT\TNTSearch\Support\Collection;
 
-class RedisEngine implements EngineContract
+class RedisEngine implements EngineInterface
 {
     use EngineTrait;
 

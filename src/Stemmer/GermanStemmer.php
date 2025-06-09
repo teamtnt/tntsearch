@@ -35,7 +35,7 @@ namespace TeamTNT\TNTSearch\Stemmer;
  * @author Pascal Landau <kontakt@myseosolution.de>
  */
 
-class GermanStemmer implements Stemmer
+class GermanStemmer implements StemmerInterface
 {
     /**
      *  R1 and R2 regions (see the Porter algorithm)

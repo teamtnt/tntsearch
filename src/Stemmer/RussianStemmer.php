@@ -6,7 +6,7 @@ namespace TeamTNT\TNTSearch\Stemmer;
  * Semple stemmer for russian language
  */
 
-class RussianStemmer implements Stemmer
+class RussianStemmer implements StemmerInterface
 {
     private static $VOWEL = '/аеиоуыэюя/u';
     private static $PERFECTIVEGROUND = '/((ив|ивши|ившись|ыв|ывши|ывшись)|((?<=[ая])(в|вши|вшись)))$/u';

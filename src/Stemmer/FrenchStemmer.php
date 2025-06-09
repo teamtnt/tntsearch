@@ -8,7 +8,7 @@ namespace TeamTNT\TNTSearch\Stemmer;
  *
  */
 
-class FrenchStemmer implements Stemmer
+class FrenchStemmer implements StemmerInterface
 {
     /**
      * All french vowels

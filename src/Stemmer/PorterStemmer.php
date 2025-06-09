@@ -21,7 +21,7 @@ namespace TeamTNT\TNTSearch\Stemmer;
  * How easy is that?
  */
 
-class PorterStemmer implements Stemmer
+class PorterStemmer implements StemmerInterface
 {
     /**
      * Regex for matching a consonant
