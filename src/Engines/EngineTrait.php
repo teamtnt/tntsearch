@@ -171,6 +171,15 @@ trait EngineTrait
     public function setLanguage(string $language = 'no')
     {
         $class = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
+
+        if (!class_exists($class)) {
+            throw new Exception("Language stemmer for [{$language}] does not exist.");
+        }
+
+        if (!is_a($class, Stemmer::class, true)) {
+            throw new Exception("Language stemmer for [{$language}] does not extend Stemmer interface.");
+        }
+
         $this->setStemmer(new $class);
     }
 
