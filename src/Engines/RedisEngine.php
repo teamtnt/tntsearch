@@ -6,10 +6,9 @@ use Exception;
 use PDO;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use TeamTNT\TNTSearch\Contracts\EngineContract;
 use TeamTNT\TNTSearch\Support\Collection;
 
-class RedisEngine implements EngineContract
+class RedisEngine implements EngineInterface
 {
     use EngineTrait;
 
@@ -129,6 +128,10 @@ class RedisEngine implements EngineContract
         }
 
         $stems = $row->map(function ($columnContent, $columnName) use ($row) {
+            if (!is_string($columnContent) || trim($columnContent) === '') {
+                return [];
+            }
+
             return $this->stemText($columnContent);
         });
 

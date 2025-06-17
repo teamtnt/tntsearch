@@ -6,7 +6,7 @@
 */
 
 namespace TeamTNT\TNTSearch\Stemmer;
-class ArabicStemmer implements Stemmer
+class ArabicStemmer implements StemmerInterface
 {
     private static $_verbPre  = 'وأسفلي';
     private static $_verbPost = 'ومكانيه';

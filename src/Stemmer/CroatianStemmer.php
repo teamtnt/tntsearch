@@ -7,7 +7,7 @@ The original author is Ivan Pandžić. */
 
 namespace TeamTNT\TNTSearch\Stemmer;
 
-class CroatianStemmer implements Stemmer
+class CroatianStemmer implements StemmerInterface
 {
     protected static $stop = ['biti', 'jesam', 'budem', 'sam', 'jesi', 'budeš', 'si', 'jesmo', 'budemo',
         'smo', 'jeste', 'budete', 'ste', 'jesu', 'budu', 'su', 'bih', 'bijah', 'bjeh',

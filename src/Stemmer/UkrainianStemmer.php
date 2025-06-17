@@ -6,7 +6,7 @@ namespace TeamTNT\TNTSearch\Stemmer;
  * Semple stemmer for ukrainian language
  */
 
-class UkrainianStemmer implements Stemmer
+class UkrainianStemmer implements StemmerInterface
 {
     private static $VOWEL = '/аеиоуюяіїє/u';
     /* http://uk.wikipedia.org/wiki/Голосний_звук */

@@ -40,7 +40,7 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $tnt = new TNTSearch();
         $tnt->loadConfig($this->config);
         $indexer = $tnt->createIndex($this->indexName);
-        $this->assertInstanceOf('TeamTNT\TNTSearch\Contracts\EngineContract', $indexer);
+        $this->assertInstanceOf('TeamTNT\TNTSearch\Engines\EngineInterface', $indexer);
 
         if ($this->config['engine'] == 'TeamTNT\TNTSearch\Engines\SqliteEngine') {
             $this->assertFileExists($indexer->getStoragePath() . $this->indexName);

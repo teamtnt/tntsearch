@@ -27,7 +27,7 @@ namespace TeamTNT\TNTSearch\Stemmer;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class ItalianStemmer implements Stemmer
+class ItalianStemmer implements StemmerInterface
 {
     private static $cache = [];
 
