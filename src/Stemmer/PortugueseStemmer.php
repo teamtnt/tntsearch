@@ -34,7 +34,7 @@ namespace TeamTNT\TNTSearch\Stemmer;
  * @author Lucas Padilha <https://github.com/LucasPadilha>
  */
 
-class PortugueseStemmer implements Stemmer
+class PortugueseStemmer implements StemmerInterface
 {
     /**
      * UTF-8 Case lookup table

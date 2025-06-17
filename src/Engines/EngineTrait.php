@@ -8,7 +8,7 @@ use TeamTNT\TNTSearch\Connectors\MySqlConnector;
 use TeamTNT\TNTSearch\Connectors\PostgresConnector;
 use TeamTNT\TNTSearch\Connectors\SQLiteConnector;
 use TeamTNT\TNTSearch\Connectors\SqlServerConnector;
-use TeamTNT\TNTSearch\Stemmer\Stemmer;
+use TeamTNT\TNTSearch\Stemmer\StemmerInterface;
 use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Support\TokenizerInterface;
 
@@ -61,7 +61,7 @@ trait EngineTrait
         $this->disableOutput = $value;
     }
 
-    public function setStemmer(Stemmer $stemmer)
+    public function setStemmer(StemmerInterface $stemmer)
     {
         $this->stemmer = $stemmer;
         $this->updateInfoTable('stemmer', get_class($stemmer));

@@ -9,7 +9,7 @@ namespace TeamTNT\TNTSearch\Stemmer;
  * 
  */
 
-class PolishStemmer implements Stemmer
+class PolishStemmer implements StemmerInterface
 {
 
     public static function removeNouns($word)

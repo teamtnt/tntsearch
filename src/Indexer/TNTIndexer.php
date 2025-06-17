@@ -3,11 +3,11 @@
 namespace TeamTNT\TNTSearch\Indexer;
 
 use PDO;
-use TeamTNT\TNTSearch\Contracts\EngineContract;
+use TeamTNT\TNTSearch\Engines\EngineInterface;
 use TeamTNT\TNTSearch\FileReaders\FileReaderInterface;
 use TeamTNT\TNTSearch\FileReaders\TextFileReader;
 use TeamTNT\TNTSearch\Stemmer\NoStemmer;
-use TeamTNT\TNTSearch\Stemmer\Stemmer;
+use TeamTNT\TNTSearch\Stemmer\StemmerInterface;
 use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Support\Tokenizer;
 use TeamTNT\TNTSearch\Support\TokenizerInterface;
@@ -27,7 +27,7 @@ class TNTIndexer
 
     public $indexName = "";
 
-    public function __construct(EngineContract $engine)
+    public function __construct(EngineInterface $engine)
     {
         $this->engine = $engine;
         $this->engine->tokenizer = new Tokenizer;
@@ -88,7 +88,7 @@ class TNTIndexer
         $this->engine->includePrimaryKey();
     }
 
-    public function setStemmer(Stemmer $stemmer)
+    public function setStemmer(StemmerInterface $stemmer)
     {
         $this->engine->setStemmer($stemmer);
     }

@@ -5,11 +5,10 @@ namespace TeamTNT\TNTSearch\Engines;
 use PDO;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use TeamTNT\TNTSearch\Contracts\EngineContract;
 use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
 use TeamTNT\TNTSearch\Support\Collection;
 
-class SqliteEngine implements EngineContract
+class SqliteEngine implements EngineInterface
 {
     use EngineTrait;
 
