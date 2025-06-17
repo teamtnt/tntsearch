@@ -3,13 +3,13 @@
 namespace TeamTNT\TNTSearch;
 
 use PDO;
-use TeamTNT\TNTSearch\Contracts\EngineContract;
+use TeamTNT\TNTSearch\Engines\EngineInterface;
 use TeamTNT\TNTSearch\Engines\SqliteEngine;
 use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
 use TeamTNT\TNTSearch\Exceptions\InvalidEngineException;
 use TeamTNT\TNTSearch\Indexer\TNTIndexer;
 use TeamTNT\TNTSearch\Stemmer\NoStemmer;
-use TeamTNT\TNTSearch\Stemmer\Stemmer;
+use TeamTNT\TNTSearch\Stemmer\StemmerInterface;
 use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Support\Expression;
 use TeamTNT\TNTSearch\Support\Highlighter;
@@ -47,7 +47,7 @@ class TNTSearch
         // Create the engine instance based on the config
         $engine = $this->config['engine'];
 
-        if (!is_string($engine) || !is_a($engine, EngineContract::class, true)) {
+        if (!is_string($engine) || !is_a($engine, EngineInterface::class, true)) {
             throw new InvalidEngineException();
         }
 
@@ -336,10 +336,10 @@ class TNTSearch
     private function isValidStemmer($stemmer)
     {
         if (is_object($stemmer)) {
-            return $stemmer instanceof Stemmer;
+            return $stemmer instanceof StemmerInterface;
         }
 
-        return is_string($stemmer) && class_exists($stemmer) && is_a($stemmer, Stemmer::class, true);
+        return is_string($stemmer) && class_exists($stemmer) && is_a($stemmer, StemmerInterface::class, true);
     }
 
     public function setStemmer()
