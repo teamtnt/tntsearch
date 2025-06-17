@@ -189,6 +189,10 @@ class SqliteEngine implements EngineContract
         }
 
         $stems = $row->map(function ($columnContent, $columnName) use ($row) {
+            if (!is_string($columnContent) || trim($columnContent) === '') {
+                return [];
+            }
+
             return $this->stemText($columnContent);
         });
 
