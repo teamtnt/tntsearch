@@ -88,8 +88,8 @@ class SqliteEngine implements EngineInterface
                     value TEXT)");
 
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', 0)");
-        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', 'TeamTNT\TNTSearch\Stemmer\NoStemmer')");
-        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'tokenizer', 'TeamTNT\TNTSearch\Support\Tokenizer')");
+        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', 'TeamTNT\\TNTSearch\\Stemmer\\NoStemmer')");
+        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'tokenizer', 'TeamTNT\\TNTSearch\\Support\\Tokenizer')");
 
         $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'term_id_index' ON doclist ('term_id' COLLATE BINARY);");
         $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'doc_id_index' ON doclist ('doc_id');");
@@ -122,12 +122,6 @@ class SqliteEngine implements EngineInterface
         if (!isset($this->config['wal'])) {
             $this->config['wal'] = true;
         }
-    }
-
-    public function setStemmer($stemmer)
-    {
-        $this->stemmer = $stemmer;
-        $this->updateInfoTable('stemmer', get_class($stemmer));
     }
 
     public function updateInfoTable(string $key, $value)

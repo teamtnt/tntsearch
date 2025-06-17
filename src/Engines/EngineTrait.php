@@ -5,6 +5,7 @@ namespace TeamTNT\TNTSearch\Engines;
 use Exception;
 use TeamTNT\TNTSearch\Connectors\FileSystemConnector;
 use TeamTNT\TNTSearch\Connectors\MySqlConnector;
+use TeamTNT\TNTSearch\Connectors\OracleDBConnector;
 use TeamTNT\TNTSearch\Connectors\PostgresConnector;
 use TeamTNT\TNTSearch\Connectors\SQLiteConnector;
 use TeamTNT\TNTSearch\Connectors\SqlServerConnector;
@@ -25,7 +26,7 @@ trait EngineTrait
     /**
      * @param array $config
      *
-     * @return FileSystemConnector|MySqlConnector|PostgresConnector|SQLiteConnector|SqlServerConnector
+     * @return FileSystemConnector|MySqlConnector|OracleDBConnector|PostgresConnector|SQLiteConnector|SqlServerConnector
      * @throws Exception
      */
     public function createConnector(array $config)
@@ -171,6 +172,15 @@ trait EngineTrait
     public function setLanguage(string $language = 'no')
     {
         $class = 'TeamTNT\\TNTSearch\\Stemmer\\' . ucfirst(strtolower($language)) . 'Stemmer';
+
+        if (!class_exists($class)) {
+            throw new Exception("Language stemmer for [{$language}] does not exist.");
+        }
+
+        if (!is_a($class, StemmerInterface::class, true)) {
+            throw new Exception("Language stemmer for [{$language}] does not extend Stemmer interface.");
+        }
+
         $this->setStemmer(new $class);
     }
 
