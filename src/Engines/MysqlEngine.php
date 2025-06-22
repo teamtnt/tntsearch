@@ -63,7 +63,7 @@ class MysqlEngine extends SqliteEngine
                     `value` VARCHAR(255));"
         );
 
-        $this->index->exec("INSERT INTO {$this->indexName}_info ( `key`, `value`) values 
+        $this->index->exec("INSERT INTO {$this->indexName}_info ( `key`, `value`) VALUES 
             ('total_documents', 0), 
             ('stemmer', 'TeamTNT\\\\TNTSearch\\\\Stemmer\\\\NoStemmer'), 
             ('tokenizer', 'TeamTNT\\\\TNTSearch\\\\Support\\\\Tokenizer');"
