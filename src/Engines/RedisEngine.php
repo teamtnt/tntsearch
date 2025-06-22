@@ -114,6 +114,8 @@ class RedisEngine implements EngineInterface
             }
         }
 
+        $this->info("Processed {$counter} rows");
+
         $this->updateInfoTable('total_documents', $counter);
 
         $this->info("Total rows {$counter}");

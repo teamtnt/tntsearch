@@ -172,7 +172,10 @@ class SqliteEngine implements EngineInterface
                 $this->info("Committed");
             }
         }
+
+        $this->info("Processed {$counter} rows");
         $this->index->commit();
+        $this->info("Committed");
 
         $this->updateInfoTable('total_documents', $counter);
 
