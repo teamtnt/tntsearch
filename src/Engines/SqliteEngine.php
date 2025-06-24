@@ -163,19 +163,25 @@ class SqliteEngine implements EngineInterface
 
             $this->processDocument(new Collection($row));
 
-            if ($counter % $this->steps == 0) {
+            if ($counter % $this->steps === 0) {
                 $this->info("Processed {$counter} rows");
             }
-            if ($counter % 10000 == 0) {
+
+            if ($counter % 10000 === 0) {
                 $this->index->commit();
                 $this->index->beginTransaction();
                 $this->info("Committed");
             }
         }
 
-        $this->info("Processed {$counter} rows");
-        $this->index->commit();
-        $this->info("Committed");
+        if ($counter % $this->steps !== 0) {
+            $this->info("Processed {$counter} rows");
+        }
+
+        if ($counter % 10000 !== 0) {
+            $this->index->commit();
+            $this->info("Committed");
+        }
 
         $this->updateInfoTable('total_documents', $counter);
 
