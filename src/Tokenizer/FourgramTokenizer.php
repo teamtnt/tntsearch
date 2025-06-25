@@ -1,5 +1,5 @@
 <?php
-namespace TeamTNT\TNTSearch\Support;
+namespace TeamTNT\TNTSearch\Tokenizer;
 
 class FourgramTokenizer extends AbstractTokenizer implements TokenizerInterface
 {

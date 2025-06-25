@@ -10,7 +10,7 @@ use TeamTNT\TNTSearch\Connectors\SQLiteConnector;
 use TeamTNT\TNTSearch\Connectors\SqlServerConnector;
 use TeamTNT\TNTSearch\Stemmer\StemmerInterface;
 use TeamTNT\TNTSearch\Support\Collection;
-use TeamTNT\TNTSearch\Support\TokenizerInterface;
+use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
 trait EngineTrait
 {

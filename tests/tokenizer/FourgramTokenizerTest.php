@@ -1,6 +1,9 @@
 <?php
 
-use TeamTNT\TNTSearch\Support\FourgramTokenizer;
+namespace tokenizer;
+
+use PHPUnit;
+use TeamTNT\TNTSearch\Tokenizer\FourgramTokenizer;
 
 class FourgramTokenizerTest extends PHPUnit\Framework\TestCase
 {
@@ -9,7 +12,7 @@ class FourgramTokenizerTest extends PHPUnit\Framework\TestCase
         $tokenizer = new FourgramTokenizer;
 
         $text = "Quick Foxes";
-        $res  = $tokenizer->tokenize($text);
+        $res = $tokenizer->tokenize($text);
 
         $this->assertEquals(["quic", "uick", "foxe", "oxes"], $res);
     }

@@ -1,6 +1,9 @@
 <?php
 
-use TeamTNT\TNTSearch\Support\EdgeNgramTokenizer;
+namespace tokenizer;
+
+use PHPUnit;
+use TeamTNT\TNTSearch\Tokenizer\EdgeNgramTokenizer;
 
 class EdgeNgramTokenizerTest extends PHPUnit\Framework\TestCase
 {
@@ -9,7 +12,7 @@ class EdgeNgramTokenizerTest extends PHPUnit\Framework\TestCase
         $tokenizer = new EdgeNgramTokenizer;
 
         $text = "Quick Foxes";
-        $res  = $tokenizer->tokenize($text);
+        $res = $tokenizer->tokenize($text);
 
         $this->assertEquals(["qu", "qui", "quic", "quick", "fo", "fox", "foxe", "foxes"], $res);
     }
@@ -19,7 +22,7 @@ class EdgeNgramTokenizerTest extends PHPUnit\Framework\TestCase
         $tokenizer = new EdgeNgramTokenizer;
 
         $text = "Germany";
-        $res  = $tokenizer->tokenize($text);
+        $res = $tokenizer->tokenize($text);
 
         $this->assertEquals(["ge", "ger", "germ", "germa", "german", "germany"], $res);
     }

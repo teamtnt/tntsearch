@@ -1,9 +1,9 @@
 <?php
-namespace TeamTNT\TNTSearch\Support;
+namespace TeamTNT\TNTSearch\Tokenizer;
 
-class Tokenizer extends AbstractTokenizer implements TokenizerInterface
+class ProductTokenizer extends AbstractTokenizer implements TokenizerInterface
 {
-    static protected $pattern = '/[^\p{L}\p{N}\p{Pc}\p{Pd}@]+/u';
+    static protected $pattern = '/[\s,\.]+/';
 
     public function tokenize($text, $stopwords = [])
     {

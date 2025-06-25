@@ -1,6 +1,9 @@
 <?php
 
-use TeamTNT\TNTSearch\Support\TrigramTokenizer;
+namespace tokenizer;
+
+use PHPUnit;
+use TeamTNT\TNTSearch\Tokenizer\TrigramTokenizer;
 
 class TrigramTokenizerTest extends PHPUnit\Framework\TestCase
 {
@@ -9,7 +12,7 @@ class TrigramTokenizerTest extends PHPUnit\Framework\TestCase
         $tokenizer = new TrigramTokenizer;
 
         $text = "Quick Foxes";
-        $res  = $tokenizer->tokenize($text);
+        $res = $tokenizer->tokenize($text);
 
         $this->assertEquals(["qui", "uic", "ick", "fox", "oxe", "xes"], $res);
     }

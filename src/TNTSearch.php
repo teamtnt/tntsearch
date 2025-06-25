@@ -11,8 +11,8 @@ use TeamTNT\TNTSearch\Stemmer\NoStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Support\Expression;
 use TeamTNT\TNTSearch\Support\Highlighter;
-use TeamTNT\TNTSearch\Support\Tokenizer;
-use TeamTNT\TNTSearch\Support\TokenizerInterface;
+use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
+use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
 class TNTSearch
 {

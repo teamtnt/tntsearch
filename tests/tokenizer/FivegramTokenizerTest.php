@@ -1,6 +1,9 @@
 <?php
 
-use TeamTNT\TNTSearch\Support\FivegramTokenizer;
+namespace tokenizer;
+
+use PHPUnit;
+use TeamTNT\TNTSearch\Tokenizer\FivegramTokenizer;
 
 class FivegramTokenizerTest extends PHPUnit\Framework\TestCase
 {
@@ -9,7 +12,7 @@ class FivegramTokenizerTest extends PHPUnit\Framework\TestCase
         $tokenizer = new FivegramTokenizer;
 
         $text = "Quick Foxes";
-        $res  = $tokenizer->tokenize($text);
+        $res = $tokenizer->tokenize($text);
 
         $this->assertEquals(["quick", "foxes"], $res);
     }

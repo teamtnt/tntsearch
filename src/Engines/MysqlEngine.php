@@ -66,7 +66,7 @@ class MysqlEngine extends SqliteEngine
         $this->index->exec("INSERT INTO {$this->indexName}_info ( `key`, `value`) values 
             ('total_documents', 0), 
             ('stemmer', 'TeamTNT\TNTSearch\Stemmer\NoStemmer'), 
-            ('tokenizer', 'TeamTNT\TNTSearch\Support\Tokenizer');"
+            ('tokenizer', 'TeamTNT\TNTSearch\Tokenizer\Tokenizer');"
         );
 
         $this->index->exec("ALTER TABLE {$this->indexName}_doclist ADD INDEX idx_term_id_hit_count (`term_id`, `hit_count` DESC);");

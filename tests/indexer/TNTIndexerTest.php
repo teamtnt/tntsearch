@@ -3,8 +3,8 @@
 use TeamTNT\TNTSearch\Engines\RedisEngine;
 use TeamTNT\TNTSearch\Engines\SqliteEngine;
 use TeamTNT\TNTSearch\Indexer\TNTIndexer;
-use TeamTNT\TNTSearch\Support\AbstractTokenizer;
-use TeamTNT\TNTSearch\Support\TokenizerInterface;
+use TeamTNT\TNTSearch\Tokenizer\AbstractTokenizer;
+use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 use TeamTNT\TNTSearch\TNTSearch;
 
 class TNTIndexerTest extends PHPUnit\Framework\TestCase
@@ -22,7 +22,7 @@ class TNTIndexerTest extends PHPUnit\Framework\TestCase
         'username'   => 'testUser',
         'password'   => 'testPass',
         'storage'    => __DIR__ . '/../_files/',
-        'tokenizer'  => TeamTNT\TNTSearch\Support\ProductTokenizer::class
+        'tokenizer'  => TeamTNT\TNTSearch\Tokenizer\ProductTokenizer::class
 
     ];
 

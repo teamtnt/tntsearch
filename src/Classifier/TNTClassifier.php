@@ -3,7 +3,7 @@
 namespace TeamTNT\TNTSearch\Classifier;
 
 use TeamTNT\TNTSearch\Stemmer\NoStemmer;
-use TeamTNT\TNTSearch\Support\Tokenizer;
+use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
 
 class TNTClassifier
 {

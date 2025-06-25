@@ -89,7 +89,7 @@ class SqliteEngine implements EngineInterface
 
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', 0)");
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', 'TeamTNT\TNTSearch\Stemmer\NoStemmer')");
-        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'tokenizer', 'TeamTNT\TNTSearch\Support\Tokenizer')");
+        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'tokenizer', 'TeamTNT\TNTSearch\Tokenizer\Tokenizer')");
 
         $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'term_id_index' ON doclist ('term_id' COLLATE BINARY);");
         $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'doc_id_index' ON doclist ('doc_id');");

@@ -1,5 +1,5 @@
 <?php
-namespace TeamTNT\TNTSearch\Support;
+namespace TeamTNT\TNTSearch\Tokenizer;
 
 class TrigramTokenizer extends AbstractTokenizer implements TokenizerInterface
 {
