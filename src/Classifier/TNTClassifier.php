@@ -3,6 +3,7 @@
 namespace TeamTNT\TNTSearch\Classifier;
 
 use TeamTNT\TNTSearch\Stemmer\NoStemmer;
+use TeamTNT\TNTSearch\Stemmer\StemmerInterface;
 use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
 use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
@@ -13,7 +14,7 @@ class TNTClassifier
     public $types                  = [];
     public $vc                     = null;
     public ?TokenizerInterface $tokenizer = null;
-    public $stemmer                = null;
+    public ?StemmerInterface $stemmer                = null;
     protected $arraySumOfWordType  = null;
     protected $arraySumOfDocuments = null;
 

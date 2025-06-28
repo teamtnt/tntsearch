@@ -6,6 +6,7 @@ use Exception;
 use PDO;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use TeamTNT\TNTSearch\Stemmer\StemmerInterface;
 use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
@@ -16,7 +17,7 @@ class RedisEngine implements EngineInterface
     public $indexName;
     public $config;
     public $index;
-    public $stemmer;
+    public StemmerInterface $stemmer;
     public $dbh;
     public $query;
     public $disableOutput = false;

@@ -7,6 +7,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
 use TeamTNT\TNTSearch\Stemmer\NoStemmer;
+use TeamTNT\TNTSearch\Stemmer\StemmerInterface;
 use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
 use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
@@ -18,7 +19,7 @@ class SqliteEngine implements EngineInterface
     public $indexName;
     public $config;
     public $index;
-    public $stemmer;
+    public StemmerInterface $stemmer;
     public $dbh;
     public $query;
     public $disableOutput = false;

@@ -17,7 +17,7 @@ class TNTIndexer
     protected $engine = null;
     protected $dbh = null;
     protected $primaryKey = null;
-    public $stemmer = null;
+    public ?StemmerInterface $stemmer = null;
     public ?TokenizerInterface $tokenizer = null;
     public $stopWords = [];
     public $config = [];
