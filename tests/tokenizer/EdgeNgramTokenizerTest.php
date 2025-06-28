@@ -2,10 +2,10 @@
 
 namespace tokenizer;
 
-use PHPUnit;
+use PHPUnit\Framework\TestCase;
 use TeamTNT\TNTSearch\Tokenizer\EdgeNgramTokenizer;
 
-class EdgeNgramTokenizerTest extends PHPUnit\Framework\TestCase
+class EdgeNgramTokenizerTest extends TestCase
 {
     public function testEdgeNgramTokenize()
     {

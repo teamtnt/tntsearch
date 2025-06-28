@@ -2,8 +2,6 @@
 
 namespace TeamTNT\TNTSearch\Connectors;
 
-use Exception;
-
 class FileSystemConnector extends Connector implements ConnectorInterface
 {
     /**

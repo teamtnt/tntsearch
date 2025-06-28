@@ -2,10 +2,10 @@
 
 namespace tokenizer;
 
-use PHPUnit;
+use PHPUnit\Framework\TestCase;
 use TeamTNT\TNTSearch\Tokenizer\FivegramTokenizer;
 
-class FivegramTokenizerTest extends PHPUnit\Framework\TestCase
+class FivegramTokenizerTest extends TestCase
 {
     public function testFourgramTokenize()
     {

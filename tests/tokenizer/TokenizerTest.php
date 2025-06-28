@@ -2,10 +2,10 @@
 
 namespace tokenizer;
 
-use PHPUnit;
+use PHPUnit\Framework\TestCase;
 use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
 
-class TokenizerTest extends PHPUnit\Framework\TestCase
+class TokenizerTest extends TestCase
 {
     public function testTokenize()
     {

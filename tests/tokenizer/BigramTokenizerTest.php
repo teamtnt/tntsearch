@@ -2,10 +2,10 @@
 
 namespace tokenizer;
 
-use PHPUnit;
+use PHPUnit\Framework\TestCase;
 use TeamTNT\TNTSearch\Tokenizer\BigramTokenizer;
 
-class BigramTokenizerTest extends PHPUnit\Framework\TestCase
+class BigramTokenizerTest extends TestCase
 {
     public function testBigramTokenize()
     {

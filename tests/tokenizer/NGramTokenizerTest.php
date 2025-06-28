@@ -2,10 +2,10 @@
 
 namespace tokenizer;
 
-use PHPUnit;
+use PHPUnit\Framework\TestCase;
 use TeamTNT\TNTSearch\Tokenizer\NGramTokenizer;
 
-class NGramTokenizerTest extends PHPUnit\Framework\TestCase
+class NGramTokenizerTest extends TestCase
 {
     public function testTrigramTokenize()
     {
