@@ -14,8 +14,8 @@ use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
 class TNTIndexer
 {
-    protected $engine = null;
-    protected $dbh = null;
+    protected EngineInterface $engine;
+    protected ?PDO $dbh = null;
     protected $primaryKey = null;
     public ?StemmerInterface $stemmer = null;
     public ?TokenizerInterface $tokenizer = null;

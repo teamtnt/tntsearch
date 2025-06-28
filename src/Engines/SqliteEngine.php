@@ -18,9 +18,9 @@ class SqliteEngine implements EngineInterface
 
     public $indexName;
     public array $config;
-    public $index;
+    public PDO $index;
     public StemmerInterface $stemmer;
-    public $dbh;
+    public PDO $dbh;
     public $query;
     public $disableOutput = false;
     public $primaryKey;

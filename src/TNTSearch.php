@@ -22,8 +22,8 @@ class TNTSearch
     public ?TokenizerInterface $tokenizer = null;
     public $index = null;
     public ?StemmerInterface $stemmer = null;
-    protected $dbh = null;
-    public $engine;
+    protected ?PDO $dbh = null;
+    public EngineInterface $engine;
 
     /**
      * @param array $config
