@@ -44,7 +44,7 @@ class FrenchStemmer implements StemmerInterface
      * R1 value
      * @var int
      */
-    protected int $r1;
+    protected $r1;
 
     /**
      * R1 index (based on the beginning of the word)
@@ -56,7 +56,7 @@ class FrenchStemmer implements StemmerInterface
      * R2 value
      * @var int
      */
-    protected int $r2;
+    protected $r2;
 
     /**
      * R2 index (based on the beginning of the word)
