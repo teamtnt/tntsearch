@@ -6,7 +6,9 @@ use PDO;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
+use TeamTNT\TNTSearch\Stemmer\NoStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
+use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
 
 class SqliteEngine implements EngineInterface
 {
@@ -87,9 +89,16 @@ class SqliteEngine implements EngineInterface
                     key TEXT,
                     value TEXT)");
 
-        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', 0)");
-        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'stemmer', 'TeamTNT\TNTSearch\Stemmer\NoStemmer')");
-        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'tokenizer', 'TeamTNT\TNTSearch\Tokenizer\Tokenizer')");
+        $infoStatement = $this->index->prepare("INSERT INTO info (`key`, `value`) VALUES (:key, :value);");
+        $infoValues = [
+            [':key' => 'total_documents', ':value' => 0],
+            [':key' => 'stemmer', ':value' => NoStemmer::class],
+            [':key' => 'tokenizer', ':value' => Tokenizer::class],
+        ];
+
+        foreach ($infoValues as $value) {
+            $infoStatement->execute($value);
+        }
 
         $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'term_id_index' ON doclist ('term_id' COLLATE BINARY);");
         $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'doc_id_index' ON doclist ('doc_id');");
@@ -122,12 +131,6 @@ class SqliteEngine implements EngineInterface
         if (!isset($this->config['wal'])) {
             $this->config['wal'] = true;
         }
-    }
-
-    public function setStemmer($stemmer)
-    {
-        $this->stemmer = $stemmer;
-        $this->updateInfoTable('stemmer', get_class($stemmer));
     }
 
     public function updateInfoTable(string $key, $value)
@@ -163,16 +166,25 @@ class SqliteEngine implements EngineInterface
 
             $this->processDocument(new Collection($row));
 
-            if ($counter % $this->steps == 0) {
+            if ($counter % $this->steps === 0) {
                 $this->info("Processed {$counter} rows");
             }
-            if ($counter % 10000 == 0) {
+
+            if ($counter % 10000 === 0) {
                 $this->index->commit();
                 $this->index->beginTransaction();
                 $this->info("Committed");
             }
         }
-        $this->index->commit();
+
+        if ($counter % $this->steps !== 0) {
+            $this->info("Processed {$counter} rows");
+        }
+
+        if ($counter % 10000 !== 0) {
+            $this->index->commit();
+            $this->info("Committed");
+        }
 
         $this->updateInfoTable('total_documents', $counter);
 

@@ -109,9 +109,13 @@ class RedisEngine implements EngineInterface
 
             $this->processDocument(new Collection($row));
 
-            if ($counter % $this->steps == 0) {
+            if ($counter % $this->steps === 0) {
                 $this->info("Processed {$counter} rows");
             }
+        }
+
+        if ($counter % $this->steps !== 0) {
+            $this->info("Processed {$counter} rows");
         }
 
         $this->updateInfoTable('total_documents', $counter);

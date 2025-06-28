@@ -13,7 +13,9 @@ namespace TeamTNT\TNTSearch\Engines;
 use PDO;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use TeamTNT\TNTSearch\Stemmer\NoStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
+use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
 
 class MysqlEngine extends SqliteEngine
 {
@@ -63,11 +65,16 @@ class MysqlEngine extends SqliteEngine
                     `value` VARCHAR(255));"
         );
 
-        $this->index->exec("INSERT INTO {$this->indexName}_info ( `key`, `value`) values 
-            ('total_documents', 0), 
-            ('stemmer', 'TeamTNT\TNTSearch\Stemmer\NoStemmer'), 
-            ('tokenizer', 'TeamTNT\TNTSearch\Tokenizer\Tokenizer');"
-        );
+        $infoStatement = $this->index->prepare("INSERT INTO {$this->indexName}_info (`key`, `value`) VALUES (:key, :value);");
+        $infoValues = [
+            [':key' => 'total_documents', ':value' => 0],
+            [':key' => 'stemmer', ':value' => NoStemmer::class],
+            [':key' => 'tokenizer', ':value' => Tokenizer::class],
+        ];
+
+        foreach ($infoValues as $value) {
+            $infoStatement->execute($value);
+        }
 
         $this->index->exec("ALTER TABLE {$this->indexName}_doclist ADD INDEX idx_term_id_hit_count (`term_id`, `hit_count` DESC);");
         $this->index->exec("ALTER TABLE {$this->indexName}_doclist ADD INDEX idx_doc_id (`doc_id`);");
