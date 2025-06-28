@@ -19,11 +19,11 @@ class TNTIndexer
     protected $primaryKey = null;
     public ?StemmerInterface $stemmer = null;
     public ?TokenizerInterface $tokenizer = null;
-    public $stopWords = [];
+    public array $stopWords = [];
     public array $config = [];
-    protected $query = "";
-    protected $wordlist = [];
-    protected $decodeHTMLEntities = false;
+    protected string $query = "";
+    protected array $wordlist = [];
+    protected bool $decodeHTMLEntities = false;
 
     public string $indexName = "";
 
@@ -256,7 +256,7 @@ class TNTIndexer
 
     public function info($text)
     {
-        $this->engine->info();
+        $this->engine->info($text);
     }
 
     public function setInMemory($value)

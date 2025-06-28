@@ -3,9 +3,11 @@
 namespace TeamTNT\TNTSearch\Engines;
 
 use PDO;
+use PDOStatement;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
+use TeamTNT\TNTSearch\FileReaders\FileReaderInterface;
 use TeamTNT\TNTSearch\Stemmer\NoStemmer;
 use TeamTNT\TNTSearch\Stemmer\StemmerInterface;
 use TeamTNT\TNTSearch\Support\Collection;
@@ -21,29 +23,29 @@ class SqliteEngine implements EngineInterface
     public PDO $index;
     public StemmerInterface $stemmer;
     public PDO $dbh;
-    public $query;
-    public $disableOutput = false;
-    public $primaryKey;
-    protected $excludePrimaryKey = true;
-    public $decodeHTMLEntities;
+    public string $query;
+    public bool $disableOutput = false;
+    public string $primaryKey;
+    protected bool $excludePrimaryKey = true;
+    public bool $decodeHTMLEntities = false;
     public TokenizerInterface $tokenizer;
-    public $stopWords = [];
-    public $statementsPrepared = false;
-    protected $updateInfoTableStmt;
-    protected $insertWordlistStmt;
-    protected $selectWordlistStmt;
-    protected $updateWordlistStmt;
-    public $steps = 1000;
-    public $inMemory = true;
-    protected $inMemoryTerms = [];
-    public $filereader = null;
-    public $asYouType = false;
-    public $fuzziness = false;
-    public $fuzzy_prefix_length = 2;
-    public $fuzzy_max_expansions = 50;
-    public $fuzzy_distance = 2;
-    public $fuzzy_no_limit = false;
-    public $maxDocs = 500;
+    public array $stopWords = [];
+    public bool $statementsPrepared = false;
+    protected PDOStatement $updateInfoTableStmt;
+    protected PDOStatement $insertWordlistStmt;
+    protected PDOStatement $selectWordlistStmt;
+    protected PDOStatement $updateWordlistStmt;
+    public int $steps = 1000;
+    public bool $inMemory = true;
+    protected array $inMemoryTerms = [];
+    public ?FileReaderInterface $filereader = null;
+    public bool $asYouType = false;
+    public bool $fuzziness = false;
+    public int $fuzzy_prefix_length = 2;
+    public int $fuzzy_max_expansions = 50;
+    public int $fuzzy_distance = 2;
+    public bool $fuzzy_no_limit = false;
+    public int $maxDocs = 500;
 
     /**
      * @param string $indexName

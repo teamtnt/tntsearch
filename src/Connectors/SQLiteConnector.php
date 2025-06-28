@@ -6,7 +6,7 @@ use Exception;
 
 class SQLiteConnector extends Connector implements ConnectorInterface
 {
-    protected $options = [];
+    protected array $options = [];
     /**
      * Establish a database connection.
      *

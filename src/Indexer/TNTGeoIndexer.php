@@ -3,12 +3,13 @@
 namespace TeamTNT\TNTSearch\Indexer;
 
 use PDO;
+use PDOStatement;
 use TeamTNT\TNTSearch\Support\Collection;
 
 class TNTGeoIndexer extends TNTIndexer
 {
 
-    public $insertStmt = null;
+    public ?PDOStatement $insertStmt = null;
 
     public function createIndex(string $indexName)
     {

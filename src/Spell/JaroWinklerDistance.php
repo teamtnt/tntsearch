@@ -4,7 +4,7 @@ namespace TeamTNT\TNTSearch\Spell;
 
 class JaroWinklerDistance
 {
-    private $threshold = 0.7;
+    private float $threshold = 0.7;
 
     public function getDistance(string $str1, string $str2)
     {
