@@ -115,9 +115,12 @@ class SqliteEngine implements EngineInterface
             $this->setTokenizer(new $this->config['tokenizer']);
         }
 
-        if (!$this->dbh) {
-            $connector = $this->createConnector($this->config);
-            $this->dbh = $connector->connect($this->config);
+        if (!isset($this->dbh)) {
+            $dbh = $this->createConnector($this->config)->connect($this->config);
+
+            if ($dbh instanceof PDO) {
+                $this->dbh = $dbh;
+            }
         }
 
         return $this;
@@ -204,11 +207,11 @@ class SqliteEngine implements EngineInterface
         }
 
         $stems = $row->map(function ($columnContent, $columnName) use ($row) {
-            if (!is_string($columnContent) || trim($columnContent) === '') {
+            if (trim((string)$columnContent) === '') {
                 return [];
             }
 
-            return $this->stemText($columnContent);
+            return $this->stemText((string)$columnContent);
         });
 
         $this->saveToIndex($stems, $documentId);

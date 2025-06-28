@@ -77,8 +77,11 @@ class RedisEngine implements EngineInterface
         }
 
         if (!$this->dbh) {
-            $connector = $this->createConnector($this->config);
-            $this->dbh = $connector->connect($this->config);
+            $dbh = $this->createConnector($this->config)->connect($this->config);
+
+            if ($dbh instanceof PDO) {
+                $this->dbh = $dbh;
+            }
         }
 
         return $this;
@@ -136,11 +139,11 @@ class RedisEngine implements EngineInterface
         }
 
         $stems = $row->map(function ($columnContent, $columnName) use ($row) {
-            if (!is_string($columnContent) || trim($columnContent) === '') {
+            if (trim((string)$columnContent) === '') {
                 return [];
             }
 
-            return $this->stemText($columnContent);
+            return $this->stemText((string)$columnContent);
         });
 
         $this->saveToIndex($stems, $documentId);

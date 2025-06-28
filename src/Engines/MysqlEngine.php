@@ -87,9 +87,12 @@ class MysqlEngine extends SqliteEngine
             $this->setTokenizer(new $this->config['tokenizer']);
         }
 
-        if (!$this->dbh) {
-            $connector = $this->createConnector($this->config);
-            $this->dbh = $connector->connect($this->config);
+        if (!isset($this->dbh)) {
+            $dbh = $this->createConnector($this->config)->connect($this->config);
+
+            if ($dbh instanceof PDO) {
+                $this->dbh = $dbh;
+            }
         }
 
         return $this;
