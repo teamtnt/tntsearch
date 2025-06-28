@@ -19,7 +19,7 @@ use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 class TNTSearch
 {
     public $config;
-    public $tokenizer = null;
+    public ?TokenizerInterface $tokenizer = null;
     public $index = null;
     public $stemmer = null;
     protected $dbh = null;

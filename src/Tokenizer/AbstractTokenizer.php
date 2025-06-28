@@ -9,8 +9,8 @@ abstract class AbstractTokenizer
     {
         if (empty(static::$pattern)) {
             throw new \LogicException("Tokenizer must define split \$pattern value");
-        } else {
-            return static::$pattern;
         }
+
+        return static::$pattern;
     }
 }

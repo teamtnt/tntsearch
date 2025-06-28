@@ -7,6 +7,7 @@ use PDO;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use TeamTNT\TNTSearch\Support\Collection;
+use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
 class RedisEngine implements EngineInterface
 {
@@ -22,7 +23,7 @@ class RedisEngine implements EngineInterface
     public $primaryKey;
     protected $excludePrimaryKey = true;
     public $decodeHTMLEntities;
-    public $tokenizer;
+    public TokenizerInterface $tokenizer;
     public $stopWords = [];
     public $steps = 1000;
     public $inMemory = true;

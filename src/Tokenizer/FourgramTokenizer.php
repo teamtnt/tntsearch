@@ -6,7 +6,6 @@ class FourgramTokenizer extends AbstractTokenizer implements TokenizerInterface
 
     public function tokenize($text, $stopwords = [])
     {
-        $ngramTokenizer = new NGramTokenizer(4, 4);
-        return $ngramTokenizer->tokenize($text, $stopwords);
+        return (new NGramTokenizer(4, 4))->tokenize($text, $stopwords);
     }
 }

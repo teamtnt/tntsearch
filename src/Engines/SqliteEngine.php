@@ -9,6 +9,7 @@ use TeamTNT\TNTSearch\Exceptions\IndexNotFoundException;
 use TeamTNT\TNTSearch\Stemmer\NoStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
+use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
 class SqliteEngine implements EngineInterface
 {
@@ -24,7 +25,7 @@ class SqliteEngine implements EngineInterface
     public $primaryKey;
     protected $excludePrimaryKey = true;
     public $decodeHTMLEntities;
-    public $tokenizer;
+    public TokenizerInterface $tokenizer;
     public $stopWords = [];
     public $statementsPrepared = false;
     protected $updateInfoTableStmt;
