@@ -20,7 +20,7 @@ class TNTIndexer
     public ?StemmerInterface $stemmer = null;
     public ?TokenizerInterface $tokenizer = null;
     public $stopWords = [];
-    public $config = [];
+    public array $config = [];
     protected $query = "";
     protected $wordlist = [];
     protected $decodeHTMLEntities = false;

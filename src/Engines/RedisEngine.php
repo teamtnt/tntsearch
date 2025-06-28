@@ -15,7 +15,7 @@ class RedisEngine implements EngineInterface
     use EngineTrait;
 
     public $indexName;
-    public $config;
+    public array $config;
     public $index;
     public StemmerInterface $stemmer;
     public $dbh;
