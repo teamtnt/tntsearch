@@ -13,56 +13,56 @@ class FrenchStemmer implements StemmerInterface
     /**
      * All french vowels
      */
-    protected static $vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'â', 'à', 'ë', 'é', 'ê', 'è', 'ï', 'î', 'ô', 'û', 'ù'];
-    protected $word;
+    protected static array $vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'â', 'à', 'ë', 'é', 'ê', 'è', 'ï', 'î', 'ô', 'û', 'ù'];
+    protected string $word;
 
     /**
      * helper, contains stringified list of vowels
      * @var string
      */
-    protected $plainVowels;
+    protected string $plainVowels;
 
     /**
      * The original word, use to check if word has been modified
      * @var string
      */
-    protected $originalWord;
+    protected string $originalWord;
 
     /**
      * RV value
      * @var string
      */
-    protected $rv;
+    protected string $rv;
 
     /**
      * RV index (based on the beginning of the word)
      * @var int
      */
-    protected $rvIndex;
+    protected int $rvIndex;
 
     /**
      * R1 value
      * @var int
      */
-    protected $r1;
+    protected int $r1;
 
     /**
      * R1 index (based on the beginning of the word)
      * @var int
      */
-    protected $r1Index;
+    protected int $r1Index;
 
     /**
      * R2 value
      * @var int
      */
-    protected $r2;
+    protected int $r2;
 
     /**
      * R2 index (based on the beginning of the word)
      * @var int
      */
-    protected $r2Index;
+    protected int $r2Index;
 
     public static function stem($word)
     {

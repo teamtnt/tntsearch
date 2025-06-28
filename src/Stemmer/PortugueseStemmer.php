@@ -44,7 +44,7 @@ class PortugueseStemmer implements StemmerInterface
      *
      * @author Andreas Gohr <andi@splitbrain.org>
      */
-    private static $utf8_lower_to_upper = [
+    private static array $utf8_lower_to_upper = [
         0x0061 => 0x0041, 0x03C6 => 0x03A6, 0x0163 => 0x0162, 0x00E5 => 0x00C5, 0x0062 => 0x0042,
         0x013A => 0x0139, 0x00E1 => 0x00C1, 0x0142 => 0x0141, 0x03CD => 0x038E, 0x0101 => 0x0100,
         0x0491 => 0x0490, 0x03B4 => 0x0394, 0x015B => 0x015A, 0x0064 => 0x0044, 0x03B3 => 0x0393,
@@ -90,7 +90,7 @@ class PortugueseStemmer implements StemmerInterface
         0x00F0 => 0x00D0, 0x0457 => 0x0407, 0x0123 => 0x0122
     ];
 
-    private static $vowels = ['a', 'e', 'i', 'o', 'u', 'á', 'é', 'í', 'ó', 'ú', 'â', 'ê', 'ô'];
+    private static array $vowels = ['a', 'e', 'i', 'o', 'u', 'á', 'é', 'í', 'ó', 'ú', 'â', 'ê', 'ô'];
 
     public static function stem($word)
     {

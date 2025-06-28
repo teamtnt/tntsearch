@@ -27,13 +27,13 @@ class PorterStemmer implements StemmerInterface
      * Regex for matching a consonant
      * @var string
      */
-    private static $regex_consonant = '(?:[bcdfghjklmnpqrstvwxz]|(?<=[aeiou])y|^y)';
+    private static string $regex_consonant = '(?:[bcdfghjklmnpqrstvwxz]|(?<=[aeiou])y|^y)';
 
     /**
      * Regex for matching a vowel
      * @var string
      */
-    private static $regex_vowel = '(?:[aeiou]|(?<![aeiou])y)';
+    private static string $regex_vowel = '(?:[aeiou]|(?<![aeiou])y)';
 
     /**
      * Stems a word. Simple huh?
