@@ -16,7 +16,7 @@ class SqliteEngine implements EngineInterface
 {
     use EngineTrait;
 
-    public $indexName;
+    public string $indexName;
     public array $config;
     public PDO $index;
     public StemmerInterface $stemmer;

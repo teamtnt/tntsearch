@@ -25,7 +25,7 @@ class TNTIndexer
     protected $wordlist = [];
     protected $decodeHTMLEntities = false;
 
-    public $indexName = "";
+    public string $indexName = "";
 
     public function __construct(EngineInterface $engine)
     {

@@ -20,7 +20,7 @@ class TNTSearch
 {
     public array $config;
     public ?TokenizerInterface $tokenizer = null;
-    public $index = null;
+    public ?PDO $index = null;
     public ?StemmerInterface $stemmer = null;
     protected ?PDO $dbh = null;
     public EngineInterface $engine;
