@@ -2,6 +2,9 @@
 
 namespace TeamTNT\TNTSearch\Support;
 
+use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
+use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
+
 class Highlighter
 {
     protected $options = [
@@ -16,15 +19,11 @@ class Highlighter
         ],
     ];
 
-    protected $tokenizer;
+    protected TokenizerInterface $tokenizer;
 
     public function __construct(TokenizerInterface $tokenizer = null)
     {
-        if (!empty($tokenizer)) {
-            $this->tokenizer = $tokenizer;
-        } else {
-            $this->tokenizer = new Tokenizer;
-        }
+        $this->tokenizer = $tokenizer ?? new Tokenizer();
     }
 
     /**

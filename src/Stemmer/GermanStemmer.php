@@ -40,14 +40,14 @@ class GermanStemmer implements StemmerInterface
     /**
      *  R1 and R2 regions (see the Porter algorithm)
      */
-    private static $R1;
-    private static $R2;
+    private static string $R1;
+    private static string $R2;
 
-    private static $cache = array();
+    private static array $cache = [];
 
-    private static $vowels    = array('a', 'e', 'i', 'o', 'u', 'y', 'ä', 'ö', 'ü');
-    private static $s_ending  = array('b', 'd', 'f', 'g', 'h', 'k', 'l', 'm', 'n', 'r', 't');
-    private static $st_ending = array('b', 'd', 'f', 'g', 'h', 'k', 'l', 'm', 'n', 't');
+    private static array $vowels    = ['a', 'e', 'i', 'o', 'u', 'y', 'ä', 'ö', 'ü'];
+    private static array $s_ending  = ['b', 'd', 'f', 'g', 'h', 'k', 'l', 'm', 'n', 'r', 't'];
+    private static array $st_ending = ['b', 'd', 'f', 'g', 'h', 'k', 'l', 'm', 'n', 't'];
 
     /**
      * Gets the stem of $word.
@@ -106,7 +106,7 @@ class GermanStemmer implements StemmerInterface
      */
     private static function step0b($word)
     {
-        $word = str_replace(array('ä', 'ö', 'ü', 'U', 'Y'), array('a', 'o', 'u', 'u', 'y'), $word);
+        $word = str_replace(['ä', 'ö', 'ü', 'U', 'Y'], ['a', 'o', 'u', 'u', 'y'], $word);
 
         return $word;
     }
@@ -119,7 +119,7 @@ class GermanStemmer implements StemmerInterface
 
         $replaceCount = 0;
 
-        $arr = array('em', 'ern', 'er');
+        $arr = ['em', 'ern', 'er'];
         foreach ($arr as $s) {
             self::$R1 = preg_replace('#' . $s . '$#u', '', self::$R1, -1, $replaceCount);
             if ($replaceCount > 0) {
@@ -127,7 +127,7 @@ class GermanStemmer implements StemmerInterface
             }
         }
 
-        $arr = array('en', 'es', 'e');
+        $arr = ['en', 'es', 'e'];
         foreach ($arr as $s) {
             self::$R1 = preg_replace('#' . $s . '$#u', '', self::$R1, -1, $replaceCount);
             if ($replaceCount > 0) {
@@ -147,7 +147,7 @@ class GermanStemmer implements StemmerInterface
 
         $replaceCount = 0;
 
-        $arr = array('est', 'er', 'en');
+        $arr = ['est', 'er', 'en'];
         foreach ($arr as $s) {
             self::$R1 = preg_replace('#' . $s . '$#u', '', self::$R1, -1, $replaceCount);
             if ($replaceCount > 0) {
@@ -169,7 +169,7 @@ class GermanStemmer implements StemmerInterface
 
         $replaceCount = 0;
 
-        $arr = array('end', 'ung');
+        $arr = ['end', 'ung'];
         foreach ($arr as $s) {
             if (preg_match('#' . $s . '$#u', self::$R2)) {
                 $word = preg_replace('#([^e])' . $s . '$#u', '$1', $word, -1, $replaceCount);
@@ -179,7 +179,7 @@ class GermanStemmer implements StemmerInterface
             }
         }
 
-        $arr = array('isch', 'ik', 'ig');
+        $arr = ['isch', 'ik', 'ig'];
         foreach ($arr as $s) {
             if (preg_match('#' . $s . '$#u', self::$R2)) {
                 $word = preg_replace('#([^e])' . $s . '$#u', '$1', $word, -1, $replaceCount);
@@ -189,7 +189,7 @@ class GermanStemmer implements StemmerInterface
             }
         }
 
-        $arr = array('lich', 'heit');
+        $arr = ['lich', 'heit'];
         foreach ($arr as $s) {
             self::$R2 = preg_replace('#' . $s . '$#u', '', self::$R2, -1, $replaceCount);
             if ($replaceCount > 0) {
@@ -204,7 +204,7 @@ class GermanStemmer implements StemmerInterface
             }
         }
 
-        $arr = array('keit');
+        $arr = ['keit'];
         foreach ($arr as $s) {
             self::$R2 = preg_replace('#' . $s . '$#u', '', self::$R2, -1, $replaceCount);
             if ($replaceCount > 0) {

@@ -8,7 +8,7 @@ use TeamTNT\TNTSearch\Support\Collection;
 
 class TNTGeoSearch extends TNTSearch
 {
-    protected $earthRadius = 6371;
+    protected int $earthRadius = 6371;
 
     /**
      * Distance is in KM

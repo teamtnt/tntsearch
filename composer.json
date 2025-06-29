@@ -22,14 +22,14 @@
         "role": "Developer"
     }],
     "require": {
-        "php": "~7.1|^8",
+        "php": "~7.4 || ^8",
         "ext-pdo": "*",
         "ext-mbstring": "*",
         "predis/predis": "^2.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "7.*|8.*|9.*",
-        "symfony/var-dumper": "^4|^5.2"
+        "phpunit/phpunit": "7.* || 8.* || 9.*",
+        "symfony/var-dumper": "^4 || ^5.2"
     },
     "autoload": {
         "psr-4": {

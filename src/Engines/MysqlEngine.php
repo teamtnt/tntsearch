@@ -15,7 +15,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use TeamTNT\TNTSearch\Stemmer\NoStemmer;
 use TeamTNT\TNTSearch\Support\Collection;
-use TeamTNT\TNTSearch\Support\Tokenizer;
+use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
 
 class MysqlEngine extends SqliteEngine
 {
@@ -87,9 +87,12 @@ class MysqlEngine extends SqliteEngine
             $this->setTokenizer(new $this->config['tokenizer']);
         }
 
-        if (!$this->dbh) {
-            $connector = $this->createConnector($this->config);
-            $this->dbh = $connector->connect($this->config);
+        if (!isset($this->dbh)) {
+            $dbh = $this->createConnector($this->config)->connect($this->config);
+
+            if ($dbh instanceof PDO) {
+                $this->dbh = $dbh;
+            }
         }
 
         return $this;
@@ -97,7 +100,7 @@ class MysqlEngine extends SqliteEngine
 
     public function selectIndex(string $indexName)
     {
-        if ($this->index === null || $this->indexName != $indexName) {
+        if ($this->index === null || $this->indexName !== $indexName) {
             $this->setIndexName($indexName);
             $this->index = new PDO('mysql:dbname='.$this->config['database'].';host='.$this->config['host'], $this->config['username'], $this->config['password']);
             $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

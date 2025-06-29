@@ -24,7 +24,7 @@ namespace TeamTNT\TNTSearch\Stemmer;
  */
 class LatvianStemmer implements StemmerInterface
 {
-    private static $affixes = [
+    private static array $affixes = [
         ['ajiem', 3, false],
         ['ajai', 3, false],
         ['ajam', 2, false],
@@ -64,7 +64,7 @@ class LatvianStemmer implements StemmerInterface
         ['s', 0, false],
         ['š', 0, false],
     ];
-    private static $VOWELS = 'aāeēiīouū';
+    private static string $VOWELS = 'aāeēiīouū';
 
     /**
      * @param $word string

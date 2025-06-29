@@ -3,23 +3,25 @@
 namespace TeamTNT\TNTSearch\Classifier;
 
 use TeamTNT\TNTSearch\Stemmer\NoStemmer;
-use TeamTNT\TNTSearch\Support\Tokenizer;
+use TeamTNT\TNTSearch\Stemmer\StemmerInterface;
+use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
+use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
 class TNTClassifier
 {
-    public $documents              = [];
-    public $words                  = [];
-    public $types                  = [];
-    public $vc                     = null;
-    public $tokenizer              = null;
-    public $stemmer                = null;
-    protected $arraySumOfWordType  = null;
-    protected $arraySumOfDocuments = null;
+    public array $documents = [];
+    public array $words = [];
+    public array $types = [];
+    public ?int $vc = null;
+    public ?TokenizerInterface $tokenizer = null;
+    public ?StemmerInterface $stemmer = null;
+    protected array $arraySumOfWordType = [];
+    protected ?int $arraySumOfDocuments = null;
 
     public function __construct()
     {
         $this->tokenizer = new Tokenizer;
-        $this->stemmer   = new NoStemmer;
+        $this->stemmer = new NoStemmer;
     }
 
     public function predict(string $statement)
@@ -27,10 +29,10 @@ class TNTClassifier
         $words = $this->tokenizer->tokenize($statement);
 
         $best_likelihood = -INF;
-        $best_type       = '';
+        $best_type = '';
         foreach ($this->types as $type) {
             $likelihood = log($this->pTotal($type)); // calculate P(Type)
-            $p          = 0;
+            $p = 0;
             foreach ($words as $word) {
                 $word = $this->stemmer->stem($word);
                 $p += log($this->p($word, $type));
@@ -38,12 +40,12 @@ class TNTClassifier
             $likelihood += $p; // calculate P(word, Type)
             if ($likelihood > $best_likelihood) {
                 $best_likelihood = $likelihood;
-                $best_type       = $type;
+                $best_type = $type;
             }
         }
         return [
             'likelihood' => $best_likelihood,
-            'label'      => $best_type
+            'label' => $best_type,
         ];
     }
 
@@ -86,7 +88,7 @@ class TNTClassifier
 
     public function pTotal($type)
     {
-        if (!isset($this->arraySumOfDocuments)) {
+        if ($this->arraySumOfDocuments === null) {
             $this->arraySumOfDocuments = array_sum($this->documents);
         }
         return ($this->documents[$type]) / $this->arraySumOfDocuments;
@@ -94,7 +96,7 @@ class TNTClassifier
 
     public function vocabularyCount()
     {
-        if (isset($this->vc)) {
+        if ($this->vc !== null) {
             return $this->vc;
         }
 
@@ -116,17 +118,17 @@ class TNTClassifier
 
     public function load(string $name)
     {
-        $s          = file_get_contents($name);
-        $classifier = unserialize($s);
+        $s = file_get_contents($name);
+        $classifier = unserialize($s, ['allowed_classes' => [TNTClassifier::class]]);
 
-        unset($this->vc);
-        unset($this->arraySumOfDocuments);
-        unset($this->arraySumOfWordType);
+        $this->vc = null;
+        $this->arraySumOfDocuments = null;
+        $this->arraySumOfWordType = [];
 
         $this->documents = $classifier->documents;
-        $this->words     = $classifier->words;
-        $this->types     = $classifier->types;
+        $this->words = $classifier->words;
+        $this->types = $classifier->types;
         $this->tokenizer = $classifier->tokenizer;
-        $this->stemmer   = $classifier->stemmer;
+        $this->stemmer = $classifier->stemmer;
     }
 }

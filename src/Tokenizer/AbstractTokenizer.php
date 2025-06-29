@@ -1,9 +1,6 @@
 <?php
-namespace TeamTNT\TNTSearch\Support;
+namespace TeamTNT\TNTSearch\Tokenizer;
 
-/**
- * @deprecated Please use 'TeamTNT\TNTSearch\Tokenizer\AbstractTokenizer'.
- */
 abstract class AbstractTokenizer
 {
     static protected $pattern = '';
@@ -12,8 +9,8 @@ abstract class AbstractTokenizer
     {
         if (empty(static::$pattern)) {
             throw new \LogicException("Tokenizer must define split \$pattern value");
-        } else {
-            return static::$pattern;
         }
+
+        return static::$pattern;
     }
 }

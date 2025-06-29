@@ -9,23 +9,23 @@ use TeamTNT\TNTSearch\FileReaders\TextFileReader;
 use TeamTNT\TNTSearch\Stemmer\NoStemmer;
 use TeamTNT\TNTSearch\Stemmer\StemmerInterface;
 use TeamTNT\TNTSearch\Support\Collection;
-use TeamTNT\TNTSearch\Support\Tokenizer;
-use TeamTNT\TNTSearch\Support\TokenizerInterface;
+use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
+use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
 class TNTIndexer
 {
-    protected $engine = null;
-    protected $dbh = null;
+    protected EngineInterface $engine;
+    protected ?PDO $dbh = null;
     protected $primaryKey = null;
-    public $stemmer = null;
-    public $tokenizer = null;
-    public $stopWords = [];
-    public $config = [];
-    protected $query = "";
-    protected $wordlist = [];
-    protected $decodeHTMLEntities = false;
+    public ?StemmerInterface $stemmer = null;
+    public ?TokenizerInterface $tokenizer = null;
+    public array $stopWords = [];
+    public array $config = [];
+    protected string $query = "";
+    protected array $wordlist = [];
+    protected bool $decodeHTMLEntities = false;
 
-    public $indexName = "";
+    public string $indexName = "";
 
     public function __construct(EngineInterface $engine)
     {
@@ -256,7 +256,7 @@ class TNTIndexer
 
     public function info($text)
     {
-        $this->engine->info();
+        $this->engine->info($text);
     }
 
     public function setInMemory($value)

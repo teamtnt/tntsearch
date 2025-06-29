@@ -9,7 +9,7 @@ namespace TeamTNT\TNTSearch\Stemmer;
 
 class CroatianStemmer implements StemmerInterface
 {
-    protected static $stop = ['biti', 'jesam', 'budem', 'sam', 'jesi', 'budeš', 'si', 'jesmo', 'budemo',
+    protected static array $stop = ['biti', 'jesam', 'budem', 'sam', 'jesi', 'budeš', 'si', 'jesmo', 'budemo',
         'smo', 'jeste', 'budete', 'ste', 'jesu', 'budu', 'su', 'bih', 'bijah', 'bjeh',
         'bijaše', 'bi', 'bje', 'bješe', 'bijasmo', 'bismo', 'bjesmo', 'bijaste', 'biste',
         'bjeste', 'bijahu', 'biste', 'bjeste', 'bijahu', 'bi', 'biše', 'bjehu', 'bješe',
@@ -74,7 +74,7 @@ class CroatianStemmer implements StemmerInterface
         return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== false);
     }
 
-    protected static $transformations = [
+    protected static array $transformations = [
         'lozi'     => 'loga',
         'lozima'   => 'loga',
         'pjesi'    => 'pjeh',
@@ -208,7 +208,7 @@ class CroatianStemmer implements StemmerInterface
         'ašan'     => 'ašni',
     ];
 
-    protected static $rules = [
+    protected static array $rules = [
         ".+(s|š)k ijima|ijega|ijemu|ijem|ijim|ijih|ijoj|ijeg|iji|ije|ija|oga|ome|omu|ima|og|om|im|ih|oj|i|e|o|a|u",
         ".+(s|š)tv ima|om|o|a|u",
         // N

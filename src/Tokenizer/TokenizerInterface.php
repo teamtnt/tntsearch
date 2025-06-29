@@ -1,9 +1,6 @@
 <?php
-namespace TeamTNT\TNTSearch\Support;
+namespace TeamTNT\TNTSearch\Tokenizer;
 
-/**
- * @deprecated Please use 'TeamTNT\TNTSearch\Tokenizer\TokenizerInterface'.
- */
 interface TokenizerInterface
 {
     public function tokenize($text, $stopwords);

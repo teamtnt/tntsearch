@@ -227,8 +227,8 @@ word split $pattern value and must implement TokenizerInterface:
 
 ``` php
 
-use TeamTNT\TNTSearch\Support\AbstractTokenizer;
-use TeamTNT\TNTSearch\Support\TokenizerInterface;
+use TeamTNT\TNTSearch\Tokenizer\AbstractTokenizer;
+use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
 class SomeTokenizer extends AbstractTokenizer implements TokenizerInterface
 {
@@ -265,8 +265,8 @@ $tnt->loadConfig([
     'username'  => 'user',
     'password'  => 'pass',
     'storage'   => '/var/www/tntsearch/examples/',
-    'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class//optional,
-    'tokenizer' => \TeamTNT\TNTSearch\Support\SomeTokenizer::class
+    'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class, // optional
+    'tokenizer' => \TeamTNT\TNTSearch\Tokenizer\SomeTokenizer::class
 ]);
 
 $indexer = $tnt->createIndex('name.index');

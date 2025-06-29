@@ -9,7 +9,7 @@ use Traversable;
 
 class Collection implements Countable, IteratorAggregate
 {
-    protected $items = [];
+    protected array $items = [];
 
     public function __construct(array $items = [])
     {

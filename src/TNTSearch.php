@@ -13,17 +13,17 @@ use TeamTNT\TNTSearch\Stemmer\StemmerInterface;
 use TeamTNT\TNTSearch\Support\Collection;
 use TeamTNT\TNTSearch\Support\Expression;
 use TeamTNT\TNTSearch\Support\Highlighter;
-use TeamTNT\TNTSearch\Support\Tokenizer;
-use TeamTNT\TNTSearch\Support\TokenizerInterface;
+use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
+use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
 class TNTSearch
 {
-    public $config;
-    public $tokenizer = null;
-    public $index = null;
-    public $stemmer = null;
-    protected $dbh = null;
-    public $engine;
+    public array $config;
+    public ?TokenizerInterface $tokenizer = null;
+    public ?PDO $index = null;
+    public ?StemmerInterface $stemmer = null;
+    protected ?PDO $dbh = null;
+    public EngineInterface $engine;
 
     /**
      * @param array $config

@@ -4,35 +4,39 @@ namespace TeamTNT\TNTSearch\Engines;
 
 use Exception;
 use PDO;
+use Predis\Client;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use TeamTNT\TNTSearch\FileReaders\FileReaderInterface;
+use TeamTNT\TNTSearch\Stemmer\StemmerInterface;
 use TeamTNT\TNTSearch\Support\Collection;
+use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
 class RedisEngine implements EngineInterface
 {
     use EngineTrait;
 
-    public $indexName;
-    public $config;
-    public $index;
-    public $stemmer;
-    public $dbh;
-    public $query;
-    public $disableOutput = false;
-    public $primaryKey;
-    protected $excludePrimaryKey = true;
-    public $decodeHTMLEntities;
-    public $tokenizer;
-    public $stopWords = [];
-    public $steps = 1000;
-    public $inMemory = true;
-    public $filereader = null;
-    public $asYouType = false;
-    public $fuzziness = false;
-    public $fuzzy_prefix_length = 2;
-    public $fuzzy_distance = 2;
-    public $maxDocs = 500;
-    public $redis;
+    public string $indexName;
+    public array $config;
+    public PDO $index;
+    public StemmerInterface $stemmer;
+    public PDO $dbh;
+    public string $query;
+    public bool $disableOutput = false;
+    public string $primaryKey;
+    protected bool $excludePrimaryKey = true;
+    public bool $decodeHTMLEntities = false;
+    public TokenizerInterface $tokenizer;
+    public array $stopWords = [];
+    public int $steps = 1000;
+    public bool $inMemory = true;
+    public ?FileReaderInterface $filereader = null;
+    public bool $asYouType = false;
+    public bool $fuzziness = false;
+    public int $fuzzy_prefix_length = 2;
+    public int $fuzzy_distance = 2;
+    public int $maxDocs = 500;
+    public Client $redis;
 
     public function loadConfig(array $config)
     {
@@ -49,7 +53,7 @@ class RedisEngine implements EngineInterface
         $redisPassword = $this->config['redis_password'] ?? null;
         $redisSSLOptions = $this->config['redis_ssl_options'] ?? null;
 
-        $this->redis = new \Predis\Client([
+        $this->redis = new Client([
             'scheme' => $redisScheme,
             'host' => $redisHost,
             'port' => $redisPort,
@@ -73,8 +77,11 @@ class RedisEngine implements EngineInterface
         }
 
         if (!$this->dbh) {
-            $connector = $this->createConnector($this->config);
-            $this->dbh = $connector->connect($this->config);
+            $dbh = $this->createConnector($this->config)->connect($this->config);
+
+            if ($dbh instanceof PDO) {
+                $this->dbh = $dbh;
+            }
         }
 
         return $this;
@@ -132,11 +139,11 @@ class RedisEngine implements EngineInterface
         }
 
         $stems = $row->map(function ($columnContent, $columnName) use ($row) {
-            if (!is_string($columnContent) || trim($columnContent) === '') {
+            if (trim((string)$columnContent) === '') {
                 return [];
             }
 
-            return $this->stemText($columnContent);
+            return $this->stemText((string)$columnContent);
         });
 
         $this->saveToIndex($stems, $documentId);
