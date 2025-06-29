@@ -100,7 +100,7 @@ class MysqlEngine extends SqliteEngine
 
     public function selectIndex(string $indexName)
     {
-        if ($this->index === null || $this->indexName !== $indexName) {
+        if (!isset($this->index) || $this->indexName !== $indexName) {
             $this->setIndexName($indexName);
             $this->index = new PDO('mysql:dbname='.$this->config['database'].';host='.$this->config['host'], $this->config['username'], $this->config['password']);
             $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
