@@ -119,7 +119,7 @@ class TNTClassifier
     public function load(string $name)
     {
         $s = file_get_contents($name);
-        $classifier = unserialize($s, ['allowed_classes' => [TNTClassifier::class]]);
+        $classifier = unserialize($s);
 
         $this->vc = null;
         $this->arraySumOfDocuments = null;

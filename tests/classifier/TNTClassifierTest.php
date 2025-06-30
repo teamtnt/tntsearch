@@ -56,4 +56,35 @@ class TNTClassifierTest extends PHPUnit\Framework\TestCase
         $guess = $classifier->predict("It was a close election");
         $this->assertEquals("Not sports", $guess['label']);
     }
+
+    public function testSave()
+    {
+        // Create a temporary file with random suffix.
+        $filepath = __DIR__ . '/../_files/saved-classifier_' . bin2hex(random_bytes(3)) . '.cache';
+
+        $classifier = new TNTClassifier();
+        $classifier->learn("A great game", "Sports");
+        $classifier->learn("The election was over", "Not sports");
+        $classifier->learn("Very clean match", "Sports");
+        $classifier->learn("A clean but forgettable game", "Sports");
+
+        $writtenBytes = $classifier->save($filepath);
+
+        $this->assertFileExists($filepath);
+        $this->assertGreaterThanOrEqual(626, $writtenBytes);
+        $this->assertStringStartsWith('O:42:"TeamTNT\TNTSearch\Classifier\TNTClassifier":', file_get_contents($filepath));
+
+        unlink($filepath);
+    }
+
+    public function testLoad()
+    {
+        $filepath = __DIR__ . '/../_files/saved-classifier.cache';
+
+        $classifier = new TNTClassifier();
+        $classifier->load($filepath);
+
+        $guess = $classifier->predict("It was a close election");
+        $this->assertEquals("Not sports", $guess['label']);
+    }
 }
