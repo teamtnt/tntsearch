@@ -37,6 +37,7 @@ trait EngineTrait
 
         switch ($config['driver']) {
             case 'mysql':
+            case 'mariadb':
                 return new MySqlConnector;
             case 'pgsql':
                 return new PostgresConnector;
