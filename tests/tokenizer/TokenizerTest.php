@@ -39,4 +39,27 @@ class TokenizerTest extends TestCase
         $this->assertContains("čćž", $res);
         $this->assertContains("šđ", $res);
     }
+
+    public function testEmptyTokenizeResults()
+    {
+        $tokenizer = new Tokenizer;
+
+        // Empty string.
+        $this->assertEquals([], $tokenizer->tokenize(''));
+
+        // 'false' results in empty string.
+        $this->assertEquals([], $tokenizer->tokenize(false));
+
+        // 'null' results in empty string.
+        $this->assertEquals([], $tokenizer->tokenize(null));
+
+        // 'array' results in empty string.
+        $this->assertEquals([], $tokenizer->tokenize([]));
+
+         // 'object' results in empty string.
+        $this->assertEquals([], $tokenizer->tokenize(new \stdClass()));
+
+        // 'resource' results in empty string.
+        $this->assertEquals([], $tokenizer->tokenize(tmpfile()));
+    }
 }
