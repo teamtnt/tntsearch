@@ -2,8 +2,9 @@
 
 namespace TeamTNT\TNTSearch\Stemmer;
 
-/**
+use TeamTNT\TNTSearch\Support\Str;
 
+/**
  * Copyright (c) 2013 Aris Buzachis (buzachis.aris@gmail.com)
  *
  * All rights reserved.
@@ -57,13 +58,14 @@ class GermanStemmer implements StemmerInterface
     public static function stem($word)
     {
         $word = mb_strtolower($word);
-        //check for invalid characters
-        preg_match("#.#u", $word);
-        if (preg_last_error() !== 0) {
-            throw new \InvalidArgumentException("Word '$word' seems to be errornous. Error code from preg_last_error(): " . preg_last_error());
+
+        // Check for invalid characters.
+        if (!Str::isValidUtf8($word)) {
+            throw new \InvalidArgumentException("The word '{$word}' contains invalid UTF-8 characters. Error code from preg_last_error(): " . preg_last_error());
         }
+
         if (!isset(self::$cache[$word])) {
-            $result             = self::getStem($word);
+            $result = self::getStem($word);
             self::$cache[$word] = $result;
         }
 
