@@ -62,6 +62,11 @@ class RedisEngine implements EngineInterface
         ], $redisOptions);
     }
 
+    /**
+     * @param string $indexName
+     * @return $this
+     * @throws Exception
+     */
     public function createIndex(string $indexName)
     {
         $this->flushIndex($indexName);
@@ -138,7 +143,7 @@ class RedisEngine implements EngineInterface
             $row->forget($this->getPrimaryKey());
         }
 
-        $stems = $row->map(function ($columnContent, $columnName) use ($row) {
+        $stems = $row->map(function ($columnContent) {
             if (trim((string)$columnContent) === '') {
                 return [];
             }
@@ -165,7 +170,7 @@ class RedisEngine implements EngineInterface
     {
         $terms = [];
 
-        $stems->map(function ($column, $key) use (&$terms) {
+        $stems->map(function ($column) use (&$terms) {
             foreach ($column as $term) {
                 if (array_key_exists($term, $terms)) {
                     $terms[$term]['num_hits']++;

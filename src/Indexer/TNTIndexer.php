@@ -125,7 +125,7 @@ class TNTIndexer
     public function setDatabaseHandle(PDO $dbh)
     {
         $this->dbh = $dbh;
-        if ($this->dbh->getAttribute(PDO::ATTR_DRIVER_NAME) == 'mysql') {
+        if ($this->dbh->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql') {
             $this->dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
         }
     }

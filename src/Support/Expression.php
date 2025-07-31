@@ -4,9 +4,6 @@ namespace TeamTNT\TNTSearch\Support;
 
 class Expression
 {
-    protected $operatorQueue;
-    protected $tokenQueue;
-
     public function toPostfix($exp)
     {
         $postfix = [];
