@@ -19,6 +19,11 @@ use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
 
 class MysqlEngine extends SqliteEngine
 {
+    /**
+     * @param string $indexName
+     * @return $this
+     * @throws \Exception
+     */
     public function createIndex(string $indexName)
     {
         $this->setIndexName($indexName);
@@ -152,7 +157,7 @@ class MysqlEngine extends SqliteEngine
     public function saveWordlist(Collection $stems)
     {
         $terms = [];
-        $stems->map(function ($column, $key) use (&$terms) {
+        $stems->map(function ($column) use (&$terms) {
             foreach ($column as $term) {
                 if (array_key_exists($term, $terms)) {
                     $terms[$term]['hits']++;
@@ -194,7 +199,7 @@ class MysqlEngine extends SqliteEngine
     public function saveDoclist(array $terms, int $docId)
     {
         $insertRows = [];
-        foreach ($terms as $key => $term) {
+        foreach ($terms as $term) {
             $insertRows[] = '(' . $this->index->quote($term['id']) . ', ' . $this->index->quote($docId) . ', ' . $this->index->quote($term['hits']) . ')';
         }
 
@@ -204,31 +209,6 @@ class MysqlEngine extends SqliteEngine
 
     public function saveHitList(array $stems, int $docId, array $termsList)
     {
-        return;
-        $fieldCounter = 0;
-        $fields = [];
-
-        $insert = "INSERT INTO {$this->indexName}_hitlist (term_id, doc_id, field_id, position, hit_count)
-                   VALUES (:term_id, :doc_id, :field_id, :position, :hit_count)";
-        $stmt = $this->index->prepare($insert);
-
-        foreach ($stems as $field => $terms) {
-            $fields[$fieldCounter] = $field;
-            $positionCounter = 0;
-            $termCounts = array_count_values($terms);
-            foreach ($terms as $term) {
-                if (isset($termsList[$term])) {
-                    $stmt->bindValue(':term_id', $termsList[$term]['id']);
-                    $stmt->bindValue(':doc_id', $docId);
-                    $stmt->bindValue(':field_id', $fieldCounter);
-                    $stmt->bindValue(':position', $positionCounter);
-                    $stmt->bindValue(':hit_count', $termCounts[$term]);
-                    $stmt->execute();
-                }
-                $positionCounter++;
-            }
-            $fieldCounter++;
-        }
     }
 
     public function delete(int $documentId)

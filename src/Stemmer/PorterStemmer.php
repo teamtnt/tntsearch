@@ -75,7 +75,7 @@ class PorterStemmer implements StemmerInterface
      */
     private static function doPartA($word)
     {
-        if (substr($word, -1) == 's') {
+        if (substr($word, -1) === 's') {
 
             self::replace($word, 'sses', 'ss')
             || self::replace($word, 'ies', 'i')
@@ -127,7 +127,7 @@ class PorterStemmer implements StemmerInterface
     {
         $v = self::$regex_vowel;
 
-        if (substr($word, -1) == 'y' && preg_match("#$v+#", substr($word, 0, -1))) {
+        if (substr($word, -1) === 'y' && preg_match("#$v+#", substr($word, 0, -1))) {
             self::replace($word, 'y', 'i');
         }
 
@@ -266,7 +266,7 @@ class PorterStemmer implements StemmerInterface
                 break;
 
             case 'o':
-                if (substr($word, -4) == 'tion' || substr($word, -4) == 'sion') {
+                if (substr($word, -4) === 'tion' || substr($word, -4) === 'sion') {
                     self::replace($word, 'ion', '', 1);
                 } else {
                     self::replace($word, 'ou', '', 1);
@@ -306,7 +306,7 @@ class PorterStemmer implements StemmerInterface
     private static function step5($word)
     {
         // Part a
-        if (substr($word, -1) == 'e') {
+        if (substr($word, -1) === 'e') {
             if (self::m(substr($word, 0, -1)) > 1) {
                 self::replace($word, 'e', '');
 
@@ -319,7 +319,7 @@ class PorterStemmer implements StemmerInterface
         }
 
         // Part b
-        if (self::m($word) > 1 && self::doubleConsonant($word) && substr($word, -1) == 'l') {
+        if (self::m($word) > 1 && self::doubleConsonant($word) && substr($word, -1) === 'l') {
             $word = substr($word, 0, -1);
         }
 

@@ -72,7 +72,6 @@ class TNTFuzzyMatch
     {
         $j = 0;
         $max = max(count($pattern), count($str));
-        $a = [];
         $b = [];
 
         for ($i = 0; $i < $max && $j < $max; $i++) {

@@ -185,8 +185,6 @@ class CroatianStemmer implements StemmerInterface
         'vaca'     => 'vca',
         'saca'     => 'sca',
         'sac'      => 'sca',
-        'naca'     => 'nca',
-        'nac'      => 'nca',
         'raca'     => 'rca',
         'rac'      => 'rca',
         'aoca'     => 'alca',

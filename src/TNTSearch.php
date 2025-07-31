@@ -176,7 +176,7 @@ class TNTSearch
         $postfix = $expression->toPostfix("|" . $phrase);
 
         foreach ($postfix as $token) {
-            if ($token == '&') {
+            if ($token === '&') {
                 $left = array_pop($stack);
                 $right = array_pop($stack);
                 if (is_string($left)) {
@@ -196,7 +196,7 @@ class TNTSearch
                 }
                 $stack[] = array_values(array_intersect($left, $right));
             } else {
-                if ($token == '|') {
+                if ($token === '|') {
                     $left = array_pop($stack);
                     $right = array_pop($stack);
 
@@ -217,7 +217,7 @@ class TNTSearch
                     }
                     $stack[] = array_unique(array_merge($left, $right));
                 } else {
-                    if ($token == '~') {
+                    if ($token === '~') {
                         $left = array_pop($stack);
                         if (is_string($left)) {
                             $left = $this->getAllDocumentsForWhereKeywordNot($this->stemmer->stem($left), true)
@@ -389,7 +389,7 @@ class TNTSearch
      */
     public function isFileSystemIndex()
     {
-        return $this->getValueFromInfoTable('driver') == 'filesystem';
+        return $this->getValueFromInfoTable('driver') === 'filesystem';
     }
 
     public function getValueFromInfoTable($value)
@@ -399,7 +399,11 @@ class TNTSearch
 
     public function filesystemMapIdsToPaths($docs)
     {
-        return $this->engine->filesystemMapIdsToPaths($docs);
+        if ($this->engine instanceof SqliteEngine) {
+            return $this->engine->filesystemMapIdsToPaths($docs);
+        }
+
+        return $docs;
     }
 
     public function info($str)
