@@ -58,6 +58,10 @@ class SqliteEngine implements EngineInterface
 
         $this->flushIndex($indexName);
 
+        if(!file_exists($this->config['storage'])) {    // create the parent folder, if doesn't exist
+            mkdir($this->config['storage'], 0700, true);
+        }
+
         $this->index = new PDO('sqlite:' . $this->config['storage'] . $indexName);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
