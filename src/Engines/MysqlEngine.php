@@ -200,11 +200,15 @@ class MysqlEngine extends SqliteEngine
     {
         $insertRows = [];
         foreach ($terms as $term) {
-            $insertRows[] = '(' . $this->index->quote($term['id']) . ', ' . $this->index->quote($docId) . ', ' . $this->index->quote($term['hits']) . ')';
+            $insertRows[] = '('.$this->index->quote($term['id']).', '.$this->index->quote($docId).', '.$this->index->quote($term['hits']).')';
         }
 
-        $this->index->exec('INSERT INTO ' . $this->indexName . '_doclist (term_id, doc_id, hit_count) VALUES ' . implode(',',
-                $insertRows) . '');
+        $this->index->exec(
+            'INSERT INTO '.$this->indexName.'_doclist (term_id, doc_id, hit_count) VALUES '.implode(
+                ',',
+                $insertRows
+            ).''
+        );
     }
 
     public function saveHitList(array $stems, int $docId, array $termsList)
