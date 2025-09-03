@@ -73,7 +73,7 @@ composer require teamtnt/tntsearch
 
 Before you proceed, make sure your server meets the following requirements:
 
-* PHP >= 7.1
+* PHP >= 7.4
 * PDO PHP Extension
 * SQLite PHP Extension
 * mbstring PHP Extension
@@ -227,8 +227,8 @@ word split $pattern value and must implement TokenizerInterface:
 
 ``` php
 
-use TeamTNT\TNTSearch\Support\AbstractTokenizer;
-use TeamTNT\TNTSearch\Support\TokenizerInterface;
+use TeamTNT\TNTSearch\Tokenizer\AbstractTokenizer;
+use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
 class SomeTokenizer extends AbstractTokenizer implements TokenizerInterface
 {
@@ -265,8 +265,8 @@ $tnt->loadConfig([
     'username'  => 'user',
     'password'  => 'pass',
     'storage'   => '/var/www/tntsearch/examples/',
-    'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class//optional,
-    'tokenizer' => \TeamTNT\TNTSearch\Support\SomeTokenizer::class
+    'stemmer'   => \TeamTNT\TNTSearch\Stemmer\PorterStemmer::class, // optional
+    'tokenizer' => \TeamTNT\TNTSearch\Tokenizer\SomeTokenizer::class
 ]);
 
 $indexer = $tnt->createIndex('name.index');
@@ -336,9 +336,9 @@ $classifier->load('sports.cls');
 
 * [TNTSearch Driver for Laravel Scout](https://github.com/teamtnt/laravel-scout-tntsearch-driver)
 
-## PS4Ware
+## PS4Ware / PS5Ware
 
-You're free to use this package, but if it makes it to your production environment, we would highly appreciate you sending us a PS4 game of your choice. This way you support us to further develop and add new features.
+You're free to use this package, but if it makes it to your production environment, we would highly appreciate you sending us a PS4/PS5 game of your choice. This way you support us to further develop and add new features.
 
 Our address is: TNT Studio, Sv. Mateja 19, 10010 Zagreb, Croatia.
 

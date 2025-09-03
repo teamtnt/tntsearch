@@ -6,19 +6,19 @@ namespace TeamTNT\TNTSearch\Stemmer;
  * Semple stemmer for ukrainian language
  */
 
-class UkrainianStemmer implements Stemmer
+class UkrainianStemmer implements StemmerInterface
 {
-    private static $VOWEL = '/аеиоуюяіїє/u';
+    private static string $VOWEL = '/аеиоуюяіїє/u';
     /* http://uk.wikipedia.org/wiki/Голосний_звук */
     // var $PERFECTIVEGROUND = '/((ив|ивши|ившись|ыв|ывши|ывшись((?<=[ая])(в|вши|вшись)))$/';
-    private static $PERFECTIVEGROUND = '/(ив|ивши|ившись|ів|івши|івшись((?<=[ая|я])(в|вши|вшись)))$/u';
-    private static $REFLEXIVE = '/(с[яьи])$/u'; // http://uk.wikipedia.org/wiki/Рефлексивне_дієслово
-    private static $ADJECTIVE = '/(ими|ій|ий|а|е|ова|ове|ів|є|їй|єє|еє|я|ім|ем|им|ім|их|іх|ою|йми|іми|у|ю|ого|ому|ої)$/u'; //http://uk.wikipedia.org/wiki/Прикметник + http://wapedia.mobi/uk/Прикметник
-    private static $PARTICIPLE = '/(ий|ого|ому|им|ім|а|ій|у|ою|ій|і|их|йми|их)$/u'; //http://uk.wikipedia.org/wiki/Дієприкметник
-    private static $VERB = '/(сь|ся|ив|ать|ять|у|ю|ав|али|учи|ячи|вши|ши|е|ме|ати|яти|є)$/u'; //http://uk.wikipedia.org/wiki/Дієслово
-    private static $NOUN = '/(а|ев|ов|е|ями|ами|еи|и|ей|ой|ий|й|иям|ям|ием|ем|ам|ом|о|у|ах|иях|ях|ы|ь|ию|ью|ю|ия|ья|я|і|ові|ї|ею|єю|ою|є|еві|ем|єм|ів|їв|\'ю)$/u'; //http://uk.wikipedia.org/wiki/Іменник
-    private static $RVRE = '/^(.*?[аеиоуюяіїє])(.*)$/u';
-    private static $DERIVATIONAL = '/[^аеиоуюяіїє][аеиоуюяіїє]+[^аеиоуюяіїє]+[аеиоуюяіїє].*(?<=о)сть?$/u';
+    private static string $PERFECTIVEGROUND = '/(ив|ивши|ившись|ів|івши|івшись((?<=[ая|я])(в|вши|вшись)))$/u';
+    private static string $REFLEXIVE = '/(с[яьи])$/u'; // http://uk.wikipedia.org/wiki/Рефлексивне_дієслово
+    private static string $ADJECTIVE = '/(ими|ій|ий|а|е|ова|ове|ів|є|їй|єє|еє|я|ім|ем|им|ім|их|іх|ою|йми|іми|у|ю|ого|ому|ої)$/u'; //http://uk.wikipedia.org/wiki/Прикметник + http://wapedia.mobi/uk/Прикметник
+    private static string $PARTICIPLE = '/(ий|ого|ому|им|ім|а|ій|у|ою|ій|і|их|йми|их)$/u'; //http://uk.wikipedia.org/wiki/Дієприкметник
+    private static string $VERB = '/(сь|ся|ив|ать|ять|у|ю|ав|али|учи|ячи|вши|ши|е|ме|ати|яти|є)$/u'; //http://uk.wikipedia.org/wiki/Дієслово
+    private static string $NOUN = '/(а|ев|ов|е|ями|ами|еи|и|ей|ой|ий|й|иям|ям|ием|ем|ам|ом|о|у|ах|иях|ях|ы|ь|ию|ью|ю|ия|ья|я|і|ові|ї|ею|єю|ою|є|еві|ем|єм|ів|їв|\'ю)$/u'; //http://uk.wikipedia.org/wiki/Іменник
+    private static string $RVRE = '/^(.*?[аеиоуюяіїє])(.*)$/u';
+    private static string $DERIVATIONAL = '/[^аеиоуюяіїє][аеиоуюяіїє]+[^аеиоуюяіїє]+[аеиоуюяіїє].*(?<=о)сть?$/u';
     
     private static function s(&$s, $re, $to)
     {

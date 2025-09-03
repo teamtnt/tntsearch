@@ -3,14 +3,15 @@
 namespace TeamTNT\TNTSearch\Indexer;
 
 use PDO;
+use PDOStatement;
 use TeamTNT\TNTSearch\Support\Collection;
 
 class TNTGeoIndexer extends TNTIndexer
 {
 
-    public $insertStmt = null;
+    public ?PDOStatement $insertStmt = null;
 
-    public function createIndex($indexName)
+    public function createIndex(string $indexName)
     {
         if (file_exists($this->engine->config['storage'] . $indexName)) {
             unlink($this->engine->config['storage'] . $indexName);
@@ -34,13 +35,13 @@ class TNTGeoIndexer extends TNTIndexer
         $this->engine->index->exec("CREATE TABLE IF NOT EXISTS info (key TEXT, value INTEGER)");
 
         $connector = $this->engine->createConnector($this->engine->config);
-        if (!$this->engine->dbh) {
+        if (!isset($this->engine->dbh)) {
             $this->engine->dbh = $connector->connect($this->engine->config);
         }
         return $this;
     }
 
-    public function processDocument($row)
+    public function processDocument(Collection $row)
     {
         $this->prepareInsertStatement();
 

@@ -2,6 +2,8 @@
 
 namespace TeamTNT\TNTSearch\Stemmer;
 
+use TeamTNT\TNTSearch\Support\Str;
+
 /*
  *  The following code, downloaded from <https://www.drupal.org/project/italianstemmer>,
  *  was originally written by Roberto Mirizzi (<roberto.mirizzi@gmail.com>,
@@ -27,39 +29,39 @@ namespace TeamTNT\TNTSearch\Stemmer;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class ItalianStemmer implements Stemmer
+class ItalianStemmer implements StemmerInterface
 {
-    private static $cache = [];
+    private static array $cache = [];
 
-    private static $vocali = ['a', 'e', 'i', 'o', 'u', 'à', 'è', 'ì', 'ò', 'ù'];
-    private static $consonanti = [
+    private static array $vocali = ['a', 'e', 'i', 'o', 'u', 'à', 'è', 'ì', 'ò', 'ù'];
+    private static array $consonanti = [
         'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z',
         'I', 'U',
     ];
-    private static $accenti_acuti = ['á', 'é', 'í', 'ó', 'ú'];
-    private static $accenti_gravi = ['à', 'è', 'ì', 'ò', 'ù'];
+    private static array $accenti_acuti = ['á', 'é', 'í', 'ó', 'ú'];
+    private static array $accenti_gravi = ['à', 'è', 'ì', 'ò', 'ù'];
 
-    private static $suffissi_step0 = [
+    private static array $suffissi_step0 = [
         'ci', 'gli', 'la', 'le', 'li', 'lo', 'mi', 'ne', 'si', 'ti', 'vi', 'sene',
         'gliela', 'gliele', 'glieli', 'glielo', 'gliene', 'mela', 'mele', 'meli', 'melo', 'mene', 'tela', 'tele',
         'teli', 'telo', 'tene', 'cela', 'cele', 'celi', 'celo', 'cene', 'vela', 'vele', 'veli', 'velo', 'vene',
     ];
 
-    private static $suffissi_step1_a = [
+    private static array $suffissi_step1_a = [
         'anza', 'anze', 'ico', 'ici', 'ica', 'ice', 'iche', 'ichi', 'ismo', 'ismi', 'abile', 'abili', 'ibile',
         'ibili', 'ista', 'iste', 'isti', 'istà', 'istè', 'istì', 'oso', 'osi', 'osa', 'ose', 'mente', 'atrice',
         'atrici', 'ante', 'anti',
     ];
-    private static $suffissi_step1_b = ['azione', 'azioni', 'atore', 'atori'];
-    private static $suffissi_step1_c = ['logia', 'logie'];
-    private static $suffissi_step1_d = ['uzione', 'uzioni', 'usione', 'usioni'];
-    private static $suffissi_step1_e = ['enza', 'enze'];
-    private static $suffissi_step1_f = ['amento', 'amenti', 'imento', 'imenti'];
-    private static $suffissi_step1_g = ['amente'];
-    private static $suffissi_step1_h = ['ità'];
-    private static $suffissi_step1_i = ['ivo', 'ivi', 'iva', 'ive'];
+    private static array $suffissi_step1_b = ['azione', 'azioni', 'atore', 'atori'];
+    private static array $suffissi_step1_c = ['logia', 'logie'];
+    private static array $suffissi_step1_d = ['uzione', 'uzioni', 'usione', 'usioni'];
+    private static array $suffissi_step1_e = ['enza', 'enze'];
+    private static array $suffissi_step1_f = ['amento', 'amenti', 'imento', 'imenti'];
+    private static array $suffissi_step1_g = ['amente'];
+    private static array $suffissi_step1_h = ['ità'];
+    private static array $suffissi_step1_i = ['ivo', 'ivi', 'iva', 'ive'];
 
-    private static $suffissi_step2 = [
+    private static array $suffissi_step2 = [
         'ammo', 'ando', 'ano', 'are', 'arono', 'asse', 'assero', 'assi', 'assimo', 'ata', 'ate', 'ati', 'ato', 'ava',
         'avamo', 'avano', 'avate', 'avi', 'avo', 'emmo', 'enda', 'ende', 'endi', 'endo', 'erà', 'erai', 'eranno',
         'ere', 'erebbe', 'erebbero', 'erei', 'eremmo', 'eremo', 'ereste', 'eresti', 'erete', 'erò', 'erono', 'essero',
@@ -69,8 +71,8 @@ class ItalianStemmer implements Stemmer
         'ivate', 'ivi', 'ivo', 'ono', 'uta', 'ute', 'uti', 'uto', 'ar', 'ir',
     ];
 
-    private static $ante_suff_a = ['ando', 'endo'];
-    private static $ante_suff_b = ['ar', 'er', 'ir'];
+    private static array $ante_suff_a = ['ando', 'endo'];
+    private static array $ante_suff_b = ['ar', 'er', 'ir'];
 
     public function __construct()
     {
@@ -90,11 +92,9 @@ class ItalianStemmer implements Stemmer
     {
         $word = mb_strtolower($word);
 
-        // Check for invalid characters
-        preg_match('#.#u', $word);
-        if (preg_last_error() !== 0) {
-            throw new \InvalidArgumentException('Word "'.$word.'" seems to be errornous.
-                Error code from preg_last_error(): '.preg_last_error());
+        // Check for invalid characters.
+        if (!Str::isValidUtf8($word)) {
+            throw new \InvalidArgumentException("The word '{$word}' contains invalid UTF-8 characters. Error code from preg_last_error(): " . preg_last_error());
         }
 
         if (!isset(self::$cache[$word])) {

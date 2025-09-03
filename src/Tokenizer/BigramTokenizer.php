@@ -1,11 +1,10 @@
 <?php
-namespace TeamTNT\TNTSearch\Support;
+namespace TeamTNT\TNTSearch\Tokenizer;
 
 class BigramTokenizer extends AbstractTokenizer implements TokenizerInterface
 {
     public function tokenize($text, $stopwords = [])
     {
-        $ngramTokenizer = new NGramTokenizer(2, 2);
-        return $ngramTokenizer->tokenize($text, $stopwords);
+        return (new NGramTokenizer(2, 2))->tokenize($text, $stopwords);
     }
 }

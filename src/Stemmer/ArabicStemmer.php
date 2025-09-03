@@ -6,23 +6,23 @@
 */
 
 namespace TeamTNT\TNTSearch\Stemmer;
-class ArabicStemmer implements Stemmer
+class ArabicStemmer implements StemmerInterface
 {
-    private static $_verbPre  = 'وأسفلي';
-    private static $_verbPost = 'ومكانيه';
-    private static $_verbMay;
+    private static string $_verbPre  = 'وأسفلي';
+    private static string $_verbPost = 'ومكانيه';
+    private static string $_verbMay;
 
-    private static $_verbMaxPre  = 4;
-    private static $_verbMaxPost = 6;
-    private static $_verbMinStem = 2;
+    private static int $_verbMaxPre  = 4;
+    private static int $_verbMaxPost = 6;
+    private static int $_verbMinStem = 2;
 
-    private static $_nounPre  = 'ابفكلوأ';
-    private static $_nounPost = 'اتةكمنهوي';
-    private static $_nounMay;
+    private static string $_nounPre  = 'ابفكلوأ';
+    private static string $_nounPost = 'اتةكمنهوي';
+    private static string $_nounMay;
 
-    private static $_nounMaxPre  = 4;
-    private static $_nounMaxPost = 6;
-    private static $_nounMinStem = 2;
+    private static int $_nounMaxPre  = 4;
+    private static int $_nounMaxPost = 6;
+    private static int $_nounMinStem = 2;
     
     /**
      * Loads initialize values

@@ -6,7 +6,7 @@ use Exception;
 
 class SQLiteConnector extends Connector implements ConnectorInterface
 {
-    protected $options = [];
+    protected array $options = [];
     /**
      * Establish a database connection.
      *
@@ -22,7 +22,7 @@ class SQLiteConnector extends Connector implements ConnectorInterface
         // SQLite supports "in-memory" databases that only last as long as the owning
         // connection does. These are useful for tests or for short lifetime store
         // querying. In-memory databases may only have a single open connection.
-        if ($config['database'] == ':memory:') {
+        if ($config['database'] === ':memory:') {
             return $this->createConnection('sqlite::memory:', $config, $options);
         }
 

@@ -40,7 +40,7 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $tnt = new TNTSearch();
         $tnt->loadConfig($this->config);
         $indexer = $tnt->createIndex($this->indexName);
-        $this->assertInstanceOf('TeamTNT\TNTSearch\Contracts\EngineContract', $indexer);
+        $this->assertInstanceOf('TeamTNT\TNTSearch\Engines\EngineInterface', $indexer);
 
         if ($this->config['engine'] == 'TeamTNT\TNTSearch\Engines\SqliteEngine') {
             $this->assertFileExists($indexer->getStoragePath() . $this->indexName);
@@ -65,20 +65,20 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
 
         $res = $tnt->searchBoolean('Hamlet or Macbeth');
 
-        $this->assertContains("3", $res['ids']);
-        $this->assertContains("4", $res['ids']);
-        $this->assertContains("1", $res['ids']);
-        $this->assertContains("2", $res['ids']);
+        $this->assertContains(3, $res['ids']);
+        $this->assertContains(4, $res['ids']);
+        $this->assertContains(1, $res['ids']);
+        $this->assertContains(2, $res['ids']);
         $this->assertEquals(4, $res['hits']);
 
         $res = $tnt->searchBoolean('juliet ~well');
 
         $this->assertCount(5, $res['ids']);
-        $this->assertContains("5", $res['ids']);
-        $this->assertContains("6", $res['ids']);
-        $this->assertContains("7", $res['ids']);
-        $this->assertContains("8", $res['ids']);
-        $this->assertContains("10", $res['ids']);
+        $this->assertContains(5, $res['ids']);
+        $this->assertContains(6, $res['ids']);
+        $this->assertContains(7, $res['ids']);
+        $this->assertContains(8, $res['ids']);
+        $this->assertContains(10, $res['ids']);
 
         $res = $tnt->searchBoolean('juliet ~romeo');
         $this->assertEquals([10], $res['ids']);

@@ -22,9 +22,9 @@ namespace TeamTNT\TNTSearch\Stemmer;
  *   <li>Palatalization is only handled when a declension II,V,VI noun suffix is removed.
  * </ul>
  */
-class LatvianStemmer implements Stemmer
+class LatvianStemmer implements StemmerInterface
 {
-    private static $affixes = [
+    private static array $affixes = [
         ['ajiem', 3, false],
         ['ajai', 3, false],
         ['ajam', 2, false],
@@ -64,7 +64,7 @@ class LatvianStemmer implements Stemmer
         ['s', 0, false],
         ['š', 0, false],
     ];
-    private static $VOWELS = 'aāeēiīouū';
+    private static string $VOWELS = 'aāeēiīouū';
 
     /**
      * @param $word string

@@ -9,9 +9,9 @@ use Traversable;
 
 class Collection implements Countable, IteratorAggregate
 {
-    protected $items = [];
+    protected array $items = [];
 
-    public function __construct($items = [])
+    public function __construct(array $items = [])
     {
         $this->items = $items;
     }
@@ -42,7 +42,7 @@ class Collection implements Countable, IteratorAggregate
      *
      * @return static
      */
-    public function filter(callable $callback = null)
+    public function filter(?callable $callback = null)
     {
         if ($callback) {
             $return = [];

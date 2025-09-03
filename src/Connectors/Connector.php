@@ -11,7 +11,7 @@ class Connector
      *
      * @var array
      */
-    protected $options = [
+    protected array $options = [
         PDO::ATTR_CASE                     => PDO::CASE_NATURAL,
         PDO::ATTR_ERRMODE                  => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_ORACLE_NULLS             => PDO::NULL_NATURAL,
@@ -38,7 +38,7 @@ class Connector
      * @param  array   $options
      * @return \PDO
      */
-    public function createConnection($dsn, array $config, array $options)
+    public function createConnection(string $dsn, array $config, array $options)
     {
         extract($config, EXTR_SKIP);
 

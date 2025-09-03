@@ -1,6 +1,8 @@
 <?php namespace TeamTNT\TNTSearch\Stemmer;
 
-interface Stemmer
+/**
+ * @deprecated This interface exists for backwards compatibility. Please use 'StemmerInterface'.
+ */
+interface Stemmer extends StemmerInterface
 {
-    public static function stem($word);
 }

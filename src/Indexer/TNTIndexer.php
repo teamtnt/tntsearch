@@ -2,36 +2,36 @@
 
 namespace TeamTNT\TNTSearch\Indexer;
 
-use Exception;
 use PDO;
-use TeamTNT\TNTSearch\Contracts\EngineContract;
+use TeamTNT\TNTSearch\Engines\EngineInterface;
+use TeamTNT\TNTSearch\FileReaders\FileReaderInterface;
 use TeamTNT\TNTSearch\FileReaders\TextFileReader;
-use TeamTNT\TNTSearch\Stemmer\CroatianStemmer;
 use TeamTNT\TNTSearch\Stemmer\NoStemmer;
+use TeamTNT\TNTSearch\Stemmer\StemmerInterface;
 use TeamTNT\TNTSearch\Support\Collection;
-use TeamTNT\TNTSearch\Support\Tokenizer;
-use TeamTNT\TNTSearch\Support\TokenizerInterface;
+use TeamTNT\TNTSearch\Tokenizer\Tokenizer;
+use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
 class TNTIndexer
 {
-    protected $engine             = null;
-    protected $dbh                = null;
-    protected $primaryKey         = null;
-    public $stemmer               = null;
-    public $tokenizer             = null;
-    public $stopWords             = [];
-    public $config                = [];
-    protected $query              = "";
-    protected $wordlist           = [];
-    protected $decodeHTMLEntities = false;
+    protected EngineInterface $engine;
+    protected ?PDO $dbh = null;
+    protected $primaryKey = null;
+    public ?StemmerInterface $stemmer = null;
+    public ?TokenizerInterface $tokenizer = null;
+    public array $stopWords = [];
+    public array $config = [];
+    protected string $query = "";
+    protected array $wordlist = [];
+    protected bool $decodeHTMLEntities = false;
 
-    public $indexName = "";
+    public string $indexName = "";
 
-    public function __construct(EngineContract $engine)
+    public function __construct(EngineInterface $engine)
     {
-        $this->engine             = $engine;
-        $this->engine->tokenizer  = new Tokenizer;
-        $this->engine->stemmer    = new NoStemmer;
+        $this->engine = $engine;
+        $this->engine->tokenizer = new Tokenizer;
+        $this->engine->stemmer = new NoStemmer;
         $this->engine->filereader = new TextFileReader;
     }
 
@@ -73,7 +73,7 @@ class TNTIndexer
     /**
      * @param string $primaryKey
      */
-    public function setPrimaryKey($primaryKey)
+    public function setPrimaryKey(string $primaryKey)
     {
         $this->engine->setPrimaryKey($primaryKey);
     }
@@ -88,15 +88,15 @@ class TNTIndexer
         $this->engine->includePrimaryKey();
     }
 
-    public function setStemmer($stemmer)
+    public function setStemmer(StemmerInterface $stemmer)
     {
         $this->engine->setStemmer($stemmer);
     }
 
     /**
-     * @param string $language  - one of: no, arabic, croatian, german, italian, porter, portuguese, russian, ukrainian
+     * @param string $language - one of: no, arabic, croatian, german, italian, porter, portuguese, russian, ukrainian
      */
-    public function setLanguage($language = 'no')
+    public function setLanguage(string $language = 'no')
     {
         $this->engine->setLanguage($language);
     }
@@ -104,17 +104,17 @@ class TNTIndexer
     /**
      * @param PDO $index
      */
-    public function setIndex($index)
+    public function setIndex(PDO $index)
     {
         $this->engine->setIndex($index);
     }
 
-    public function setFileReader($filereader)
+    public function setFileReader(FileReaderInterface $filereader)
     {
         $this->engine->filereader = $filereader;
     }
 
-    public function createIndex($indexName)
+    public function createIndex(string $indexName)
     {
         return $this->engine->createIndex($indexName);
     }
@@ -125,12 +125,12 @@ class TNTIndexer
     public function setDatabaseHandle(PDO $dbh)
     {
         $this->dbh = $dbh;
-        if ($this->dbh->getAttribute(PDO::ATTR_DRIVER_NAME) == 'mysql') {
+        if ($this->dbh->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql') {
             $this->dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
         }
     }
 
-    public function query($query)
+    public function query(string $query)
     {
         $this->engine->query = $query;
     }
@@ -140,57 +140,57 @@ class TNTIndexer
         $this->engine->run();
     }
 
-    public function processDocument($row)
+    public function processDocument(Collection $row)
     {
         $this->engine->processDocument($row);
     }
 
-    public function insert($document)
+    public function insert(array $document)
     {
         $this->engine->insert($document);
     }
 
-    public function update($id, $document)
+    public function update(int $id, array $document)
     {
         $this->engine->update($id, $document);
     }
 
-    public function delete($documentId)
+    public function delete(int $documentId)
     {
         $this->engine->delete($documentId);
     }
 
-    public function breakIntoTokens($text)
+    public function breakIntoTokens(string $text)
     {
         return $this->engine->breakIntoTokens($text);
     }
 
-    public function decodeHtmlEntities($value = true)
+    public function decodeHtmlEntities(bool $value = true)
     {
         $this->engine->decodeHTMLEntities = $value;
     }
 
-    public function saveToIndex($stems, $docId)
+    public function saveToIndex(Collection $stems, int $docId)
     {
         $this->engine->saveToIndex($stems, $docId);
     }
 
     /**
-     * @param $stems
+     * @param Collection $stems
      *
      * @return array
      */
-    public function saveWordlist($stems)
+    public function saveWordlist(Collection $stems)
     {
         return $this->engine->saveWordlist($stems);
     }
 
-    public function saveDoclist($terms, $docId)
+    public function saveDoclist(array $terms, int $docId)
     {
         $this->engine->saveDoclist($terms, $docId);
     }
 
-    public function saveHitList($stems, $docId, $termsList)
+    public function saveHitList(array $stems, int $docId, array $termsList)
     {
         $this->engine->saveHitList($stems, $docId, $termsList);
     }
@@ -245,7 +245,7 @@ class TNTIndexer
      */
     public function buildTrigrams($keyword)
     {
-        $t        = "__" . $keyword . "__";
+        $t = "__" . $keyword . "__";
         $trigrams = "";
         for ($i = 0; $i < strlen($t) - 2; $i++) {
             $trigrams .= mb_substr($t, $i, 3) . " ";
@@ -256,7 +256,7 @@ class TNTIndexer
 
     public function info($text)
     {
-        $this->engine->info();
+        $this->engine->info($text);
     }
 
     public function setInMemory($value)

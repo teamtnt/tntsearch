@@ -4,9 +4,9 @@ namespace TeamTNT\TNTSearch\Spell;
 
 class JaroWinklerDistance
 {
-    private $threshold = 0.7;
+    private float $threshold = 0.7;
 
-    public function getDistance($str1, $str2)
+    public function getDistance(string $str1, string $str2)
     {
         $j = $this->jaro($str1, $str2);
         if ($j < $this->threshold) {
@@ -27,7 +27,7 @@ class JaroWinklerDistance
         return $jw;
     }
 
-    public function jaro($str1, $str2)
+    public function jaro(string $str1, string $str2)
     {
         // length of the strings
         $str1_len = strlen($str1);
