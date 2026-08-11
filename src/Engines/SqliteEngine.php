@@ -61,6 +61,8 @@ class SqliteEngine implements EngineInterface
         $this->index = new PDO('sqlite:' . $this->config['storage'] . $indexName);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+        $this->resetIndexState();
+
         if ($this->config['wal']) {
             $this->index->exec("PRAGMA journal_mode=wal;");
         }
@@ -507,6 +509,24 @@ class SqliteEngine implements EngineInterface
         }
         $this->index = new PDO('sqlite:' . $pathToIndex);
         $this->index->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $this->resetIndexState();
+    }
+
+    /**
+     * Reset any state that is tied to a specific index connection.
+     *
+     * The prepared statements and the in-memory term cache are bound to the
+     * previously selected index. When the connection is swapped to another
+     * index (via selectIndex/createIndex) they must be discarded, otherwise
+     * writes would be executed against the previous index and doclist rows
+     * would reference term ids from the wrong index.
+     */
+    protected function resetIndexState()
+    {
+        $this->statementsPrepared = false;
+        unset($this->insertWordlistStmt, $this->selectWordlistStmt, $this->updateWordlistStmt);
+        $this->inMemoryTerms = [];
     }
 
     public function getWordlistByKeyword(string $keyword, bool $isLastWord = false, bool $noLimit = false)

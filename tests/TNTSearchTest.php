@@ -396,6 +396,52 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertInstanceOf(\TeamTNT\TNTSearch\Stemmer\NoStemmer::class, $tnt->getStemmer());
     }
 
+    public function testSwitchingIndexesDoesNotCorruptPreviousIndex()
+    {
+        $config           = $this->config;
+        $config['engine'] = SqliteEngine::class;
+
+        $artistsIndex = 'artists.index';
+        $songsIndex   = 'songs.index';
+
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($config);
+
+        // Index the first collection (artists).
+        $artistsIndexer = $tnt->createIndex($artistsIndex);
+        $artistsIndexer->disableOutput(true);
+        $artistsIndexer->insert(['id' => 1, 'name' => 'Ambient']);
+
+        // Switch to a second index and index into it. Before the fix the
+        // prepared statements and in-memory term cache still pointed at the
+        // artists index, so these terms were written to the wrong index.
+        $songsIndexer = $tnt->createIndex($songsIndex);
+        $songsIndexer->disableOutput(true);
+        $songsIndexer->insert(['id' => 1, 'title' => 'Tony Anderson - The King']);
+
+        // The song must be findable in the songs index.
+        $tnt->selectIndex($songsIndex);
+        $res = $tnt->search('Anderson');
+        $this->assertEquals([1], $res['ids'], 'Song terms should be written to the songs index');
+
+        // The artists index must not have been polluted with song terms.
+        $tnt->selectIndex($artistsIndex);
+        $res = $tnt->search('Anderson');
+        $this->assertEmpty($res['ids'], 'Song terms must not leak into the artists index');
+
+        $res = $tnt->search('Ambient');
+        $this->assertEquals([1], $res['ids'], 'The artists index should still be intact');
+
+        foreach ([$artistsIndex, $songsIndex] as $index) {
+            foreach (['', '-wal', '-shm'] as $suffix) {
+                $file = $config['storage'] . $index . $suffix;
+                if (file_exists($file)) {
+                    unlink($file);
+                }
+            }
+        }
+    }
+
     public function tearDown(): void
     {
         if (file_exists(__DIR__ . "/" . $this->indexName)) {
