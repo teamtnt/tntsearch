@@ -81,7 +81,7 @@ class RedisEngine implements EngineInterface
             $this->setTokenizer(new $this->config['tokenizer']);
         }
 
-        if (!$this->dbh) {
+        if (!isset($this->dbh)) {
             $dbh = $this->createConnector($this->config)->connect($this->config);
 
             if ($dbh instanceof PDO) {
