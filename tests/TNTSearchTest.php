@@ -512,6 +512,92 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertContains(20, $res['ids'], 'The exact match must be preserved');
     }
 
+    // Issue #278: searchBoolean() must return the same shape as search(),
+    // including a 'docScores' key (the Scout driver reads it unconditionally).
+    public function testSearchBooleanReturnsDocScoresKey()
+    {
+        $config           = $this->config;
+        $config['engine'] = SqliteEngine::class;
+
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($config);
+        $indexer = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput(true);
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+        $res = $tnt->searchBoolean('romeo');
+
+        $this->assertArrayHasKey('docScores', $res);
+        $this->assertArrayHasKey('ids', $res);
+    }
+
+    // Issues #263 / #246 / #267: "-term" negation in boolean search must
+    // exclude like "~term", not union the NOT set, and must not crash on two
+    // negations.
+    public function testBooleanDashNegationExcludesLikeTilde()
+    {
+        $config           = $this->config;
+        $config['engine'] = SqliteEngine::class;
+
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($config);
+        $indexer = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput(true);
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+
+        $this->assertEquals(
+            $tnt->searchBoolean('juliet ~romeo')['ids'],
+            $tnt->searchBoolean('juliet -romeo')['ids']
+        );
+
+        // Two negations must not throw.
+        $res = $tnt->searchBoolean('juliet -romeo -queen');
+        $this->assertIsArray($res['ids']);
+    }
+
+    // Issue #193: fuzzy distance must be measured in characters, not bytes, so
+    // a single-character substitution in a multibyte string counts as 1.
+    public function testMultibyteLevenshtein()
+    {
+        $engine = new SqliteEngine();
+
+        $this->assertEquals(1, $engine->mbLevenshtein('Керол', 'Кэрол'));
+        $this->assertEquals(0, $engine->mbLevenshtein('café', 'café'));
+        // ASCII behaviour is unchanged.
+        $this->assertEquals(3, $engine->mbLevenshtein('kitten', 'sitting'));
+    }
+
+    // Issue #130: an id with no filemap row must map to null, not silently to
+    // $res[0] (array_search returning false coerced to offset 0).
+    public function testFilesystemMapIdsToPathsHandlesMissingId()
+    {
+        $config = [
+            'driver'    => 'filesystem',
+            'engine'    => SqliteEngine::class,
+            'storage'   => __DIR__ . '/_files/',
+            'location'  => __DIR__ . '/_files/articles/',
+            'extension' => 'txt',
+        ];
+
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($config);
+        $indexer = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput(true);
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+
+        $mapped = $tnt->engine->filesystemMapIdsToPaths(new \TeamTNT\TNTSearch\Support\Collection([1, 99999]))->toArray();
+
+        $this->assertNotNull($mapped[0], 'Existing id should map to a filemap row');
+        $this->assertNull($mapped[1], 'Missing id should map to null, not $res[0]');
+    }
+
     public function tearDown(): void
     {
         if (file_exists(__DIR__ . "/" . $this->indexName)) {

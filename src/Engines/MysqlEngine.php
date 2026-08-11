@@ -322,7 +322,7 @@ class MysqlEngine extends SqliteEngine
 
         $resultSet = [];
         foreach ($matches as $match) {
-            $distance = levenshtein($match['term'], $keyword);
+            $distance = $this->mbLevenshtein($match['term'], $keyword);
             if ($distance <= $this->fuzzy_distance) {
                 $match['distance'] = $distance;
                 $resultSet[] = $match;

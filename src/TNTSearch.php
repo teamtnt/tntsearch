@@ -250,6 +250,7 @@ class TNTSearch
         return [
             'ids' => $docs->toArray(),
             'hits' => $docs->count(),
+            'docScores' => [],
             'execution_time' => round($stopTimer - $startTimer, 7) * 1000 . " ms",
         ];
     }

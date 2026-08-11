@@ -628,7 +628,9 @@ class SqliteEngine implements EngineInterface
 
         return $docs->map(function ($key) use ($res) {
             $index = array_search($key, array_column($res, 'id'));
-            return $res[$index];
+            // array_search returns false when the id has no filemap row;
+            // $res[false] would silently coerce to $res[0] (Undefined offset).
+            return $index === false ? null : $res[$index];
         });
     }
 
@@ -648,7 +650,7 @@ class SqliteEngine implements EngineInterface
 
         $resultSet = [];
         foreach ($matches as $match) {
-            $distance = levenshtein($match['term'], $keyword);
+            $distance = $this->mbLevenshtein($match['term'], $keyword);
             if ($distance <= $this->fuzzy_distance) {
                 $match['distance'] = $distance;
                 $resultSet[] = $match;
