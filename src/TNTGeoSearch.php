@@ -68,7 +68,11 @@ class TNTGeoSearch extends TNTSearch
         $locations = new Collection($stmtDoc->fetchAll(PDO::FETCH_ASSOC));
 
         $locations = $locations->map(function ($location) use ($distance) {
-            $location['distance'] = acos($location['distance']) * $this->earthRadius;
+            // Clamp to acos()'s valid domain: floating-point rounding can push
+            // the computed cosine marginally outside [-1, 1], which would make
+            // acos() return NAN and silently drop the (often closest) result.
+            $cosine               = max(-1.0, min(1.0, (float) $location['distance']));
+            $location['distance'] = acos($cosine) * $this->earthRadius;
 
             if ($location['distance'] <= $distance) {
                 return $location;

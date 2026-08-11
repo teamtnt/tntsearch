@@ -35,6 +35,31 @@ class TNTGeoSearchTest extends PHPUnit\Framework\TestCase
         $this->assertEquals(2, $cities['hits']);
     }
 
+    /**
+     * Issue #357: querying the exact coordinates of an indexed location makes
+     * the computed cosine round marginally above 1.0, so acos() returned NAN
+     * and the (closest, distance-0) result was silently dropped.
+     */
+    public function testFindNearestAtExactIndexedLocationIsReturned()
+    {
+        // City 9389 in the fixture is stored at exactly this coordinate.
+        $currentLocation = [
+            'longitude' => 11.5833,
+            'latitude'  => 48.15,
+        ];
+
+        $citiesIndex = new TNTGeoSearch();
+        $citiesIndex->loadConfig($this->config);
+        $citiesIndex->selectIndex($this->indexName);
+
+        $cities = $citiesIndex->findNearest($currentLocation, 50, 5);
+
+        $this->assertContains(9389, $cities['ids']);
+        foreach ($cities['distances'] as $d) {
+            $this->assertFalse(is_nan($d), 'Distance must never be NAN');
+        }
+    }
+
     public function tearDown(): void
     {
         if (file_exists(__DIR__ . '/../_files/' . $this->indexName)) {
