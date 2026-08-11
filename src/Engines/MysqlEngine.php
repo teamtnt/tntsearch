@@ -179,7 +179,7 @@ class MysqlEngine extends SqliteEngine
             }
 
             $this->index->exec('INSERT INTO ' . $this->indexName . '_wordlist (term, num_hits, num_docs) VALUES ' . implode(',',
-                    $insertRows) . ' ON DUPLICATE KEY UPDATE num_docs=num_docs+VALUES(num_docs), num_hits=num_hits+VALUES(num_docs)');
+                    $insertRows) . ' ON DUPLICATE KEY UPDATE num_docs=num_docs+VALUES(num_docs), num_hits=num_hits+VALUES(num_hits)');
 
             $termIds = $this->index->query('SELECT id, term FROM ' . $this->indexName . '_wordlist WHERE term IN (' . implode(',',
                     array_map([$this->index, 'quote'], array_keys($termChunk))) . ')');
