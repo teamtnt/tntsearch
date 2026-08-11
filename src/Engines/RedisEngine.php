@@ -213,9 +213,10 @@ class RedisEngine implements EngineInterface
 
     public function saveDoclist(array $terms, int $docId)
     {
+        $countTerms = count($terms);
         foreach ($terms as $term => $docsHits) {
             $redisKey = "{$this->indexName}:doclist:{$term}:{$docId}";
-            $this->redis->hset($redisKey, 'num_hits', $docsHits['num_hits']);
+            $this->redis->hset($redisKey, 'num_hits', $docsHits['num_hits'] / $countTerms);
         }
     }
 

@@ -114,8 +114,7 @@ class TNTSearch
         $keywords = $keywords->map(function ($keyword) {
             return $this->stemmer->stem($keyword);
         });
-        $tfWeight = 1;
-        $dlWeight = 0.5;
+
         $docScores = [];
         $count = $this->totalDocumentsInCollection();
         $noLimit = $this->engine->fuzzy_no_limit;
@@ -127,11 +126,7 @@ class TNTSearch
             foreach ($this->getAllDocumentsForKeyword($term, $noLimit, $isLastKeyword) as $document) {
                 $docID = $document['doc_id'];
                 $tf = $document['hit_count'];
-                $num = ($tfWeight + 1) * $tf;
-                $denom = $tfWeight
-                    * ((1 - $dlWeight) + $dlWeight)
-                    + $tf;
-                $score = $idf * ($num / $denom);
+                $score             = $idf * $tf;
                 $docScores[$docID] = isset($docScores[$docID]) ?
                     $docScores[$docID] + $score : $score;
             }

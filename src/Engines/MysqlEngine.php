@@ -46,7 +46,7 @@ class MysqlEngine extends SqliteEngine
             "CREATE TABLE IF NOT EXISTS {$this->indexName}_doclist (
                     term_id INTEGER,
                     doc_id VARCHAR(255),
-                    hit_count INTEGER);"
+                    hit_count FLOAT);"
         );
 
         $this->index->exec(
@@ -198,13 +198,15 @@ class MysqlEngine extends SqliteEngine
 
     public function saveDoclist(array $terms, int $docId)
     {
+        $countTerms = count($terms);
         $insertRows = [];
         foreach ($terms as $term) {
-            $insertRows[] = '(' . $this->index->quote($term['id']) . ', ' . $this->index->quote($docId) . ', ' . $this->index->quote($term['hits']) . ')';
+            $insertRows[] = '('.$this->index->quote($term['id']).', '.$this->index->quote($docId).', '.$this->index->quote($term['hits'] / $countTerms).')';
         }
 
-        $this->index->exec('INSERT INTO ' . $this->indexName . '_doclist (term_id, doc_id, hit_count) VALUES ' . implode(',',
-                $insertRows) . '');
+        $this->index->exec(
+            'INSERT INTO '.$this->indexName.'_doclist (term_id, doc_id, hit_count) VALUES '.implode(',', $insertRows)
+        );
     }
 
     public function saveHitList(array $stems, int $docId, array $termsList)

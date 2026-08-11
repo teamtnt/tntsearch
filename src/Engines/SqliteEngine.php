@@ -78,7 +78,7 @@ class SqliteEngine implements EngineInterface
         $this->index->exec("CREATE TABLE IF NOT EXISTS doclist (
                     term_id INTEGER,
                     doc_id INTEGER,
-                    hit_count INTEGER)");
+                    hit_count FLOAT)");
 
         $this->index->exec("CREATE TABLE IF NOT EXISTS fields (
                     id INTEGER PRIMARY KEY,
@@ -319,10 +319,11 @@ class SqliteEngine implements EngineInterface
         $insert = 'INSERT INTO doclist (term_id, doc_id, hit_count) VALUES (:id, :doc, :hits)';
         $stmt = $this->index->prepare($insert);
 
+        $countTerms = count($terms);
         foreach ($terms as $term) {
             $stmt->bindValue(':id', $term['id']);
             $stmt->bindValue(':doc', $docId);
-            $stmt->bindValue(':hits', $term['hits']);
+            $stmt->bindValue(':hits', $term['hits'] / $countTerms);
             try {
                 $stmt->execute();
             } catch (\Exception $e) {
