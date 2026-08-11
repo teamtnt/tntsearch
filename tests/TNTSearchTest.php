@@ -442,6 +442,36 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         }
     }
 
+    public function testCreateIndexCreatesMissingStorageDirectory()
+    {
+        $config            = $this->config;
+        $config['engine']  = SqliteEngine::class;
+        $config['storage'] = __DIR__ . '/_files/nested/created/';
+
+        // Make sure we start from a clean slate.
+        @unlink($config['storage'] . $this->indexName);
+        @rmdir($config['storage']);
+        @rmdir(dirname($config['storage']));
+        $this->assertDirectoryDoesNotExist($config['storage']);
+
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($config);
+        $indexer = $tnt->createIndex($this->indexName);
+
+        $this->assertDirectoryExists($config['storage']);
+        $this->assertFileExists($config['storage'] . $this->indexName);
+
+        // Clean up the created files and directories.
+        foreach (['', '-wal', '-shm'] as $suffix) {
+            $file = $config['storage'] . $this->indexName . $suffix;
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+        rmdir($config['storage']);
+        rmdir(dirname($config['storage']));
+    }
+
     public function tearDown(): void
     {
         if (file_exists(__DIR__ . "/" . $this->indexName)) {

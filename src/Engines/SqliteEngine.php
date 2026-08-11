@@ -56,6 +56,10 @@ class SqliteEngine implements EngineInterface
     {
         $this->indexName = $indexName;
 
+        if (!is_dir($this->config['storage'])) {
+            mkdir($this->config['storage'], 0755, true);
+        }
+
         $this->flushIndex($indexName);
 
         $this->index = new PDO('sqlite:' . $this->config['storage'] . $indexName);
