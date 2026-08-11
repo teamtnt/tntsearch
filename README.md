@@ -99,8 +99,24 @@ composer require teamtnt/tntsearch
 | `tokenizer` | no | Tokenizer class. Defaults to `Tokenizer` (Unicode words, keeps digits/`_`/`-`/`@`). |
 | `wal` | no | SQLite Write-Ahead Logging. Defaults to `true`. |
 | `redis_host`, `redis_port` | for redis | Connection for `RedisEngine`. |
+| `options` | no | Extra PDO options passed to the connection, e.g. `[PDO::MYSQL_ATTR_SSL_CA => '/path/ca.pem']` for managed MySQL (PlanetScale, TiDB Cloud) that require TLS. |
 
 Filesystem indexing also uses `location` (directory to scan) and `extension` (e.g. `txt`).
+
+```php
+// Connecting to a managed MySQL provider that requires TLS:
+$tnt->loadConfig([
+    'driver'   => 'mysql',
+    'host'     => 'aws.connect.psdb.cloud',
+    'database' => 'mydb',
+    'username' => 'user',
+    'password' => 'pass',
+    'storage'  => __DIR__ . '/storage/',
+    'options'  => [
+        PDO::MYSQL_ATTR_SSL_CA => '/etc/ssl/cert.pem',
+    ],
+]);
+```
 
 > **Engine choice:** `SqliteEngine` (default) is best for most cases and needs no server. `MysqlEngine` keeps the index in your MySQL DB. `RedisEngine` keeps it in Redis. All expose the same API.
 
