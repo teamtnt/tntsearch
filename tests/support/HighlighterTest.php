@@ -39,4 +39,22 @@ class HighlighterTest extends PHPUnit\Framework\TestCase
         $res = $hl->extractRelevant($words, $fulltext, 100);
         $this->assertEquals("...bla This is a sentence that contains the phrase This is some text and thats it bla bla bla bla...", $res);
     }
+
+    // Issue #274: highlighting term by term re-scanned the markup injected for
+    // earlier terms, so a later term could match an attribute of an already
+    // inserted tag and highlight it too. Each word must be wrapped exactly once.
+    public function testDoesNotHighlightItsOwnMarkup()
+    {
+        $hl   = new Highlighter;
+        $text = "the price and the weight matter";
+
+        $output = $hl->highlight($text, "price weight", 'span', [
+            'simple'     => true,
+            'tagOptions' => ['class' => 'price-weight'],
+        ]);
+
+        // Exactly two opening tags — the injected "price-weight" class must not
+        // itself be highlighted by the second term.
+        $this->assertEquals(2, substr_count($output, '<span'));
+    }
 }

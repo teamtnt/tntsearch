@@ -68,6 +68,7 @@ class Highlighter
         }
 
         $needle = (array)$needle;
+        $terms  = [];
         foreach ($needle as $needle_s) {
             $needle_s = preg_quote($needle_s);
 
@@ -82,8 +83,15 @@ class Highlighter
                 $text = preg_replace($sl_regex, '\1', $text);
             }
 
-            $regex = sprintf($pattern, $needle_s);
-            $text = preg_replace($regex, $highlight, $text);
+            $terms[] = $needle_s;
+        }
+
+        // Highlight every term in a single pass. Replacing term by term would
+        // re-scan the markup injected for previous terms and highlight it too
+        // (e.g. a later term matching an attribute of an already inserted tag).
+        if (!empty($terms)) {
+            $regex = sprintf($pattern, implode('|', $terms));
+            $text  = preg_replace($regex, $highlight, $text);
         }
 
         return $text;
