@@ -627,6 +627,31 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertEquals(1, $index->countDocHitsInWordList('beta'));
     }
 
+    // insert() wraps each document in its own transaction, but must not start a
+    // nested one when a transaction is already open (which would throw). It must
+    // still index correctly inside the caller's transaction.
+    public function testInsertWorksInsideAnOpenTransaction()
+    {
+        $config            = $this->config;
+        $config['engine']  = SqliteEngine::class;
+        $config['stemmer'] = \TeamTNT\TNTSearch\Stemmer\NoStemmer::class;
+
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($config);
+        $indexer = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput(true);
+
+        // Caller opens its own transaction around the insert.
+        $tnt->engine->index->beginTransaction();
+        $indexer->insert(['id' => 1, 'title' => '', 'article' => 'alpha alpha beta']);
+        $tnt->engine->index->commit();
+
+        $tnt->selectIndex($this->indexName);
+        $index = $tnt->getIndex();
+        $this->assertEquals(2, $index->countWordInWordList('alpha'));
+        $this->assertEquals(1, $index->countWordInWordList('beta'));
+    }
+
     public function tearDown(): void
     {
         if (file_exists(__DIR__ . "/" . $this->indexName)) {

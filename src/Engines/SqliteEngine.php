@@ -242,6 +242,40 @@ class SqliteEngine implements EngineInterface
         $this->saveHitList($stems->toArray(), $docId, $terms);
     }
 
+    /**
+     * Index a single document.
+     *
+     * A large document produces thousands of wordlist/doclist writes; without a
+     * surrounding transaction each of those runs as its own implicit commit
+     * (one fsync per statement), which dominates the cost of indexing big
+     * documents one at a time (e.g. a PDF per insert). Wrap the whole document
+     * in a single transaction, unless one is already open (the bulk run()
+     * path already manages its own).
+     */
+    public function insert(array $document)
+    {
+        $ownTransaction = !$this->index->inTransaction();
+
+        if ($ownTransaction) {
+            $this->index->beginTransaction();
+        }
+
+        try {
+            $this->processDocument(new Collection($document));
+            $total = $this->totalDocumentsInCollection() + 1;
+            $this->updateInfoTable('total_documents', $total);
+
+            if ($ownTransaction) {
+                $this->index->commit();
+            }
+        } catch (\Throwable $e) {
+            if ($ownTransaction && $this->index->inTransaction()) {
+                $this->index->rollBack();
+            }
+            throw $e;
+        }
+    }
+
     public function prepareStatementsForIndex()
     {
         if (!$this->statementsPrepared) {
