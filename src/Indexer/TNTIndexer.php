@@ -150,12 +150,12 @@ class TNTIndexer
         $this->engine->insert($document);
     }
 
-    public function update(int $id, array $document)
+    public function update($id, array $document)
     {
         $this->engine->update($id, $document);
     }
 
-    public function delete(int $documentId)
+    public function delete($documentId)
     {
         $this->engine->delete($documentId);
     }
@@ -170,7 +170,7 @@ class TNTIndexer
         $this->engine->decodeHTMLEntities = $value;
     }
 
-    public function saveToIndex(Collection $stems, int $docId)
+    public function saveToIndex(Collection $stems, $docId)
     {
         $this->engine->saveToIndex($stems, $docId);
     }
@@ -185,12 +185,12 @@ class TNTIndexer
         return $this->engine->saveWordlist($stems);
     }
 
-    public function saveDoclist(array $terms, int $docId)
+    public function saveDoclist(array $terms, $docId)
     {
         $this->engine->saveDoclist($terms, $docId);
     }
 
-    public function saveHitList(array $stems, int $docId, array $termsList)
+    public function saveHitList(array $stems, $docId, array $termsList)
     {
         $this->engine->saveHitList($stems, $docId, $termsList);
     }

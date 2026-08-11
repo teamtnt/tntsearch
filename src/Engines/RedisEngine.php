@@ -154,7 +154,7 @@ class RedisEngine implements EngineInterface
         $this->saveToIndex($stems, $documentId);
     }
 
-    public function saveToIndex(Collection $stems, int $docId)
+    public function saveToIndex(Collection $stems, $docId)
     {
         $terms = $this->saveWordlist($stems);
         $this->saveDoclist($terms, $docId);
@@ -211,7 +211,7 @@ class RedisEngine implements EngineInterface
         return $terms;
     }
 
-    public function saveDoclist(array $terms, int $docId)
+    public function saveDoclist(array $terms, $docId)
     {
         foreach ($terms as $term => $docsHits) {
             $redisKey = "{$this->indexName}:doclist:{$term}:{$docId}";
@@ -219,7 +219,7 @@ class RedisEngine implements EngineInterface
         }
     }
 
-    public function saveHitList(array $stems, int $docId, array $termsList)
+    public function saveHitList(array $stems, $docId, array $termsList)
     {
     }
 
@@ -316,7 +316,7 @@ class RedisEngine implements EngineInterface
         return new Collection($documents);
     }
 
-    public function delete(int $documentId)
+    public function delete($documentId)
     {
         // Fetch the terms associated with the given document ID from doclist
         $doclistKey = $this->indexName . ':doclist:*:' . $documentId;

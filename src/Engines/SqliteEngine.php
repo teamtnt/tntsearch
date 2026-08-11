@@ -238,7 +238,7 @@ class SqliteEngine implements EngineInterface
         $this->stopWords = $stopWords;
     }
 
-    public function saveToIndex(Collection $stems, int $docId)
+    public function saveToIndex(Collection $stems, $docId)
     {
         $this->prepareStatementsForIndex();
         $terms = $this->saveWordlist($stems);
@@ -364,7 +364,7 @@ class SqliteEngine implements EngineInterface
         return $terms;
     }
 
-    public function saveDoclist(array $terms, int $docId)
+    public function saveDoclist(array $terms, $docId)
     {
         foreach ($terms as $term) {
             $this->insertDoclistStmt->execute([
@@ -375,7 +375,7 @@ class SqliteEngine implements EngineInterface
         }
     }
 
-    public function saveHitList(array $stems, int $docId, array $termsList)
+    public function saveHitList(array $stems, $docId, array $termsList)
     {
     }
 
@@ -443,7 +443,7 @@ class SqliteEngine implements EngineInterface
         $this->info("Index created: {$this->config['storage']}");
     }
 
-    public function delete(int $documentId)
+    public function delete($documentId)
     {
         $rows = $this->prepareAndExecuteStatement("SELECT * FROM doclist WHERE doc_id = :documentId;", [
             ['key' => ':documentId', 'value' => $documentId],

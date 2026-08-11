@@ -196,7 +196,7 @@ class MysqlEngine extends SqliteEngine
         return $terms;
     }
 
-    public function saveDoclist(array $terms, int $docId)
+    public function saveDoclist(array $terms, $docId)
     {
         $insertRows = [];
         foreach ($terms as $term) {
@@ -207,11 +207,11 @@ class MysqlEngine extends SqliteEngine
                 $insertRows) . '');
     }
 
-    public function saveHitList(array $stems, int $docId, array $termsList)
+    public function saveHitList(array $stems, $docId, array $termsList)
     {
     }
 
-    public function delete(int $documentId)
+    public function delete($documentId)
     {
         $rows = $this->prepareAndExecuteStatement("SELECT * FROM {$this->indexName}_doclist WHERE doc_id = :documentId;",
             [

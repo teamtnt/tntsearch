@@ -127,7 +127,7 @@ trait EngineTrait
         $this->updateInfoTable('tokenizer', get_class($tokenizer));
     }
 
-    public function update(int $id, array $document)
+    public function update($id, array $document)
     {
         $this->delete($id);
         $this->insert($document);

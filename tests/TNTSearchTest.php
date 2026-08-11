@@ -689,6 +689,36 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         @unlink($sourcePath);
     }
 
+    // Issue #365 / #213: document IDs may be non-integer strings (e.g. prefixed
+    // IDs used to combine several tables into one index). Indexing, searching
+    // and deleting must all work with string IDs.
+    public function testSupportsNonIntegerDocumentIds()
+    {
+        $config            = $this->config;
+        $config['engine']  = SqliteEngine::class;
+        $config['stemmer'] = \TeamTNT\TNTSearch\Stemmer\NoStemmer::class;
+
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($config);
+        $indexer = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput(true);
+        $indexer->insert(['id' => 'FP_1', 'content' => 'apple banana']);
+        $indexer->insert(['id' => 'FP_2', 'content' => 'apple cherry']);
+        $indexer->insert(['id' => 'TP_3', 'content' => 'banana date']);
+
+        $tnt->selectIndex($this->indexName);
+
+        $res = $tnt->search('apple');
+        $this->assertCount(2, $res['ids']);
+        $this->assertContains('FP_1', $res['ids']);
+        $this->assertContains('FP_2', $res['ids']);
+
+        // Deleting by a string id works too.
+        $tnt->getIndex()->delete('FP_1');
+        $res = $tnt->search('apple');
+        $this->assertEquals(['FP_2'], $res['ids']);
+    }
+
     public function tearDown(): void
     {
         if (file_exists(__DIR__ . "/" . $this->indexName)) {
