@@ -195,7 +195,11 @@ class SqliteEngine implements EngineInterface
             $this->info("Processed {$counter} rows");
         }
 
-        if ($counter % 10000 !== 0) {
+        // Commit whatever transaction is still open. Using inTransaction()
+        // rather than a "% 10000" heuristic avoids leaving a transaction open
+        // when the row count is an exact multiple of the commit batch size —
+        // which would otherwise roll back the total_documents update below.
+        if ($this->index->inTransaction()) {
             $this->index->commit();
             $this->info("Committed");
         }

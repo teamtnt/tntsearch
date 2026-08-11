@@ -652,6 +652,43 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertEquals(1, $index->countWordInWordList('beta'));
     }
 
+    // run() commits every 10000 rows and reopens a transaction; when the row
+    // count is an exact multiple of that batch size the final transaction was
+    // left open, so the total_documents update was rolled back (leaving it 0).
+    public function testRunSetsTotalDocumentsAtCommitBatchBoundary()
+    {
+        $config             = $this->config;
+        $config['engine']   = SqliteEngine::class;
+        $config['stemmer']  = \TeamTNT\TNTSearch\Stemmer\NoStemmer::class;
+
+        // Exactly 10000 source rows (the commit batch size).
+        $sourcePath = __DIR__ . '/_files/boundary_source.sqlite';
+        @unlink($sourcePath);
+        $src = new PDO('sqlite:' . $sourcePath);
+        $src->exec('CREATE TABLE docs (id INTEGER PRIMARY KEY, content TEXT)');
+        $src->beginTransaction();
+        $stmt = $src->prepare('INSERT INTO docs (id, content) VALUES (:id, :c)');
+        for ($i = 1; $i <= 10000; $i++) {
+            $stmt->execute([':id' => $i, ':c' => 'word' . ($i % 50)]);
+        }
+        $src->commit();
+        $src = null;
+
+        $config['database'] = $sourcePath;
+
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($config);
+        $indexer = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput(true);
+        $indexer->query('SELECT id, content FROM docs;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+        $this->assertEquals(10000, $tnt->totalDocumentsInCollection());
+
+        @unlink($sourcePath);
+    }
+
     public function tearDown(): void
     {
         if (file_exists(__DIR__ . "/" . $this->indexName)) {
