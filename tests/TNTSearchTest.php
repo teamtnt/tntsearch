@@ -598,6 +598,35 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertNull($mapped[1], 'Missing id should map to null, not $res[0]');
     }
 
+    // Guards the wordlist upsert: num_hits must accumulate total occurrences
+    // and num_docs the document frequency across several documents that share
+    // vocabulary.
+    public function testWordlistCountsAccumulateAcrossDocuments()
+    {
+        $config             = $this->config;
+        $config['engine']   = SqliteEngine::class;
+        $config['stemmer']  = \TeamTNT\TNTSearch\Stemmer\NoStemmer::class;
+
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($config);
+        $indexer = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput(true);
+        $indexer->insert(['id' => 1, 'title' => '', 'article' => 'alpha alpha alpha beta beta']);
+        $indexer->insert(['id' => 2, 'title' => '', 'article' => 'alpha alpha']);
+        $indexer->insert(['id' => 3, 'title' => '', 'article' => 'alpha']);
+
+        $tnt->selectIndex($this->indexName);
+        $index = $tnt->getIndex();
+
+        // "alpha": 3 + 2 + 1 = 6 occurrences across 3 documents.
+        $this->assertEquals(6, $index->countWordInWordList('alpha'));
+        $this->assertEquals(3, $index->countDocHitsInWordList('alpha'));
+
+        // "beta": 2 occurrences in a single document.
+        $this->assertEquals(2, $index->countWordInWordList('beta'));
+        $this->assertEquals(1, $index->countDocHitsInWordList('beta'));
+    }
+
     public function tearDown(): void
     {
         if (file_exists(__DIR__ . "/" . $this->indexName)) {

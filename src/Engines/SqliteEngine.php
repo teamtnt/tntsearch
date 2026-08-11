@@ -35,6 +35,7 @@ class SqliteEngine implements EngineInterface
     protected PDOStatement $insertWordlistStmt;
     protected PDOStatement $selectWordlistStmt;
     protected PDOStatement $updateWordlistStmt;
+    protected PDOStatement $insertDoclistStmt;
     public int $steps = 1000;
     public bool $inMemory = true;
     protected array $inMemoryTerms = [];
@@ -244,9 +245,18 @@ class SqliteEngine implements EngineInterface
     public function prepareStatementsForIndex()
     {
         if (!$this->statementsPrepared) {
-            $this->insertWordlistStmt = $this->index->prepare("INSERT INTO wordlist (term, num_hits, num_docs) VALUES (:keyword, :hits, :docs)");
-            $this->selectWordlistStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
-            $this->updateWordlistStmt = $this->index->prepare("UPDATE wordlist SET num_docs = num_docs + :docs, num_hits = num_hits + :hits WHERE term = :keyword");
+            // Single upsert statement: on a duplicate term the counts are
+            // accumulated via the excluded.* values instead of raising a
+            // UNIQUE-constraint exception (which previously forced an UPDATE
+            // plus a full re-prepare of every statement per repeated term).
+            $this->insertWordlistStmt = $this->index->prepare(
+                "INSERT INTO wordlist (term, num_hits, num_docs) VALUES (:keyword, :hits, :docs)
+                 ON CONFLICT(term) DO UPDATE SET
+                    num_hits = num_hits + excluded.num_hits,
+                    num_docs = num_docs + excluded.num_docs"
+            );
+            $this->selectWordlistStmt = $this->index->prepare("SELECT id FROM wordlist WHERE term = :keyword LIMIT 1");
+            $this->insertDoclistStmt  = $this->index->prepare("INSERT INTO doclist (term_id, doc_id, hit_count) VALUES (:id, :doc, :hits)");
             $this->statementsPrepared = true;
         }
     }
@@ -276,42 +286,40 @@ class SqliteEngine implements EngineInterface
         });
 
         foreach ($terms as $key => $term) {
-            try {
-                $this->insertWordlistStmt->bindParam(":keyword", $key);
-                $this->insertWordlistStmt->bindParam(":hits", $term['hits']);
-                $this->insertWordlistStmt->bindParam(":docs", $term['docs']);
-                $this->insertWordlistStmt->execute();
+            // Fast path: an already-seen term only needs its counts bumped and
+            // its id is already cached, so no id lookup is required at all.
+            if ($this->inMemory && isset($this->inMemoryTerms[$key])) {
+                $this->insertWordlistStmt->execute([
+                    ':keyword' => $key,
+                    ':hits'    => $term['hits'],
+                    ':docs'    => $term['docs'],
+                ]);
+                $terms[$key]['id'] = $this->inMemoryTerms[$key];
+                continue;
+            }
 
-                $lastInsertId = $this->index->query('SELECT MAX(id) FROM wordlist')->fetchColumn();
-                $terms[$key]['id'] = $lastInsertId;
+            // Detect insert vs. update via last_insert_rowid(): it only changes
+            // when a new row is actually inserted.
+            $before = (int) $this->index->lastInsertId();
+            $this->insertWordlistStmt->execute([
+                ':keyword' => $key,
+                ':hits'    => $term['hits'],
+                ':docs'    => $term['docs'],
+            ]);
+            $after = (int) $this->index->lastInsertId();
 
-                if ($this->inMemory) {
-                    $this->inMemoryTerms[$key] = $terms[$key]['id'];
-                }
+            if ($after !== $before) {
+                $id = $after;
+            } else {
+                // Existing term that wasn't cached (e.g. inMemory disabled).
+                $this->selectWordlistStmt->execute([':keyword' => $key]);
+                $id = (int) $this->selectWordlistStmt->fetchColumn();
+            }
 
-            } catch (\Exception $e) {
+            $terms[$key]['id'] = $id;
 
-                if ($e->getCode() == 23000) {
-                    $this->updateWordlistStmt->bindValue(':docs', $term['docs']);
-                    $this->updateWordlistStmt->bindValue(':hits', $term['hits']);
-                    $this->updateWordlistStmt->bindValue(':keyword', $key);
-                    $this->updateWordlistStmt->execute();
-                    if (!$this->inMemory) {
-                        $this->selectWordlistStmt->bindValue(':keyword', $key);
-                        $this->selectWordlistStmt->execute();
-                        $res = $this->selectWordlistStmt->fetch(PDO::FETCH_ASSOC);
-                        $terms[$key]['id'] = $res['id'];
-                    } else {
-                        $terms[$key]['id'] = $this->inMemoryTerms[$key];
-                    }
-                } else {
-                    echo "Error while saving wordlist: " . $e->getMessage() . "\n";
-                }
-
-                // Statements must be refreshed, because in this state they have error attached to them.
-                $this->statementsPrepared = false;
-                $this->prepareStatementsForIndex();
-
+            if ($this->inMemory) {
+                $this->inMemoryTerms[$key] = $id;
             }
         }
 
@@ -320,19 +328,12 @@ class SqliteEngine implements EngineInterface
 
     public function saveDoclist(array $terms, int $docId)
     {
-        $insert = 'INSERT INTO doclist (term_id, doc_id, hit_count) VALUES (:id, :doc, :hits)';
-        $stmt = $this->index->prepare($insert);
-
         foreach ($terms as $term) {
-            $stmt->bindValue(':id', $term['id']);
-            $stmt->bindValue(':doc', $docId);
-            $stmt->bindValue(':hits', $term['hits']);
-            try {
-                $stmt->execute();
-            } catch (\Exception $e) {
-                //we have a duplicate
-                echo $e->getMessage();
-            }
+            $this->insertDoclistStmt->execute([
+                ':id'   => $term['id'],
+                ':doc'  => $docId,
+                ':hits' => $term['hits'],
+            ]);
         }
     }
 
@@ -529,7 +530,7 @@ class SqliteEngine implements EngineInterface
     protected function resetIndexState()
     {
         $this->statementsPrepared = false;
-        unset($this->insertWordlistStmt, $this->selectWordlistStmt, $this->updateWordlistStmt);
+        unset($this->insertWordlistStmt, $this->selectWordlistStmt, $this->updateWordlistStmt, $this->insertDoclistStmt);
         $this->inMemoryTerms = [];
     }
 
