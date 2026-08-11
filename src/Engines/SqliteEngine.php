@@ -549,8 +549,21 @@ class SqliteEngine implements EngineInterface
         $res = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
 
         if ($this->fuzziness && (!isset($res[0]) || $noLimit)) {
-            return $this->fuzzySearch($keyword);
+            $fuzzyResults = $this->fuzzySearch($keyword);
+
+            if (isset($res[0])) {
+                // Preserve the exact match — fuzzySearch may drop it when it
+                // falls outside fuzzy_max_expansions — without duplicating it.
+                $res[0]['distance'] = 0;
+                $exactId            = $res[0]['id'];
+                $fuzzyResults       = array_values(array_filter($fuzzyResults, function ($row) use ($exactId) {
+                    return $row['id'] != $exactId;
+                }));
+            }
+
+            array_push($res, ...$fuzzyResults);
         }
+
         return $res;
     }
 

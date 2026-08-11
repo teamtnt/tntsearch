@@ -472,6 +472,46 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         rmdir(dirname($config['storage']));
     }
 
+    public function testFuzzySearchKeepsExactMatchOutsideMaxExpansions()
+    {
+        $config           = $this->config;
+        $config['engine'] = SqliteEngine::class;
+
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($config);
+
+        $indexer = $tnt->createIndex($this->indexName);
+        $indexer->disableOutput(true);
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->run();
+
+        $tnt->selectIndex($this->indexName);
+        $index = $tnt->getIndex();
+
+        // "buzz" is the exact (low-frequency) term we search for. Several other
+        // distinct terms share the fuzzy prefix "bu" and occur far more often,
+        // so with fuzzy_max_expansions=2 the exact match falls outside the
+        // fuzzySearch() candidate window (ordered by num_hits DESC).
+        $index->insert(['id' => '20', 'title' => 'buzz', 'article' => 'buzz']);
+        $frequent = ['bunny', 'bubble', 'budget', 'bucket', 'bundle'];
+        $docId    = 21;
+        foreach ($frequent as $word) {
+            $repeated = trim(str_repeat($word . ' ', 6));
+            $index->insert(['id' => (string) $docId++, 'title' => $word, 'article' => $repeated]);
+        }
+
+        $tnt->fuzziness(true);
+        $tnt->setFuzzyPrefixLength(2);
+        $tnt->setFuzzyMaxExpansions(2);
+        $tnt->fuzzyNoLimit(true);
+
+        // Before the fix, enabling fuzzyNoLimit discarded the exact match and
+        // only the fuzzy candidates (the "bunny" docs) were returned, so the
+        // "buzz" document was lost.
+        $res = $tnt->search('buzz');
+        $this->assertContains(20, $res['ids'], 'The exact match must be preserved');
+    }
+
     public function tearDown(): void
     {
         if (file_exists(__DIR__ . "/" . $this->indexName)) {
