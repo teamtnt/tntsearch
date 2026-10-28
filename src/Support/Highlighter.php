@@ -198,7 +198,7 @@ class Highlighter
         $startpos = $this->_determineSnipLocation($locations, $prevcount);
         // if we are going to snip too much...
         if ($textlength - $startpos < $rellength) {
-            $startpos = $startpos - ($textlength - $startpos) / 2;
+            $startpos = (int) ($startpos - ($textlength - $startpos) / 2);
             $startpos = max($startpos, 0);
         }
 
