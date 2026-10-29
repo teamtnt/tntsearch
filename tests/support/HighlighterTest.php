@@ -40,6 +40,29 @@ class HighlighterTest extends PHPUnit\Framework\TestCase
         $this->assertEquals("...bla This is a sentence that contains the phrase This is some text and thats it bla bla bla bla...", $res);
     }
 
+    // Issue #370: a match near the end of the text, with an odd number of
+    // characters after the snippet start, gave a float start position. This
+    // caused a deprecation notice in mb_substr() on PHP 8.1+.
+    public function testExtractRelevantMatchNearEnd()
+    {
+        $hl       = new Highlighter;
+        $fulltext = str_repeat("bla ", 45) . "needle ends";
+
+        $deprecations = [];
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            $deprecations[] = $errstr;
+            return true;
+        }, E_DEPRECATED);
+        try {
+            $res = $hl->extractRelevant("needle", $fulltext, 100);
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertEquals([], $deprecations);
+        $this->assertEquals("..." . str_repeat("bla ", 20) . "needle ends", $res);
+    }
+
     // Issue #274: highlighting term by term re-scanned the markup injected for
     // earlier terms, so a later term could match an attribute of an already
     // inserted tag and highlight it too. Each word must be wrapped exactly once.
