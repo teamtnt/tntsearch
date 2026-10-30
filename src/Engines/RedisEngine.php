@@ -34,7 +34,9 @@ class RedisEngine implements EngineInterface
     public bool $asYouType = false;
     public bool $fuzziness = false;
     public int $fuzzy_prefix_length = 2;
+    public int $fuzzy_max_expansions = 50;
     public int $fuzzy_distance = 2;
+    public bool $fuzzy_no_limit = false;
     public int $maxDocs = 500;
     public Client $redis;
 

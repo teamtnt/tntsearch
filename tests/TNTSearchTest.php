@@ -719,6 +719,22 @@ class TNTSearchTest extends PHPUnit\Framework\TestCase
         $this->assertEquals(['FP_2'], $res['ids']);
     }
 
+    // Issue #372: RedisEngine must declare the fuzzy properties TNTSearch reads.
+    public function testFuzzyOptionsWithRedisEngine()
+    {
+        $tnt = new TNTSearch;
+        $tnt->loadConfig($this->config);
+
+        $this->assertInstanceOf(RedisEngine::class, $tnt->engine);
+        $this->assertFalse($tnt->getFuzzyNoLimit());
+        $this->assertEquals(50, $tnt->getFuzzyMaxExpansions());
+
+        $tnt->setFuzzyNoLimit(true);
+        $tnt->setFuzzyMaxExpansions(100);
+        $this->assertTrue($tnt->getFuzzyNoLimit());
+        $this->assertEquals(100, $tnt->getFuzzyMaxExpansions());
+    }
+
     public function tearDown(): void
     {
         if (file_exists(__DIR__ . "/" . $this->indexName)) {
