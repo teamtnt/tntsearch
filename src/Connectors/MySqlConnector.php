@@ -64,7 +64,7 @@ class MySqlConnector extends Connector implements ConnectorInterface
         // integers and array_merge() would renumber them, discarding the
         // attributes. Options from $config (via the parent) take precedence.
         return parent::getOptions($config) + [
-            PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => false,
+            \Pdo\Mysql::ATTR_USE_BUFFERED_QUERY => false,
         ];
     }
 
