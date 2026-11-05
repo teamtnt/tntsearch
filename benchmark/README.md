@@ -25,3 +25,17 @@ the first few documents — which is the path index creation spends most of its
 time in. The generator is seeded (`mt_srand`) so runs are reproducible.
 
 Generated files (`dataset.sqlite`, `_index/`) are gitignored.
+
+# Snippet benchmark
+
+Times `Highlighter::extractRelevant()`, which `TNTSearch::snippet()` uses, on
+long documents with frequent matches.
+
+```bash
+# 20 documents of about 75 KB each (the defaults)
+php benchmark/bench_snippet.php 20 75000
+```
+
+It prints the time for each query and a checksum of the snippets, so you can
+compare speed and output between two versions of the code. It needs no
+dataset.

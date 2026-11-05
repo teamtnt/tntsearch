@@ -7,6 +7,9 @@ use TeamTNT\TNTSearch\Tokenizer\TokenizerInterface;
 
 class Highlighter
 {
+    // PCRE cannot compile patterns much longer than 64 KB
+    private const MAX_REGEX_WORD_BYTES = 1000;
+
     protected $options = [
         'simple' => false,
         'wholeWord' => true,
@@ -108,6 +111,59 @@ class Highlighter
      * @return array
      */
     public function _extractLocations(array $words, string $fulltext)
+    {
+        // An empty word matches at every position and never moves forward
+        $words = array_filter($words, function ($word) {
+            return $word !== '';
+        });
+
+        // The regex finds matches in UTF-8 only
+        if (mb_internal_encoding() !== 'UTF-8') {
+            return $this->extractLocationsByCharacterSearch($words, $fulltext);
+        }
+
+        $byteOffsets = [];
+        foreach ($words as $word) {
+            // An invalid UTF-8 or very long pattern causes a compile warning, so do not try it
+            if (strlen($word) > self::MAX_REGEX_WORD_BYTES || !mb_check_encoding($word, 'UTF-8')) {
+                return $this->extractLocationsByCharacterSearch($words, $fulltext);
+            }
+            $found = preg_match_all('/' . preg_quote($word, '/') . '/iu', $fulltext, $matches, PREG_OFFSET_CAPTURE);
+            // False means invalid UTF-8 in $fulltext or a PCRE limit
+            if ($found === false) {
+                return $this->extractLocationsByCharacterSearch($words, $fulltext);
+            }
+            foreach ($matches[0] as $match) {
+                $byteOffsets[] = $match[1];
+            }
+        }
+        $byteOffsets = array_unique($byteOffsets);
+        sort($byteOffsets);
+
+        // Convert the byte offsets to character offsets in one pass over the text
+        $locations = [];
+        $previousByte = 0;
+        $characters = 0;
+        foreach ($byteOffsets as $byteOffset) {
+            $characters += mb_strlen(substr($fulltext, $previousByte, $byteOffset - $previousByte));
+            $locations[] = $characters;
+            $previousByte = $byteOffset;
+        }
+
+        return $locations;
+    }
+
+    /**
+     * Find the character offsets of each word with mb_stripos().
+     * This is slow on long text, because each call counts characters from the start of the text.
+     * Use it only when the regex in _extractLocations() cannot do the search.
+     *
+     * @param array $words
+     * @param string $fulltext
+     *
+     * @return array
+     */
+    private function extractLocationsByCharacterSearch(array $words, string $fulltext)
     {
         $locations = [];
         foreach ($words as $word) {
